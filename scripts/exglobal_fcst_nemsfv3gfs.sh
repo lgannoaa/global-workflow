@@ -20,19 +20,7 @@
 # 2019-03-21  Fanglin Yang   Add restart capability for running gfs fcst from a break point.
 # 2019-12-12  Henrique Alves Added wave model blocks for coupled run
 # 2020-01-31  Henrique Alves Added IAU capability for wave component
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-# 2020-06-02  Fanglin Yang   restore restart capability when IAU is turned on.
-=======
 # 2020-06-02  Fanglin Yang   restore restart capability when IAU is turned on.                     
->>>>>>> feature/ccpp
-=======
-# 2020-06-02  Fanglin Yang   restore restart capability when IAU is turned on.                     
->>>>>>> feature/ccpp
-=======
-# 2020-06-02  Fanglin Yang   restore restart capability when IAU is turned on.                     
->>>>>>> feature/ccpp
 #
 # $Id$
 #
@@ -171,7 +159,7 @@ fi
 #-------------------------------------------------------
 # determine if restart IC exists to continue from a previous forecast
 RERUN="NO"
-filecount=$(find $RSTDIR_TMP -type f | wc -l)
+filecount=$(find $RSTDIR_TMP -type f | wc -l) 
 if [ $CDUMP = "gfs" -a $rst_invt1 -gt 0 -a $FHMAX -gt $rst_invt1 -a $filecount -gt 10 ]; then
     reverse=$(echo "${restart_interval[@]} " | tac -s ' ')
     for xfh in $reverse ; do
@@ -182,37 +170,13 @@ if [ $CDUMP = "gfs" -a $rst_invt1 -gt 0 -a $FHMAX -gt $rst_invt1 -a $filecount -
         flag1=$RSTDIR_TMP/${PDYS}.${cycs}0000.coupler.res
         flag2=$RSTDIR_TMP/coupler.res
         if [ -s $flag1 ]; then
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-            CDATE_RST=$SDATE
-=======
             CDATE_RST=$SDATE          
->>>>>>> feature/ccpp
-=======
-            CDATE_RST=$SDATE          
->>>>>>> feature/ccpp
-=======
-            CDATE_RST=$SDATE          
->>>>>>> feature/ccpp
             [[ $RERUN = "YES" ]] && break
             mv $flag1 ${flag1}.old
             if [ -s $flag2 ]; then mv $flag2 ${flag2}.old ;fi
             RERUN="YES"
             [[ $xfh = $rst_invt1 ]] && RERUN="NO"
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        fi
-=======
         fi 
->>>>>>> feature/ccpp
-=======
-        fi 
->>>>>>> feature/ccpp
-=======
-        fi 
->>>>>>> feature/ccpp
     done
 fi
 
@@ -359,18 +323,6 @@ EOF
       IAU_INC_FILES="''"
     fi
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-    if [ $DOIAU = "YES" ]; then
-      IAUFHRS=-1
-      IAU_DELTHRS=0
-      IAU_INC_FILES="''"
-    fi
-=======
->>>>>>> feature/ccpp
-=======
->>>>>>> feature/ccpp
 
   fi
 #.............................
