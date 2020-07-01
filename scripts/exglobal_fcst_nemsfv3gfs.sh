@@ -20,7 +20,11 @@
 # 2019-03-21  Fanglin Yang   Add restart capability for running gfs fcst from a break point.
 # 2019-12-12  Henrique Alves Added wave model blocks for coupled run
 # 2020-01-31  Henrique Alves Added IAU capability for wave component
+<<<<<<< HEAD
 # 2020-06-02  Fanglin Yang   restore restart capability when IAU is turned on.
+=======
+# 2020-06-02  Fanglin Yang   restore restart capability when IAU is turned on.                     
+>>>>>>> feature/ccpp
 #
 # $Id$
 #
@@ -170,13 +174,21 @@ if [ $CDUMP = "gfs" -a $rst_invt1 -gt 0 -a $FHMAX -gt $rst_invt1 -a $filecount -
         flag1=$RSTDIR_TMP/${PDYS}.${cycs}0000.coupler.res
         flag2=$RSTDIR_TMP/coupler.res
         if [ -s $flag1 ]; then
+<<<<<<< HEAD
             CDATE_RST=$SDATE
+=======
+            CDATE_RST=$SDATE          
+>>>>>>> feature/ccpp
             [[ $RERUN = "YES" ]] && break
             mv $flag1 ${flag1}.old
             if [ -s $flag2 ]; then mv $flag2 ${flag2}.old ;fi
             RERUN="YES"
             [[ $xfh = $rst_invt1 ]] && RERUN="NO"
+<<<<<<< HEAD
         fi
+=======
+        fi 
+>>>>>>> feature/ccpp
     done
 fi
 
@@ -316,6 +328,13 @@ EOF
       file2=$(echo $file2 | cut -d. -f3-) 
       $NLN $file $DATA/INPUT/$file2
     done
+   
+    if [ $DOIAU = "YES" ]; then
+      IAUFHRS=-1         
+      IAU_DELTHRS=0
+      IAU_INC_FILES="''"
+    fi
+
 
     if [ $DOIAU = "YES" ]; then
       IAUFHRS=-1
