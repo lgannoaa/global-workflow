@@ -21,7 +21,11 @@
 # 2019-12-12  Henrique Alves Added wave model blocks for coupled run
 # 2020-01-31  Henrique Alves Added IAU capability for wave component
 <<<<<<< HEAD
+<<<<<<< HEAD
 # 2020-06-02  Fanglin Yang   restore restart capability when IAU is turned on.
+=======
+# 2020-06-02  Fanglin Yang   restore restart capability when IAU is turned on.                     
+>>>>>>> feature/ccpp
 =======
 # 2020-06-02  Fanglin Yang   restore restart capability when IAU is turned on.                     
 >>>>>>> feature/ccpp
@@ -175,7 +179,11 @@ if [ $CDUMP = "gfs" -a $rst_invt1 -gt 0 -a $FHMAX -gt $rst_invt1 -a $filecount -
         flag2=$RSTDIR_TMP/coupler.res
         if [ -s $flag1 ]; then
 <<<<<<< HEAD
+<<<<<<< HEAD
             CDATE_RST=$SDATE
+=======
+            CDATE_RST=$SDATE          
+>>>>>>> feature/ccpp
 =======
             CDATE_RST=$SDATE          
 >>>>>>> feature/ccpp
@@ -185,7 +193,11 @@ if [ $CDUMP = "gfs" -a $rst_invt1 -gt 0 -a $FHMAX -gt $rst_invt1 -a $filecount -
             RERUN="YES"
             [[ $xfh = $rst_invt1 ]] && RERUN="NO"
 <<<<<<< HEAD
+<<<<<<< HEAD
         fi
+=======
+        fi 
+>>>>>>> feature/ccpp
 =======
         fi 
 >>>>>>> feature/ccpp
@@ -335,12 +347,15 @@ EOF
       IAU_INC_FILES="''"
     fi
 
+<<<<<<< HEAD
 
     if [ $DOIAU = "YES" ]; then
       IAUFHRS=-1
       IAU_DELTHRS=0
       IAU_INC_FILES="''"
     fi
+=======
+>>>>>>> feature/ccpp
 
   fi
 #.............................

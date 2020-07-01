@@ -104,7 +104,11 @@ else
         export landice=".false."      ##JKH
     else
 <<<<<<< HEAD
+<<<<<<< HEAD
         export lheatstrg=".false."
+=======
+        export lheatstrg=".false."    
+>>>>>>> feature/ccpp
 =======
         export lheatstrg=".false."    
 >>>>>>> feature/ccpp
@@ -303,10 +307,14 @@ elif [[ "$CDUMP" == "gfs" ]] ; then # GFS cycle specific parameters
         export restart_interval="$rst_list"
     fi
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> feature/ccpp
 
+=======
+
+>>>>>>> feature/ccpp
     
     # Choose coupling with wave
     if [ $DO_WAVE = "YES" -a "$WAVE_CDUMP" != "gdas" ]; then 
@@ -318,14 +326,20 @@ elif [[ "$CDUMP" == "gfs" ]] ; then # GFS cycle specific parameters
 
     # Write each restart file in 16 small files to save time
 <<<<<<< HEAD
+<<<<<<< HEAD
     export io_layout="4,4"
 =======
+=======
+>>>>>>> feature/ccpp
     #export io_layout="4,4"                   ## JKH
 
     # Debug load balancing 
     #export KEEPDATA="YES"
     #export ESMF_RUNTIME_PROFILE=ON
     #export ESMF_RUNTIME_PROFILE_OUTPUT=SUMMARY
+<<<<<<< HEAD
+>>>>>>> feature/ccpp
+=======
 >>>>>>> feature/ccpp
 
 fi

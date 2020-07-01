@@ -164,7 +164,11 @@ export prevday=`$NDATE -24 ${PDY}00 | cut -c1-8`
 
 # ERIC ENGLE 05/30/2018 - PATCH FOR FV3GFS WINTER 17/18 PARALLEL
 <<<<<<< HEAD
+<<<<<<< HEAD
 export range=short 
+=======
+export range=${range:-"both"}
+>>>>>>> feature/ccpp
 =======
 export range=${range:-"both"}
 >>>>>>> feature/ccpp

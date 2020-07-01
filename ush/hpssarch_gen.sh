@@ -390,6 +390,7 @@ if [ $type = "enkfgdas" -o $type = "enkfgfs" ]; then
                 echo "${dirname}${head}atmanl${SUFFIX}      " >>enkf${CDUMP}_grp${n}.txt
             fi
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    if [ -s $ROTDIR/${dirpath}${head}atminc${SUFFIX} ] ; then
 		echo "${dirname}${head}atminc${SUFFIX}      " >>enkf${CDUMP}_grp${n}.txt
 	    fi
@@ -406,6 +407,15 @@ if [ $type = "enkfgdas" -o $type = "enkfgfs" ]; then
              echo "${dirname}${head}ratminc${SUFFIX}      " >>enkf${CDUMP}_restarta_grp${n}.txt
          fi
 >>>>>>> feature/ccpp
+=======
+	    if [ -s $ROTDIR/${dirpath}${head}ratminc${SUFFIX} ] ; then
+		echo "${dirname}${head}ratminc${SUFFIX}      " >>enkf${CDUMP}_grp${n}.txt
+	    fi
+         fi
+         if [ -s $ROTDIR/${dirpath}${head}ratminc${SUFFIX} ] ; then
+             echo "${dirname}${head}ratminc${SUFFIX}      " >>enkf${CDUMP}_restarta_grp${n}.txt
+         fi
+>>>>>>> feature/ccpp
 
       else
          if [ $n -le $NTARS2 ]; then
@@ -413,9 +423,12 @@ if [ $type = "enkfgdas" -o $type = "enkfgfs" ]; then
                  echo "${dirname}${head}atma00${FHR}${SUFFIX}      " >>enkf${CDUMP}_grp${n}.txt
              fi
 <<<<<<< HEAD
+<<<<<<< HEAD
              if [ -s $ROTDIR/${dirpath}${head}atmi00${FHR}${SUFFIX} ] ; then
                  echo "${dirname}${head}atmi00${FHR}${SUFFIX}      " >>enkf${CDUMP}_grp${n}.txt
 =======
+=======
+>>>>>>> feature/ccpp
              if [ -s $ROTDIR/${dirpath}${head}ratmi00${FHR}${SUFFIX} ] ; then
                  echo "${dirname}${head}ratmi00${FHR}${SUFFIX}      " >>enkf${CDUMP}_grp${n}.txt
 >>>>>>> feature/ccpp
