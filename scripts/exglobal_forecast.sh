@@ -194,6 +194,27 @@ if [ $CDUMP = "gfs" -a $rst_invt1 -gt 0 -a $FHMAX -gt $rst_invt1 -a $filecount -
 fi
 
 #-------------------------------------------------------
+
+#### determine WAVE restart
+#-------------------------------------------------------
+if [ $RERUN = "YES" -a $cplwav = ".true." ]; then
+  for xfh in $reverse ; do
+    yfh=$((xfh-(IAU_OFFSET/2)))
+        SDATE=$($NDATE +$yfh $CDATE)
+        PDYS=$(echo $SDATE | cut -c1-8)
+        cycs=$(echo $SDATE | cut -c9-10)
+        flag1=${RSTDIR_WAVE}/${PDYS}.${cycs}0000.restart.aoc_9km
+        flag2=${RSTDIR_WAVE}/${PDYS}.${cycs}0000.restart.gsh_15m
+        flag3=${RSTDIR_WAVE}/${PDYS}.${cycs}0000.restart.gnh_10m
+        if [ -s $flag1 -a -s $flag2 -a -s $flag3 ]; then
+            CDATE_RST_WAVE=$SDATE
+            break
+        fi
+  done
+fi
+#-------------------------------------------------------
+
+
 # member directory
 if [ $MEMBER -lt 0 ]; then
   prefix=$CDUMP
@@ -447,10 +468,10 @@ if [ $cplwav = ".true." ]; then
       fi
       $NLN ${WRDIR}/${sPDY}.${scyc}0000.restart.${wavGRD} $DATA/restart.${wavGRD}
     else
-      if [ ! -f ${RSTDIR_WAVE}/${PDYT}.${cyct}0000.restart.${wavGRD} ]; then
-        echo "WARNING: NON-FATAL ERROR wave IC is missing, will start from rest"
-      fi
-      $NLN ${RSTDIR_WAVE}/${PDYT}.${cyct}0000.restart.${wavGRD} $DATA/restart.${wavGRD}
+####  Processing CDATE_RST_WAVE
+      PDYT_WAVE=$(echo $CDATE_RST_WAVE | cut -c1-8)
+      cyct_WAVE=$(echo $CDATE_RST_WAVE | cut -c9-10)
+      $NLN ${RSTDIR_WAVE}/${PDYT_WAVE}.${cyct_WAVE}0000.restart.${wavGRD} $DATA/restart.${wavGRD}
     fi
     eval $NLN $datwave/${wavprfx}.log.${wavGRD}.${PDY}${cyc} log.${wavGRD}
   done
