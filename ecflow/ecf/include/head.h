@@ -22,10 +22,16 @@ else
     # WCOSS Phase 3 (Dell PowerEdge)
     . /usrx/local/prod/lmod/lmod/init/sh
     . /gpfs/dell1/nco/ops/nwprod/versions/ecflow_p3.ver
+#    export EnvVars_ver=1.0.3
+#    export ips_ver=18.0.1.163
+#    export ecflow_ver=4.7.1
     module load ips/$ips_ver
     module load EnvVars/$EnvVars_ver
     module load ecflow/$ecflow_ver
     POST_OUT=/var/lsf/ecflow_post_in.$USER.$LSB_BATCH_JID
+
+    export ECF_PORT=31867
+
 fi
 ecflow_client --init=${ECF_RID}
 

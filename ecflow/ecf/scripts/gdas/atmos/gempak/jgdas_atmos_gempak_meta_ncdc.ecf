@@ -1,9 +1,9 @@
-#BSUB -L /bin/sh
-#BSUB -J %E%gdas_atmos_gempak_meta_ncdc_%CYC%
-#BSUB -o %COM%/output/%ENVIR%/today/gdas_atmos_gempak_meta_ncdc_%CYC%.o%J
+#! /bin/sh
 #BSUB -q %QUEUE%
 #BSUB -P %PROJ%
-#BSUB -W 0:30
+#BSUB -J %E%gdas_atmos_gempak_meta_ncdc_%CYC%
+#BSUB -o %COM%/output/%ENVIR%/today/gdas_atmos_gempak_meta_ncdc_%CYC%.o%J
+#BSUB -W 0:10
 #BSUB -n 2
 #BSUB -R affinity[core(1)]
 #BSUB -R span[ptile=1]
@@ -30,19 +30,25 @@ module load impi/$impi_ver
 module load EnvVars/$EnvVars_ver
 module load lsf/$lsf_ver                               
 module load CFP/$CFP_ver
+module load gempak/$gempak_ver
 module load grib_util/$grib_util_ver
-module load gempak/${gempak_ver}
 
 module list
 
+export COMPONENT=${COMPONENT:-atmos}
+export COM_IN=%COM%/$NET/$envir
+export ROTDIR=%COM%/$NET/$envir
 export cyc=%CYC%
 export cycle=t%CYC%z
+export COMIN=$COM_IN/${RUN}.${PDY}/${cyc}/${COMPONENT}/gempak
+export COMOUT=$COM_IN/${RUN}.${PDY}/${cyc}/${COMPONENT}/gempak/meta
+export COMINgdas=$COM_IN/${RUN}
 export USE_CFP=YES
 
 ############################################################
 # CALL executable job script here
 ############################################################
-${HOMEgfs}/jobs/JGDAS_ATMOS_GEMPAK_META_NCDC
+${HOMEgfs}/jobs/JGDAS_GEMPAK_META_NCDC
 
 if [ $? -ne 0 ]; then
    ecflow_client --msg="***JOB ${ECF_NAME} ERROR RUNNING J-SCRIPT ***"

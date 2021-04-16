@@ -13,10 +13,6 @@
 
 set -x
 
-export NET=%NET:gfs%
-export RUN=%RUN%
-export CDUMP=%RUN%
-
 export model=obsproc_global
 %include <model_ver.h>
 
@@ -24,9 +20,10 @@ export model=obsproc_global
 ## Load modules
 ##############################################################
 # . $MODULESHOME/init/sh
+module load EnvVars/$EnvVars_ver
 module load ips/$ips_ver
 module load impi/$impi_ver
-module load CFP/$CFP_ver
+module load CFP/$cfp_ver
 module list
 
 #############################################################
@@ -38,7 +35,10 @@ module list
 
 set -x
 export cyc=%CYC%
-export COMPONENT=${COMPONENT:-atmos}
+
+#export PROCESS_DATACOUNTS=NO
+####
+export ECF_PORT=%ECF_PORT%
 
 # CALL executable job script here
 $HOMEobsproc_global/jobs/JGLOBAL_DUMP_POST

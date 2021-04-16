@@ -1,0 +1,69 @@
+#! /bin/sh
+set -x
+
+. /usrx/local/prod/lmod/lmod/init/sh
+module load prod_envir/1.0.2 prod_util/1.1.0 ips/18.0.1.163 ecflow/4.7.1
+POST_OUT=/var/lsf/ecflow_post_in.$$
+
+export CDUMP="gdas"
+export cyc=%CYC%
+export cycle=t${cyc}z
+export DATAROOT=%DATAROOT%
+
+if [ -n "%PDY:%" ]; then export PDY=${PDY:-%PDY:%}; fi
+%include <emc_cdate.h>
+
+export ECF_NAME=%ECF_NAME%
+export ECF_HOST=m72z2
+export ECF_PORT=%ECF_PORT%
+export ECF_PASS=%ECF_PASS%
+export ECF_TRYNO=%ECF_TRYNO%
+export ECF_RID=$$
+
+ecflow_client --init=$ECF_RID
+
+#### Used to compare EMC para to NCO para
+####   abort when CMP failed
+if [ "%CMP_PARA:%" ]; then
+  echo "***CMP_PARA is set cmp COM and para ctrl***"
+  ecflow_client --label=info "CMP output against para ctrl..."
+  sleep 20
+  export COMIN="%COM%/$CDUMP.$PDY/$cyc/gdas.$cycle.atmf003.nemsio"
+  export COMIN_RT="/gpfs/dell1/nco/ops/com/gfs/para/$CDUMP.$PDY/$cyc/gdas.$cycle.atmf003.nemsio"
+  if [ -f $COMIN_RT ]; then
+    cmp $COMIN_RT $COMIN
+  fi
+  if [ $? -ne 0 ]; then
+     ecflow_client --label=info "CMP failed set job to abort!"
+     ecflow_client --msg="***JOB ${ECF_NAME} ERROR RUNNING J-SCRIPT ***"
+     ecflow_client --msg="*** This cycle does not reproduce ***"
+     ecflow_client --abort
+     exit
+  fi
+else
+  echo "***CMP_PARA is not set skip cmp process***"
+fi
+#### Used to compare EMC para to NCO para
+
+setpdy.sh
+#### Save current PDY
+# Current PDY: $PDY
+# Next PDY: $PDYp1
+
+#### Wait for archive step of the cycle+2 finish; set PDY as for next day then set self to complete
+if [ $cyc == 00 ]; then cyc_to_wait="06"; fi
+if [ $cyc == 06 ]; then cyc_to_wait="12"; fi
+if [ $cyc == 12 ]; then cyc_to_wait="18"; fi
+if [ $cyc == 18 ]; then cyc_to_wait="00"; fi
+ecflow_client --label=info "Waiting for cycle $cyc_to_wait dependency..."
+ecflow_client --wait="/prod$cyc_to_wait/gdas/analysis/jgdas_analysis == complete and /prod$cyc_to_wait/gdas/enkf/jgdas_enkf_select_obs == complete and /prod$cyc_to_wait/gfs/jgfs_analysis == complete"
+ecflow_client --alter change variable PDY $PDYp1 /prod$cyc
+ecflow_client --label=info "PDY is now set to $PDYp1 ..."
+ecflow_client --msg="***EMC parallel $PDY$cyc is done successfully cycle $PDYp1$cyc is in quote next***"
+#ecflow_client --complete
+ecflow_client --requeue=force /prod$cyc
+#ecflow_client --requeue=force /prod$cyc/cycle_end
+%include <tail.h>
+%manual
+
+%end
