@@ -3,7 +3,7 @@
 #BSUB -P %PROJ%
 #BSUB -J %E%gdasi_atmos_enkf_chgres_%CYC%
 #BSUB -o %COM%/output/%ENVIR%/today/gdas_atmos_enkf_chgres_%CYC%.o%J
-#BSUB -W 1:00
+#BSUB -W 0:10
 #BSUB -n 3
 #BSUB -R affinity[core(28)]
 #BSUB -R span[ptile=1]

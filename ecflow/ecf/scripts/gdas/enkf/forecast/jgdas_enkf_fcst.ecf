@@ -4,7 +4,7 @@
 #BSUB -J %E%gdas_enkf_fcst_%ENSGRP%_%CYC%
 #BSUB -o %COM%/output/%ENVIR%/today/gdas_enkf_fcst_%ENSGRP%_%CYC%.o%J
 #BSUB -W 0:40
-#BSUB -n 420
+#BSUB -n 140
 #BSUB -R affinity[core(1)]
 #BSUB -R span[ptile=28]
 #BSUB -cwd /tmp
@@ -15,8 +15,8 @@ module purge
 
 set -x
 
-export NODES=15
-export ntasks=420
+export NODES=5
+export ntasks=140
 export ptile=28
 export threads=1
 

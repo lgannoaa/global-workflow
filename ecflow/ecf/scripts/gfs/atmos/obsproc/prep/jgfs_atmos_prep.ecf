@@ -4,9 +4,9 @@
 #BSUB -cwd /tmp
 #BSUB -q %QUEUE%
 #BSUB -P %PROJ%
-#BSUB -W 00:20
-#BSUB -R span[ptile=3]; -R affinity[core]
-#BSUB -n 3
+#BSUB -W 00:45
+#BSUB -R span[ptile=2]; -R affinity[core]
+#BSUB -n 4
 
 %include <head.h>
 %include <envir-p3.h>
