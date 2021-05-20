@@ -57,6 +57,7 @@ export TMPDIR=${TMPDIR:-${DATAROOT:?}}
 
 if [ -n "%PARATEST:%" ]; then export PARATEST=${PARATEST:-%PARATEST:%}; fi
 if [ -n "%PDY:%" ]; then export PDY=${PDY:-%PDY:%}; fi
+if [ -n "%PDY:%" ]; then export CDATE=${PDY}%CYC%; fi
 if [ -n "%COMPATH:%" ]; then export COMPATH=${COMPATH:-%COMPATH:%}; fi
 if [ -n "%MAILTO:%" ]; then export MAILTO=${MAILTO:-%MAILTO:%}; fi
 if [ -n "%DBNLOG:%" ]; then export DBNLOG=${DBNLOG:-%DBNLOG:%}; fi

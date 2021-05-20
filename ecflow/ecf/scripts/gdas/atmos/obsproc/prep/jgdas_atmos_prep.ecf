@@ -1,12 +1,12 @@
-#! /bin/sh
+#BSUB -L /bin/sh
 #BSUB -J %E%%RUN%_atmos_prep_%CYC%
 #BSUB -o %COM%/output/%ENVIR%/today/%RUN%_atmos_prep_%CYC%.o%J
-#BSUB -cwd /tmp
 #BSUB -q %QUEUE%
 #BSUB -P %PROJ%
-#BSUB -W 00:45
-#BSUB -R span[ptile=2]; -R affinity[core(1)*1]
+#BSUB -W 00:10
 #BSUB -n 4
+#BSUB -R span[ptile=2]; -R affinity[core(1)*1]
+#BSUB -cwd /tmp
 
 %include <head.h>
 %include <envir-p3.h>
@@ -20,14 +20,20 @@ export CDUMP=%RUN%
 model=obsproc_global
 %include <model_ver.h>
 
+status=0
 #############################################################
 ## Load modules
-##############################################################
-####    . $MODULESHOME/init/sh
-#module load ips/$ips_ver
-#module load impi/$impi_ver
-#module load CFP/$cfp_ver
+#############################################################
+. $HOMEgfs/ush/load_fv3gfs_modules.sh
+status=$?
+[[ $status -ne 0 ]] && exit $status
+
 module list
+
+export NODES=2
+export ntasks=4
+export ptile=2
+export threads=1
 
 #############################################################
 ## WCOSS_C environment settings
@@ -48,15 +54,9 @@ export EXPDIR="$HOMEgfs/parm/config"
 export ROTDIR=%COM%/$NET/$envir
 export CDATE=${PDY}${cyc}
 
-################################################
-###############################################################
-# Source FV3GFS workflow modules
-. $HOMEgfs/ush/load_fv3gfs_modules.sh
-status=$?
-[[ $status -ne 0 ]] && exit $status
-
-###############################################################
+#############################################################
 # Source relevant configs
+#############################################################
 configs="base prep prepbufr"
 for config in $configs; do
     . $EXPDIR/config.${config}
@@ -64,70 +64,43 @@ for config in $configs; do
     [[ $status -ne 0 ]] && exit $status
 done
 
-###############################################################
+#############################################################
 # Source machine runtime environment
+#############################################################
 . $BASE_ENV/${machine}.env prep
 status=$?
 [[ $status -ne 0 ]] && exit $status
 
-###############################################################
-
-
-set -x
-
+#############################################################
 # CALL executable job script here
+#############################################################
 if [ $DO_MAKEPREPBUFR = "YES" ]; then
-    if [ $ROTDIR_DUMP = "YES" ]; then
-      if [ -s $COMOUT/${OPREFIX}prepbufr ]; then
-        rm $COMOUT/${OPREFIX}prepbufr
-        rm $COMOUT/${OPREFIX}prepbufr.acft_profiles
-        rm $COMOUT/${OPREFIX}nsstbufr
-      fi
+  if [ $ROTDIR_DUMP = "YES" ]; then
+    if [ -s $COMOUT/${OPREFIX}prepbufr ]; then
+      rm $COMOUT/${OPREFIX}prepbufr
+      rm $COMOUT/${OPREFIX}prepbufr.acft_profiles
+      rm $COMOUT/${OPREFIX}nsstbufr
     fi
-    if [ $machine = "WCOSS_C" -o $machine = "WCOSS_DELL_P3" -o $machine = "THEIA" ]; then
-
-        export job="j${CDUMP}_prep_${cyc}"
-        export DATAROOT="$RUNDIR/$CDATE/$CDUMP/prepbufr"
-#        if [ $ROTDIR_DUMP = "NO" ]; then
-#          COMIN_OBS=${COMIN_OBS:-$DMPDIR/$CDATE/$CDUMP}
-#          export COMSP=${COMSP:-$COMIN_OBS/$CDUMP.t${cyc}z.}
-#        fi
-#        export COMIN=${COMIN:-$ROTDIR/$CDUMP.$PDY/$cyc}
-#        export COMINgdas=${COMINgdas:-$ROTDIR/gdas.$PDY/$cyc}
-#        export COMINgfs=${COMINgfs:-$ROTDIR/gfs.$PDY/$cyc}
-# CALL executable job script here
-        ${HOMEobsproc_global}/jobs/JGLOBAL_PREP
-####        $HOMEobsproc_network/jobs/JGLOBAL_PREP
-        status=$?
-        [[ $status -ne 0 ]] && exit $status
-
-    else
-        echo "WARNING:  prep step is not supported on $machine, exit"
-        exit 1
-    fi
-#else
-#    if [ $ROTDIR_DUMP = "NO" ]; then
-#        $NCP $DMPDIR/$CDATE/$CDUMP/${OPREFIX}prepbufr               $COMOUT/${OPREFIX}prepbufr
-#        $NCP $DMPDIR/$CDATE/$CDUMP/${OPREFIX}prepbufr.acft_profiles $COMOUT/${OPREFIX}prepbufr.acft_profiles
-#        [[ $DONST = "YES" ]] && $NCP $DMPDIR/$CDATE/$CDUMP/${OPREFIX}nsstbufr $COMOUT/${OPREFIX}nsstbufr
-#    fi
+  fi
+  if [ $machine = "WCOSS_C" -o $machine = "WCOSS_DELL_P3" -o $machine = "THEIA" ]; then
+    export job="j${CDUMP}_prep_${cyc}"
+    export DATAROOT="$RUNDIR/$CDATE/$CDUMP/prepbufr"
+    ${HOMEobsproc_global}/jobs/JGLOBAL_PREP
+    status=$?
+    [[ $status -ne 0 ]] && exit $status
+  else
+    echo "WARNING:  prep step is not supported on $machine, exit"
+    status=9
+  fi
 fi
 
-#### ${HOMEobsproc_global}/jobs/JGLOBAL_PREP
+if [ $status -ne 0 ]; then
+   ecflow_client --msg="***JOB ${ECF_NAME} ERROR RUNNING J-SCRIPT ***"
+   ecflow_client --abort
+   exit
+fi
 
 %include <tail.h>
 %manual
-######################################################################
-# Purpose:
-#
-#
-######################################################################
 
-######################################################################
-# Job specific troubleshooting instructions:
-#  see generic troubleshoot manual page
-#
-######################################################################
-
-# include manual page below
 %end

@@ -96,9 +96,9 @@ export FDATE=2020090200
 export EDATE=2020090312
 export EXP_WARM_START=".false."
 export assim_freq=6
-export PSLOT="lgc192"
-export EXPDIR="/gpfs/dell2/emc/modeling/noscrub/Lin.Gan/expdir/$PSLOT"
-export ROTDIR="/gpfs/dell1/ptmp/Lin.Gan/$PSLOT"
+export PSLOT="ecfr"
+export EXPDIR="/gpfs/dell2/emc/modeling/noscrub/Lin.Gan/ecflow-dell/ecf_gfsv16_low/parm/config"
+export ROTDIR="/gpfs/dell3/ptmp/Lin.Gan/$PSLOT/com/gfs/prod"
 export ROTDIR_DUMP="YES"                #Note: A value of "NO" does not currently work
 export DUMP_SUFFIX=""
 if [[ "$CDATE" -ge "2019092100" && "$CDATE" -le "2019110700" ]]; then
@@ -118,7 +118,7 @@ export COMOUTatmos=${ROTDIR}/${CDUMP}.${PDY}/${cyc}/atmos
 export COMINwave=${ROTDIR}/${CDUMP}.${PDY}/${cyc}/wave
 export COMOUTwave=${ROTDIR}/${CDUMP}.${PDY}/${cyc}/wave
 
-export jlogfile="${EXPDIR}/logs/jlogfile"
+export jlogfile="${ROTDIR}/jlogfile/jlogfile"
 export ERRSCRIPT=${ERRSCRIPT:-'eval [[ $err = 0 ]]'}
 export LOGSCRIPT=${LOGSCRIPT:-""}
 #export ERRSCRIPT=${ERRSCRIPT:-"err_chk"}

@@ -1,8 +1,8 @@
-#! /bin/sh
-#BSUB -q %QUEUE%
-#BSUB -P %PROJ%
+#BSUB -L /bin/sh
 #BSUB -J %E%gfs_dump_waiter_%CYC%
 #BSUB -o %COM%/output/%ENVIR%/today/gfs_dump_waiter_%CYC%.o%J
+#BSUB -q %QUEUE%
+#BSUB -P %PROJ%
 #BSUB -W 1:00
 #BSUB -n 1
 #BSUB -R affinity[core(1)]
@@ -14,6 +14,11 @@
 
 set -x
 
+export NODES=1
+export ntasks=1
+export ptile=1
+export threads=1
+
 export NET=%NET:gfs%
 export RUN=%RUN%
 export CDUMP=%RUN%
@@ -24,10 +29,6 @@ model=gfs
 ############################################################
 # Load modules
 ############################################################
-module load ips/$ips_ver
-module load impi/$impi_ver
-module load EnvVars/$EnvVars_ver
-
 module list
 
 #############################################################
@@ -39,7 +40,6 @@ export cycle=t%CYC%z
 export DMPDIR=%DUMPDIR%
 export USE_CFP=YES
 export COMPONENT=${COMPONENT:-atmos}
-#### EMC work around for using NCO dump
 %include <emc_cdate.h>
 export COMIN_ROOT=%COM%
 export COMIN="%COM%/$NET/$envir/$CDUMP.$PDY/$cyc/$COMPONENT"
@@ -59,8 +59,11 @@ PDY_m6hrs=$(echo $GDATE | cut -c1-8)
 pdy_6dg=$PDY
 cyc_m6hrs=$(echo $GDATE | cut -c9-10)
 export cycle_m6hrs=t${cyc_m6hrs}z
-export COMINgfs_m6hrs="%COM%/$CDUMP.$PDY_m6hrs/$cyc_m6hrs/$COMPONENT"
+export COMINgfs_m6hrs="%COM%/$NET/$envir/$CDUMP.$PDY_m6hrs/$cyc_m6hrs/$COMPONENT"
 
+#############################################################
+# Execute job scripts
+#############################################################
 WAITFILE=%DUMPDIR%/gfs.${PDY}/${cyc}/gfs.t${cyc}z.updated.status.tm00.bufr_d
 while [[ ! -s "$WAITFILE" ]] ; do
   echo "$WAITFILE: nope"
@@ -78,10 +81,6 @@ if [ $ROTDIR_DUMP = "YES" ]; then
      [[ $status -ne 0 ]] && exit $status
     fi
 fi
-#### EMC work around for using NCO dump
-
-#### ecflow_client --event updated_status
-#### ecflow_client --event release_sfcprep
 
 %include <tail.h>
 %manual

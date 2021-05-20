@@ -1,12 +1,12 @@
-extern /prod06_emc/gdas/jgdas_forecast
-extern /prod06_emc/gdas/atmos/post
-extern /prod06_emc/gdas/enkf/post
+extern /prod06_lowres/gdas/jgdas_forecast
+extern /prod06_lowres/gdas/atmos/post
+extern /prod06_lowres/gdas/enkf/post
 #### ecen
-extern /prod06_emc/gdas/atmos/post_processing/jgdas_chgres_forenkf
+extern /prod06_lowres/gdas/atmos/post_processing/jgdas_atmos_chgres_forenkf
 #### cycle_end only
-extern /prod18_emc/gdas/atmos/analysis/jgdas_atmos_analysis
-extern /prod18_emc/gfs/atmos/analysis/jgfs_atmos_analysis
-extern /prod18_emc/gdas/enkf/ecen
+extern /prod18_lowres/gdas/atmos/analysis/jgdas_atmos_analysis
+extern /prod18_lowres/gfs/atmos/analysis/jgfs_atmos_analysis
+extern /prod18_lowres/gdas/enkf/analysis/recenter/ecen
 #### totality only
 extern /totality_limit:TOTALITY
 
@@ -46,9 +46,7 @@ suite prod12_lowres
     task dump_waiter
       edit ECF_TRIES 72
       edit DUMPDIR '/gpfs/dell3/emc/global/dump'
-      trigger /prod06_emc/gdas/jgdas_forecast == complete
-      event 1 updated_status
-      event 2 release_sfcprep
+      trigger /prod06_lowres/gdas/jgdas_forecast == complete
 
     family atmos
       family obsproc
@@ -59,7 +57,7 @@ suite prod12_lowres
       endfamily
       family analysis
         task jgfs_atmos_analysis
-          trigger ../obsproc/prep/jgfs_atmos_prep == complete and /prod06_emc/gdas/enkf/post == complete
+          trigger ../obsproc/prep/jgfs_atmos_prep == complete and /prod06_lowres/gdas/enkf/post == complete
           event 1 release_fcst
         task jgfs_atmos_analysis_calc
           trigger ./jgfs_atmos_analysis == complete
@@ -1538,13 +1536,11 @@ suite prod12_lowres
           edit FHR 'f384'
           edit HR '384'
       endfamily
-      family arch
-        task jgfs_emc_arch
-          trigger ../post == complete
-      endfamily
     endfamily
     task jgfs_forecast
       trigger ./atmos/analysis/jgfs_atmos_analysis:release_fcst
+    task jgfs_emc_arch
+      trigger ./atmos/post == complete
   endfamily
   family gdas
     edit CYC '12'
@@ -1560,15 +1556,13 @@ suite prod12_lowres
     task dump_waiter
       edit ECF_TRIES 72
       edit DUMPDIR '/gpfs/dell3/emc/global/dump'
-      trigger /prod06_emc/gdas/jgdas_forecast == complete
-      event 1 updated_status
-      event 2 release_sfcprep
+      trigger /prod06_lowres/gdas/jgdas_forecast == complete
 
     family atmos
       family obsproc
         family prep
           task jgdas_atmos_prep
-            trigger /prod06_emc/gdas/atmos/post == complete and ../../../dump_waiter == complete
+            trigger /prod06_lowres/gdas/atmos/post == complete and ../../../dump_waiter == complete
         endfamily
       endfamily
       family init
@@ -1577,8 +1571,7 @@ suite prod12_lowres
       endfamily
       family analysis
         task jgdas_atmos_analysis
-          trigger ../obsproc/prep/jgdas_atmos_prep == complete and /prod06_emc/gdas/enkf/post == complete
-
+          trigger ../obsproc/prep/jgdas_atmos_prep == complete and /prod06_lowres/gdas/enkf/post == complete
          event 1 release_fcst
         task jgdas_atmos_analysis_calc
           trigger ./jgdas_atmos_analysis == complete
@@ -1587,7 +1580,7 @@ suite prod12_lowres
       endfamily
       family post
         task jgdas_atmos_post_manager
-          trigger ../../jgdas_forecast == active
+          trigger ../../jgdas_forecast == active or ../../jgdas_forecast == complete
           event 1 release_postanl
           event 2 release_post000
           event 3 release_post001
@@ -1673,11 +1666,13 @@ suite prod12_lowres
     endfamily
     task jgdas_forecast
       trigger ./atmos/analysis/jgdas_atmos_analysis:release_fcst and ./atmos/init/jgdas_atmos_gldas == complete
+    task jgdas_emc_arch
+      trigger ./atmos/post == complete
     family enkf
       family analysis
         family create
           task jgdas_enkf_select_obs
-            trigger ../../../atmos/analysis/jgdas_atmos_analysis_calc == complete and /prod06_emc/gdas/enkf/post == complete
+            trigger ../../../atmos/analysis/jgdas_atmos_analysis_calc == complete
           task jgdas_enkf_diag
             trigger ./jgdas_enkf_select_obs == complete
           task jgdas_enkf_update
@@ -1686,7 +1681,7 @@ suite prod12_lowres
         family recenter
           family ecen
              edit ECF_FILES '/gpfs/dell2/emc/modeling/noscrub/Lin.Gan/ecflow-dell/ecf_gfsv16_low/ecflow/ecf/scripts/gdas/enkf/analysis/recenter/ecen'
-            trigger ../create/jgdas_enkf_update == complete and ../../../atmos/analysis/jgdas_atmos_analysis_calc == complete and /prod06_emc/gdas/atmos/post_processing/jgdas_chgres_forenkf == complete
+            trigger ../create/jgdas_enkf_update == complete and ../../../atmos/analysis/jgdas_atmos_analysis_calc == complete and /prod06_lowres/gdas/atmos/post_processing/jgdas_atmos_chgres_forenkf == complete
             family grp1
               edit FHRGRP '003'
               task jgdas_enkf_ecen
@@ -1899,17 +1894,35 @@ suite prod12_lowres
           edit FHMAX_EPOS '009'
           edit FHOUT_EPOS '009'
       endfamily                      #### epos
+      family earc
+        trigger post == complete
+        task jgdas_emc_earc_grp0
+          edit ENSGRP '00'
+        task jgdas_emc_earc_grp1
+          edit ENSGRP '01'
+        task jgdas_emc_earc_grp2
+          edit ENSGRP '02'
+        task jgdas_emc_earc_grp3
+          edit ENSGRP '03'
+        task jgdas_emc_earc_grp4
+          edit ENSGRP '04'
+        task jgdas_emc_earc_grp5
+          edit ENSGRP '05'
+        task jgdas_emc_earc_grp6
+          edit ENSGRP '06'
+        task jgdas_emc_earc_grp7
+          edit ENSGRP '07'
+        task jgdas_emc_earc_grp8
+          edit ENSGRP '08'
+      endfamily
     endfamily                        #### enkf
   endfamily                          #### gdas
-
-#### EMC test only
   task cycle_end
     edit COM '/gpfs/dell3/ptmp/Lin.Gan/ecfr/com'
     edit ECF_JOB_CMD '%ECF_JOB% 1> %ECF_JOBOUT% 2>&1'
     edit CYC '12'
     label info ""
-    trigger ./gdas == complete and ./gfs == complete and /prod18_emc/gdas/atmos/analysis/jgdas_atmos_analysis == complete and /prod18_emc/gfs/atmos/analysis/jgfs_atmos_analysis == complete and /prod18_emc/gdas/enkf/ecen == complete
+    trigger ./gdas == complete and ./gfs == complete and /prod18_lowres/gdas/atmos/analysis/jgdas_atmos_analysis == complete and /prod18_lowres/gfs/atmos/analysis/jgfs_atmos_analysis == complete and /prod18_lowres/gdas/enkf/analysis/recenter/ecen == complete
     edit ECF_FILES '/gpfs/dell2/emc/modeling/noscrub/Lin.Gan/ecflow-dell/ecf_gfsv16_low/ecflow/ecf/scripts'
-# NCO will need to configure for operation here
     edit ECF_PASS 'FREE'
 endsuite
