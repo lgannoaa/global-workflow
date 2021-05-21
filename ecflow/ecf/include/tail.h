@@ -1,5 +1,5 @@
 #### ecflow module work around
-module load ecflow/4.7.1
+#### module load ecflow/4.7.1
 export ECF_NAME=%ECF_NAME%
 #### export ECF_PORT=%ECF_PORT%
 export ECF_PORT=31867
