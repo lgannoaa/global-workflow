@@ -10,17 +10,15 @@ export SENDDBN=${SENDDBN:-%SENDDBN:YES%}
 export SENDDBN_NTC=${SENDDBN_NTC:-%SENDDBN_NTC:YES%}
 
 #### FILESYSTEMROOT=/gpfs/%FILESYSTEM:dell4%
-FILESYSTEMROOT=/gpfs/dell3/ptmp/Lin.Gan/v16rt2-ecf
+FILESYSTEMROOT=/gpfs/dell3/ptmp/Lin.Gan/ecfr
 
 module load ips/%ips_ver:18.0.1.163%
 module load prod_envir/%prod_envir_ver% prod_util/%prod_util_ver% EnvVars/%EnvVars_ver%
 
 case $envir in
   prod)
-####    export DATAROOT=${DATAROOT:-${FILESYSTEMROOT}/nco/ops/tmpnwprd}
-    export DATAROOT=${DATAROOT:-/gpfs/dell3/stmp/Lin.Gan/v16rt2-ecf/nco/ops/tmpnwprd}
+    export DATAROOT=${DATAROOT:-${FILESYSTEMROOT}/nco/ops/tmpnwprd}
     if [ "$SENDDBN" == "YES" ]; then
-####       export DBNROOT=/iodprod_dell/dbnet_siphon
        export DBNROOT=${UTILROOT}/fakedbn
     else
        export DBNROOT=${UTILROOT}/fakedbn
@@ -46,7 +44,7 @@ case $envir in
     ;;
 esac
 
-export COMROOT=${FILESYSTEMROOT}/nco/ops/com
+export COMROOT=${FILESYSTEMROOT}/com/gfs/prod
 export GESROOT=${FILESYSTEMROOT}/nco/ops/nwges
 export COREROOT=${FILESYSTEMROOT}/ptmp/production.core/$jobid
 export NWROOT=/gpfs/dell4/nco/ops/nw${envir}
