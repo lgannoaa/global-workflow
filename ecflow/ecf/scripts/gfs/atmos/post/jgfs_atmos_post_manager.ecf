@@ -47,24 +47,24 @@ export USE_CFP=YES
 ############################################################
 # Ensure analysis file created before proceed
 ############################################################
-ic=1
-while [ $ic -le 30 ]
-  do
-    if test -f ${COMIN}/${RUN}.${cycle}.atmanl.nc
-    then
-      sleep 60
-      break
-    else
-      ic=`expr $ic + 1`
-      sleep 10
-    fi
-    if [ $ic -eq 30 ]
-    then
-      ecflow_client --msg="***JOB ${ECF_NAME} ERROR Waiting for ATMANL File***"
-      ecflow_client --abort
-      exit 9
-    fi
-  done
+#ic=1
+#while [ $ic -le 30 ]
+#  do
+#    if test -f ${COMIN}/${RUN}.${cycle}.atmanl.nc
+#    then
+#      sleep 60
+#      break
+#    else
+#      ic=`expr $ic + 1`
+#      sleep 10
+#    fi
+#    if [ $ic -eq 30 ]
+#    then
+#      ecflow_client --msg="***JOB ${ECF_NAME} ERROR Waiting for ATMANL File***"
+#      ecflow_client --abort
+#      exit 9
+#    fi
+#  done
 
 ############################################################
 # CALL executable job script here
