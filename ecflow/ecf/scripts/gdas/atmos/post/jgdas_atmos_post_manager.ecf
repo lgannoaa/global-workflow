@@ -34,14 +34,14 @@ module load impi/${impi_ver}
 
 module list
 
-export COMPONENT=${COMPONENT:-atmos}
-export COM_IN=%COM%/$NET/$envir
-export ROTDIR=%COM%/$NET/$envir
+#export COMPONENT=${COMPONENT:-atmos}
+#export COM_IN=%COM%/$NET/$envir
+#export ROTDIR=%COM%/$NET/$envir
 export cyc=%CYC%
 export cycle=t%CYC%z
-export CDATE=$PDY$cyc
-export COMIN=$COM_IN/${RUN}.${PDY}/${cyc}/${COMPONENT}
-export COMOUT=$COMIN
+#export CDATE=$PDY$cyc
+#export COMIN=$COM_IN/${RUN}.${PDY}/${cyc}/${COMPONENT}
+#export COMOUT=$COMIN
 export USE_CFP=YES
 
 ############################################################

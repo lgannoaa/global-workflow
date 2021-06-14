@@ -34,6 +34,13 @@ ecflow_client --complete
 ecflow_client --requeue=force /prod${cyc}_lowres
 ecflow_client --requeue=force /prod${prev_cyc}_lowres/cycle_end
 
+if [ $cyc == 18 ]; then
+  cd %COM%/gfs/prod
+  find . -type f|grep -v "logs"|grep -v "\.sh"|grep -v "RESTART" | grep -v "sfluxgrb" | grep -v $PDYp1 | grep -v $PDY |grep -v "jlogfile"|grep -v "vrfyarch"|grep -v "tt.sh"|grep -v "atmanl"|grep -v "sfcanl"| awk '{print "rm -f ",$1}' &> tt_auto.sh
+  chmod 700 tt_auto.sh
+  sh tt_auto.sh;mv tt_auto.sh tt_auto-${PDY}.old
+fi
+
 %include <tail.h>
 %manual
 
