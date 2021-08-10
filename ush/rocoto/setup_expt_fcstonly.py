@@ -220,7 +220,7 @@ Create COMROT experiment directory structure'''
       account = 'hfv3gfs'
       queue = 'batch'
       queue_service = 'service'
-      partition_batch = 'xjet'
+      partition_batch = "${PARTITION_BATCH:-'kjet'}"
       chgrp_rstprod = 'YES'
       chgrp_cmd = 'chgrp rstprod'
       hpssarch = 'YES'
