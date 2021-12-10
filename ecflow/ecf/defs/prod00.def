@@ -3,30 +3,42 @@ extern /prod18/gdas/atmos/post
 extern /prod18/gdas/enkf/post
 #### ecen
 extern /prod18/gdas/atmos/post_processing/jgdas_atmos_chgres_forenkf
+#### cycle_end only
+extern /prod06/gdas/atmos/analysis/jgdas_atmos_analysis
+extern /prod06/gfs/atmos/analysis/jgfs_atmos_analysis
+extern /prod06/gdas/enkf/analysis/recenter/ecen
+extern /prod18/cycle_end
+#### totality only
+extern /totality_limit:TOTALITY
 
 suite prod00
   repeat day 1
   edit ECF_TRIES '1'
   edit CYC '00'
   edit ENVIR 'prod'
-  edit PROJ 'OPS'
+  edit PROJ 'GFS-DEV'
   edit E 'j'
-  edit QUEUE 'prod'
+  edit QUEUE 'dev'
   edit QUEUESHARED 'dev_shared'
   edit QUEUESERV 'dev_transfer'
-  edit PROJENVIR 'OPS'
-  edit MACHINE_SITE 'production'
+#### Developer overwrite
+  edit ECF_INCLUDE '/lfs/h2/emc/global/noscrub/Lin.Gan/git/feature-ops-wcoss2/ecflow/ecf/include'
+  edit MACHINE_SITE 'development'
+  edit edit PROJENVIR 'p1'
+  inlimit /totality_limit:TOTALITY
+####  edit PROJENVIR 'OPS'
+####  edit MACHINE_SITE 'production'
 
   family gfs
     edit CYC '00'
-    edit ECF_FILES '/ecf/ecfnets/scripts/gfs_FV3'
-    edit PROJ 'GFS-OPS'
+    edit ECF_FILES '/lfs/h2/emc/global/noscrub/Lin.Gan/git/feature-ops-wcoss2/ecflow/ecf/scripts/gfs'
+    edit PROJ 'GFS-DEV'
     edit NET 'gfs'
     edit RUN 'gfs'
-    edit COM '/gpfs/dell1/nco/ops/com'
-    edit QUEUESHARED 'prod_shared'
-    edit QUEUESERV 'prod_transfer'
-    edit QUEUE 'prod'
+    edit COM '/lfs/h2/emc/ptmp/Lin.Gan/ecfops/com'
+    edit QUEUE 'dev'
+    edit QUEUESHARED 'dev_shared'
+    edit QUEUESERV 'dev_transfer'
     family atmos
       family obsproc
         family dump
@@ -2249,14 +2261,14 @@ suite prod00
   endfamily
   family gdas
     edit CYC '00'
-    edit ECF_FILES '/ecf/ecfnets/scripts/gdas_FV3'
-    edit PROJ 'GDAS-OPS'
+    edit ECF_FILES '/lfs/h2/emc/global/noscrub/Lin.Gan/git/feature-ops-wcoss2/ecflow/ecf/scripts/gdas'
+    edit PROJ 'GFS-DEV'
     edit NET 'gfs'
     edit RUN 'gdas'
-    edit COM '/gpfs/dell1/nco/ops/com'
-    edit QUEUESHARED 'prod_shared'
-    edit QUEUESERV 'prod_transfer'
-    edit QUEUE 'prod'
+    edit COM '/lfs/h2/emc/ptmp/Lin.Gan/ecfops/com'
+    edit QUEUE 'dev'
+    edit QUEUESHARED 'dev_shared'
+    edit QUEUESERV 'dev_transfer'
     family atmos
       family obsproc
         family dump

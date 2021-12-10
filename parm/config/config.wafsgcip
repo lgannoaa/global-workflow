@@ -12,4 +12,6 @@ export COMINgfs=$COMIN
 export COMOUT=$COMOUTatmos
 export SENDCOM="YES"
 
+export DCOMROOT=/lfs/h1/ops/canned/dcom
+
 echo "END: config.wafsgcip"

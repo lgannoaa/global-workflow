@@ -138,6 +138,7 @@ elif [ $step = "analcalc" ]; then
 
     export wtime_analcalc="00:10:00"
     export npe_analcalc=127
+    export ntasks=$npe_analcalc
     export nth_analcalc=1
     export npe_node_analcalc=$npe_node_max
     if [[ "$machine" = "WCOSS_DELL_P3" ]]; then export npe_analcalc=127 ; fi
@@ -347,7 +348,7 @@ elif [ $step = "esfc" ]; then
 
 elif [ $step = "efcs" ]; then
 
-    export wtime_efcs="00:40:00"
+    export wtime_efcs="01:00:00"
     export npe_efcs=$(echo "$layout_x * $layout_y * 6" | bc)
     export nth_efcs=${nth_fv3:-2}
     export npe_node_efcs=$(echo "$npe_node_max / $nth_efcs" | bc)

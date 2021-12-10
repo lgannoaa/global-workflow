@@ -1,3 +1,11 @@
+#PBS -S /bin/bash
+#PBS -N %E%gdas_forecast_%CYC%
+#PBS -j oe
+#PBS -l place=vscatter,select=20:ncpus=1280:ompthreads=2
+#PBS -q %QUEUE%
+#PBS -A %PROJ%-%PROJENVIR%
+#PBS -l walltime=01:30:00
+
 #BSUB -L /bin/sh
 #BSUB -J %E%gdas_forecast_%CYC%
 #BSUB -o %COM%/output/%ENVIR%/today/gdas_forecast_%CYC%.o%J

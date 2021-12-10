@@ -6,7 +6,7 @@
 ulimit_s=$( ulimit -S -s )
 #ulimit -S -s 10000
 
-set +x
+#set +x
 
 # Find module command and purge:
 source "$HOMEgfs/modulefiles/module-setup.sh.inc" 
@@ -48,7 +48,8 @@ else
     echo WARNING: UNKNOWN PLATFORM 
 fi
 
-set -x
+#set -x
+module list
 
 # Restore stack soft limit:
 ulimit -S -s "$ulimit_s"
