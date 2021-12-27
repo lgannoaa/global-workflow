@@ -3,7 +3,7 @@
 #PBS -j oe
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
-#PBS -l walltime=00:10:00
+#PBS -l walltime=06:30:00
 #PBS -l place=vscatter,select=8:ncpus=64:ompthreads=2
 
 ####BSUB -L /bin/sh
@@ -44,6 +44,8 @@ model=gfs
 #module load CFP/${CFP_ver}
 #module load NetCDF-parallel/${netcdf_parallel_ver}
 #module load HDF5-parallel/${hdf5_parallel_ver}
+
+module load cray-mpich/${cray_mpich_ver}
 module load netcdf/${netcdf_ver}
 module load hdf5/${hdf5_ver}
 module load cfp/${cfp_ver}

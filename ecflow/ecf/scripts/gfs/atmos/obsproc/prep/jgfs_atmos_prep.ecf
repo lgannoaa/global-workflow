@@ -78,6 +78,8 @@ set -x
 export KEEPDATA="YES"
 export COMIN_ROOT=${COMIN_ROOT:-$(compath.py -o ${NET}/${gfs_ver}/${RUN}.${PDY})/${cyc}/$COMPONENT}
 export COMIN=${COMIN:-$(compath.py -o ${NET}/${gfs_ver}/${RUN}.${PDY})/${cyc}/$COMPONENT}
+export COMOUT_ROOT=${COMOUT:-$(compath.py -o ${NET}/${gfs_ver}/${RUN}.${PDY})/${cyc}/$COMPONENT}
+export COMOUT=${COMOUT:-$(compath.py -o ${NET}/${gfs_ver}/${RUN}.${PDY})/${cyc}/$COMPONENT}
 export COMINgdas=${COMINgdas:-$(compath.py -o ${NET}/${gfs_ver}/gdas.${PDY})/${cyc}/${COMPONENT}}
 export COMINgfs=${COMINgfs:-$(compath.py -o ${NET}/${gfs_ver}/gfs.${PDY})/${cyc}/${COMPONENT}}
 

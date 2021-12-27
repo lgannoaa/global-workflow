@@ -66,6 +66,7 @@ export COMPONENT=${COMPONENT:-atmos}
 ####export TANK=${TANK:-${DCOMROOT}}
 
 #### Developer overwrite
+export KEEPDATA="YES"
 ####export DCOMROOT=/lfs/h1/ops/canned/dcom
 ####export TANK=${TANK:-${DCOMROOT}}
 export DCOMROOT=/lfs/h1/ops/prod/dcom

@@ -66,8 +66,11 @@ export COMPONENT=${COMPONENT:-atmos}
 export KEEPDATA="YES"
 export COMIN_ROOT=${COMIN_ROOT:-$(compath.py -o ${NET}/${gfs_ver}/${RUN}.${PDY})/${cyc}/$COMPONENT}
 export COMIN=${COMIN:-$(compath.py -o ${NET}/${gfs_ver}/${RUN}.${PDY})/${cyc}/$COMPONENT}
+export COMOUT_ROOT=${COMOUT:-$(compath.py -o ${NET}/${gfs_ver}/${RUN}.${PDY})/${cyc}/$COMPONENT}
+export COMOUT=${COMOUT:-$(compath.py -o ${NET}/${gfs_ver}/${RUN}.${PDY})/${cyc}/$COMPONENT}
 export COMIN1=$(compath.py -o ${NET}/${gfs_ver}/${RUN}.)
 export COMINGFS=${COMINgfs:-$(compath.py -o ${NET}/${gfs_ver}/gfs.${PDY})/${cyc}/${COMPONENT}}
+
 
 # CALL executable job script here
 #### $HOMEobsproc_global/jobs/JGLOBAL_PREP_POST
