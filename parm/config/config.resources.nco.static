@@ -122,8 +122,9 @@ elif [ $step = "anal" ]; then
 
     export wtime_anal="00:45:00"
     export npe_anal=1000
-    export nth_anal=4  
+    export nth_anal=4
     export npe_anal_gfs=1000
+    export nth_anal_gfs=4
     if [ $CASE = "C384" ]; then
       export npe_anal=160
       export nth_anal=10
@@ -199,6 +200,7 @@ elif [ $step = "wafsgcip" ]; then
     export npe_wafsgcip=2
     export npe_node_wafsgcip=1
     export nth_wafsgcip=1
+    export memory_wafsgcip="50GB"
 
 elif [ $step = "wafsgrib2" ]; then
 
@@ -352,7 +354,7 @@ elif [ $step = "esfc" ]; then
 
 elif [ $step = "efcs" ]; then
 
-    export wtime_efcs="01:00:00"
+    export wtime_efcs="00:40:00"
     export npe_efcs=$(echo "$layout_x * $layout_y * 6" | bc)
     export nth_efcs=${nth_fv3:-2}
     export npe_node_efcs=$(echo "$npe_node_max / $nth_efcs" | bc)

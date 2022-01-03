@@ -10,4 +10,7 @@ echo "BEGIN: config.postsnd"
 
 export POSTSNDSH=$HOMEgfs/jobs/JGFS_ATMOS_POSTSND
 
+export SENDCOM=YES
+export SENDDBN=YES
+
 echo "END: config.postsnd"
