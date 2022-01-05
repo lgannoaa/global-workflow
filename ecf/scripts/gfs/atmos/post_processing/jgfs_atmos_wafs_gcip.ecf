@@ -1,0 +1,89 @@
+#PBS -S /bin/bash
+#PBS -N %E%gfs_atmos_wafs_gcip_%CYC%
+#PBS -j oe
+#PBS -q %QUEUE%
+#PBS -A %PROJ%-%PROJENVIR%
+#PBS -l walltime=00:30:00
+#PBS -l place=vscatter,select=2:ncpus=1:mem=50GB
+
+####BSUB -L /bin/sh
+####BSUB -J %E%gfs_atmos_wafs_gcip_%CYC%
+####BSUB -o %COM%/output/%ENVIR%/today/gfs_atmos_wafs_gcip_%CYC%.o%J
+####BSUB -q %QUEUE%
+####BSUB -P %PROJ%
+####BSUB -W 0:30
+####BSUB -n 2
+####BSUB -R affinity[core(1)]
+####BSUB -R span[ptile=1]
+####BSUB -cwd /tmp
+
+%include <head.h>
+%include <envir-p1.h>
+
+set -x
+
+export NODES=2
+export TOTAL_TASKS=2
+
+####export NODES=1
+####export ntasks=2
+####export ptile=1
+####export threads=1
+
+export NET=%NET:gfs%
+export RUN=%RUN%
+export CDUMP=%RUN%
+
+model=gfs
+%include <model_ver.h>
+
+############################################################
+# Load modules
+############################################################
+#module load lsf/${lsf_ver}
+#module load impi/${impi_ver}
+#module load CFP/${CFP_ver}
+module load cfp/${cfp_ver}
+module load libjpeg/${libjpeg_ver}
+module load grib_util/${grib_util_ver}
+module load bufr_dump/${bufr_dump_ver}
+module load wgrib2/${wgrib2_ver}
+#module load bufr_dumplist/${bufr_dumplist_ver}
+#module load dumpjb/${dumpjb_ver}
+
+module list
+
+#############################################################
+# WCOSS environment settings
+#############################################################
+export cyc=%CYC%
+export cycle=t%CYC%z
+export USE_CFP=YES
+
+############################################################
+# CALL executable job script here
+############################################################
+#### export MPIRUN='mpiexec -l -np 2 --cpu-bind verbose,core cfp'
+${HOMEgfs}/jobs/JGFS_ATMOS_WAFS_GCIP
+
+if [ $? -ne 0 ]; then
+   ecflow_client --msg="***JOB ${ECF_NAME} ERROR RUNNING J-SCRIPT ***"
+   ecflow_client --abort
+   exit
+fi
+
+%include <tail.h>
+%manual
+######################################################################
+# Purpose: To execute the job that prepares initial condition for
+#          gdas.
+######################################################################
+
+######################################################################
+# Job specific troubleshooting instructions:
+#  see generic troubleshoot manual page
+#
+######################################################################
+
+# include manual page below
+%end

@@ -122,9 +122,9 @@ elif [ $step = "anal" ]; then
 
     export wtime_anal="00:45:00"
     export npe_anal=1000
-    export nth_anal=4
+    export nth_anal=4  
     export npe_anal_gfs=1000
-    export nth_anal_gfs=4
+    export nth_anal_gfs=4  
     if [ $CASE = "C384" ]; then
       export npe_anal=160
       export nth_anal=10
