@@ -3,18 +3,8 @@
 #PBS -j oe
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
-#PBS -l walltime=00:30:00
+#PBS -l walltime=00:20:00
 #PBS -l place=vscatter,select=1:ncpus=14:mem=50gb
-
-####BSUB -J %E%%RUN%_atmos_dump_%CYC%
-####BSUB -o %COM%/output/%ENVIR%/today/%RUN%_atmos_dump_%CYC%.o%J
-####BSUB -cwd /tmp
-####BSUB -q %QUEUE%
-####BSUB -W 00:20
-####BSUB -P %PROJ%
-####BSUB -n 14
-####BSUB -R span[ptile=14]
-####BSUB -R affinity[core(1):distribute=balance]
 
 %include <head.h>
 %include <envir-p1.h>
@@ -31,10 +21,6 @@ export model=obsproc
 #############################################################
 ## Load modules
 ##############################################################
-#module load ips/$ips_ver
-#module load impi/$impi_ver
-#module load CFP/$CFP_ver
-
 #### Testing
 module use /lfs/h2/emc/obsproc/noscrub/Shelley.Melchior/install/bufr-dump/modulefiles
 module load bufr_dump/1.0.0
@@ -58,7 +44,6 @@ module list
 ################################################
 # EXPORT list here
 
-set -x
 export cyc=%CYC%
 export COMPONENT=${COMPONENT:-atmos}
 

@@ -3,17 +3,8 @@
 #PBS -j oe
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
-#PBS -l walltime=00:30:00
+#PBS -l walltime=00:05:00
 #PBS -l place=vscatter,select=1:ncpus=7:mem=500MB
-
-####BSUB -J %E%gfs_atmos_dump_alert_%CYC%
-####BSUB -o %COM%/output/%ENVIR%/today/gfs_atmos_dump_alert_%CYC%.o%J
-####BSUB -q %QUEUESERV%
-####BSUB -R rusage[mem=1000]
-####BSUB -R affinity[core]
-####BSUB -cwd /tmp
-####BSUB -W 00:05
-####BSUB -P %PROJ%
 
 %include <head.h>
 %include <envir-p1.h>
@@ -29,8 +20,6 @@ export model=obsproc
 #############################################################
 # Load modules
 #############################################################
-#. $MODULESHOME/init/sh
-
 #### Testing
 module use /lfs/h2/emc/obsproc/noscrub/Shelley.Melchior/install/bufr-dump/modulefiles
 module load bufr_dump/1.0.0
@@ -67,7 +56,6 @@ export COMIN=${COMIN:-$(compath.py -o ${NET}/${gfs_ver}/${RUN}.${PDY})/${cyc}/$C
 
 # CALL executable job script here
 $HOMEobsproc/jobs/JOBSPROC_DUMP_ALERT
-#### $HOMEobsproc_dump_alert/jobs/JDUMP_ALERT
 
 %include <tail.h>
 %manual

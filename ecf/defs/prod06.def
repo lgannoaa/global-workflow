@@ -3,13 +3,9 @@ extern /prod00/gdas/atmos/post
 extern /prod00/gdas/enkf/post
 #### ecen
 extern /prod00/gdas/atmos/post_processing/jgdas_atmos_chgres_forenkf
-#### cycle_end only
 extern /prod12/gdas/atmos/analysis/jgdas_atmos_analysis
 extern /prod12/gfs/atmos/analysis/jgfs_atmos_analysis
 extern /prod12/gdas/enkf/analysis/recenter/ecen
-extern /prod00/cycle_end
-#### totality only
-extern /totality_limit:TOTALITY
 
 suite prod06
   repeat day 1
@@ -18,14 +14,13 @@ suite prod06
   edit ENVIR 'prod'
   edit PROJ 'GFS'
   edit PROJENVIR 'DEV'
-  edit E 'j'
+  edit E ''
   edit QUEUE 'dev'
   edit QUEUESHARED 'dev_shared'
   edit QUEUESERV 'dev_transfer'
 #### Developer overwrite
   edit ECF_INCLUDE '/lfs/h2/emc/global/noscrub/Lin.Gan/git/feature-ops-wcoss2/ecf/include'
   edit MACHINE_SITE 'development'
-  inlimit /totality_limit:TOTALITY
 ####
 
   family gfs
