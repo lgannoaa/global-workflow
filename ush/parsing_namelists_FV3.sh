@@ -323,11 +323,11 @@ cat >> input.nml <<EOF
   do_sppt      = ${do_sppt:-".false."}
   do_shum      = ${do_shum:-".false."}
   do_skeb      = ${do_skeb:-".false."}
+  frac_grid    = ${FRAC_GRID:-".true."}
 EOF
 
 if [ $cpl = .true. ]; then
   cat >> input.nml << EOF
-  frac_grid    = ${FRAC_GRID:-".true."}
   cplchm       = ${cplchem:-".false."}
   cplflx       = $cplflx
   cplice       = ${cplice} 
