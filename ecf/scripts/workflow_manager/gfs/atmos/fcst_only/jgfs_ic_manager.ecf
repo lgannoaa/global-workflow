@@ -1,0 +1,48 @@
+#!/bin/bash
+#SBATCH -J gfs_ic_manager_%CYC%
+#SBATCH -o gfs_ic_manager_%CYC%.o%j
+#SBATCH -A %HERA_ACCOUNT%
+#SBATCH -q %QUEUE%
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --time=3:00:00
+#SBATCH --verbose
+#SBATCH --mail-type=end
+#SBATCH --mail-user=lin.gan@noaa.gov
+
+model=gfs
+%include <head.h>
+%include <envir-p1.h>
+
+set -x
+
+export NET=%NET:gfs%
+export RUN=%RUN%
+export CDUMP=%RUN%
+
+############################################################
+# Load modules
+############################################################
+
+module list
+
+export cyc=%CYC%
+export cycle=t%CYC%z
+
+ecflow_client --requeue=force /fcstonly/primary/00/workflow_manager/v1.0/gfs/atmos/fcst_only/next_run
+############################################################
+# CALL executable job script here
+############################################################
+${HOMEgfs}/ecf/scripts/workflow_manager/jobs/JGLOBAL_ICS_MANAGER
+
+if [ $? -ne 0 ]; then
+   ecflow_client --msg="***JOB ${ECF_NAME} ERROR RUNNING J-SCRIPT ***"
+   ecflow_client --abort
+   exit
+fi
+
+%include <tail.h>
+%manual
+
+%end

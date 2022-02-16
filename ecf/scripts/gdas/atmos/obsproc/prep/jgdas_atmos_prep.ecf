@@ -1,15 +1,14 @@
-#BSUB -L /bin/sh
-#BSUB -J %E%%RUN%_atmos_prep_%CYC%
-#BSUB -o %COM%/output/%ENVIR%/today/%RUN%_atmos_prep_%CYC%.o%J
-#BSUB -q %QUEUE%
-#BSUB -P %PROJ%
-#BSUB -W 00:10
-#BSUB -n 4
-#BSUB -R span[ptile=2]; -R affinity[core(1)*1]
-#BSUB -cwd /tmp
+#PBS -S /bin/bash
+#PBS -N %RUN%_atmos_prep_%CYC%
+#PBS -j oe
+#PBS -q %QUEUE%
+#PBS -A %PROJ%-%PROJENVIR%
+#PBS -l walltime=00:35:00
+#PBS -l place=vscatter,select=1:ncpus=8:mem=40gb
+#PBS -l debug=true
 
 %include <head.h>
-%include <envir-p3.h>
+%include <envir-p1.h>
 
 set -x
 
@@ -17,90 +16,63 @@ export NET=%NET:gfs%
 export RUN=%RUN%
 export CDUMP=%RUN%
 
-model=obsproc_global
+model=obsproc
 %include <model_ver.h>
 
-status=0
 #############################################################
 ## Load modules
-#############################################################
-. $HOMEgfs/ush/load_fv3gfs_modules.sh
-status=$?
-[[ $status -ne 0 ]] && exit $status
+##############################################################
+
+#### Testing
+module use /lfs/h2/emc/obsproc/noscrub/Shelley.Melchior/install/bufr-dump/modulefiles
+module load bufr_dump/1.0.0
+####
+
+module load PrgEnv-intel/${PrgEnv_intel_ver}
+module load craype/${craype_ver}
+module load intel/${intel_ver}
+module load cray-mpich/${cray_mpich_ver}
+module load cray-pals/${cray_pals_ver}
+module load netcdf/${netcdf_ver}
+module load hdf5/${hdf5_ver}
+module load cfp/${cfp_ver}
+module load libjpeg/${libjpeg_ver}
+module load grib_util/${grib_util_ver}
+module load w3nco/${w3nco_ver}
+module load w3emc/${w3emc_ver}
 
 module list
 
-export NODES=2
-export ntasks=4
-export ptile=2
-export threads=1
-
 #############################################################
 ## WCOSS_C environment settings
-#############################################################
-export BACK="YES"
-export POE="NO"
+##############################################################
 export COMPONENT=${COMPONENT:-atmos}
 export cyc=%CYC%
-export COMIN_ROOT=/gpfs/dell1/nco/ops/com
-export COMIN="%COM%/$NET/$envir/$CDUMP.$PDY/$cyc/$COMPONENT"
-export COMOUT="%COM%/$NET/$envir/$CDUMP.$PDY/$cyc/$COMPONENT"
-export COMINgdas=$COMIN
-export COMINgfs="%COM%/$NET/$envir/gfs.$PDY/$cyc/$COMPONENT"
-export DO_MAKEPREPBUFR=YES
-export ROTDIR_DUMP=YES
-export OPREFIX=$CDUMP.t${cyc}z.
-export EXPDIR="$HOMEgfs/parm/config"
-export ROTDIR=%COM%/$NET/$envir
-export CDATE=${PDY}${cyc}
 
-#############################################################
-# Source relevant configs
-#############################################################
-configs="base prep prepbufr"
-for config in $configs; do
-    . $EXPDIR/config.${config}
-    status=$?
-    [[ $status -ne 0 ]] && exit $status
-done
+#### Developer overwrite
+export KEEPDATA="YES"
+export COMIN_ROOT=${COMIN_ROOT:-$(compath.py -o ${NET}/${gfs_ver}/${RUN}.${PDY})/${cyc}/$COMPONENT}
+export COMIN=${COMIN:-$(compath.py -o ${NET}/${gfs_ver}/${RUN}.${PDY})/${cyc}/$COMPONENT}
+export COMOUT_ROOT=${COMOUT:-$(compath.py -o ${NET}/${gfs_ver}/${RUN}.${PDY})/${cyc}/$COMPONENT}
+export COMOUT=${COMOUT:-$(compath.py -o ${NET}/${gfs_ver}/${RUN}.${PDY})/${cyc}/$COMPONENT}
+export COMINgdas=${COMINgdas:-$(compath.py -o ${NET}/${gfs_ver}/gdas.${PDY})/${cyc}/${COMPONENT}}
+export COMINgfs=${COMINgfs:-$(compath.py -o ${NET}/${gfs_ver}/gfs.${PDY})/${cyc}/${COMPONENT}}
 
-#############################################################
-# Source machine runtime environment
-#############################################################
-. $BASE_ENV/${machine}.env prep
-status=$?
-[[ $status -ne 0 ]] && exit $status
-
-#############################################################
-# CALL executable job script here
-#############################################################
-if [ $DO_MAKEPREPBUFR = "YES" ]; then
-  if [ $ROTDIR_DUMP = "YES" ]; then
-    if [ -s $COMOUT/${OPREFIX}prepbufr ]; then
-      rm $COMOUT/${OPREFIX}prepbufr
-      rm $COMOUT/${OPREFIX}prepbufr.acft_profiles
-      rm $COMOUT/${OPREFIX}nsstbufr
-    fi
-  fi
-  if [ $machine = "WCOSS_C" -o $machine = "WCOSS_DELL_P3" -o $machine = "THEIA" ]; then
-    export job="j${CDUMP}_prep_${cyc}"
-    export DATAROOT="$RUNDIR/$CDATE/$CDUMP/prepbufr"
-    ${HOMEobsproc_global}/jobs/JGLOBAL_PREP
-    status=$?
-    [[ $status -ne 0 ]] && exit $status
-  else
-    echo "WARNING:  prep step is not supported on $machine, exit"
-    status=9
-  fi
-fi
-
-if [ $status -ne 0 ]; then
-   ecflow_client --msg="***JOB ${ECF_NAME} ERROR RUNNING J-SCRIPT ***"
-   ecflow_client --abort
-   exit
-fi
+$HOMEobsproc/jobs/JOBSPROC_GLOBAL_PREP
 
 %include <tail.h>
 %manual
+######################################################################
+# Purpose:
+#
+#
+######################################################################
 
+######################################################################
+# Job specific troubleshooting instructions:
+#  see generic troubleshoot manual page
+#
+######################################################################
+
+# include manual page below
 %end

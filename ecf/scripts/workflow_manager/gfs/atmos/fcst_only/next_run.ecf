@@ -1,0 +1,36 @@
+#!/bin/bash
+#SBATCH -J %RUN%_next_run_%CYC%
+#SBATCH -o %RUN%_next_run_%CYC%.o%j
+#SBATCH -A %HERA_ACCOUNT%
+#SBATCH -q %QUEUE%
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --verbose
+#SBATCH --time=0:02:00
+
+model=gfs
+%include <head.h>
+%include <envir-p1.h>
+
+export edate=%EDATE%
+export cyc=%CYC%
+export cycle=t${cyc}z
+%include <emc_cdate.h>
+
+if [ $PDY == $edate ]; then
+  ecflow_client --msg="***Forecast Only parallel run is completed***"
+else
+  ecflow_client --alter change variable PDY $PDYp1 /fcstonly
+  ecflow_client --msg="***Forecast Only parallel $PDY$cyc is done $PDYp1$cyc is in quote next***"
+  ecflow_client --alter change event release_fcst clear /fcstonly/primary/00/workflow_manager/v1.0/gfs/atmos/fcst_only/jgfs_ic_manager
+  ecflow_client --alter change event release_getic clear /fcstonly/primary/00/workflow_manager/v1.0/gfs/atmos/fcst_only/jgfs_ic_manager
+  ecflow_client --requeue=force /fcstonly/primary/00/workflow_manager/v1.0/gfs/atmos/fcst_only/jgfs_ic_manager
+  ecflow_client --requeue=force /fcstonly/primary/00/workflow_manager/v1.0/gfs/atmos/fcst_only/jgfs_getic
+  ecflow_client --requeue=force /fcstonly/primary/00/workflow_manager/v1.0/gfs/atmos/fcst_only/jgfs_init
+  ecflow_client --requeue=force /fcstonly/primary/00/gfs
+fi
+
+%include <tail.h>
+%manual
+
+%end

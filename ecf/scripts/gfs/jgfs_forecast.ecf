@@ -1,58 +1,47 @@
-#BSUB -L /bin/sh
-#BSUB -J %E%gfs_forecast_%CYC%
-#BSUB -o %COM%/output/%ENVIR%/today/gfs_forecast_%CYC%.o%J
-#BSUB -q %QUEUE%
-#BSUB -P %PROJ%
-#BSUB -W 1:30
-#BSUB -n 203
-#BSUB -R affinity[core(4)]
-#BSUB -R span[ptile=7]
-#BSUB -cwd /tmp
+#!/bin/bash
+#SBATCH -J %RUN%_forecast_%CYC%
+#SBATCH -o %RUN%_forecast_%CYC%.o%j
+#SBATCH -A %HERA_ACCOUNT%
+#SBATCH -q %QUEUE%
+#SBATCH --nodes=12
+#SBATCH --ntasks-per-node=20
+#SBATCH --cpus-per-task=2
+#SBATCH --time=3:00:00
+#SBATCH --verbose
 
+model=gfs
 %include <head.h>
-%include <envir-p3.h>
+%include <envir-p1.h>
 
 set -x
-
-export NODES=29
-export ntasks=203
-export ptile=7
-export threads=4
 
 export NET=%NET:gfs%
 export RUN=%RUN%
 export CDUMP=%RUN%
 
-model=gfs
-%include <model_ver.h>
-
 ############################################################
 # Load modules
 ############################################################
-module load lsf/$lsf_ver
-module load impi/$impi_ver
-module load NetCDF-parallel/${netcdf_parallel_ver}
-module load HDF5-parallel/${hdf5_parallel_ver}
-module load CFP/${CFP_ver}
-module load grib_util/${grib_util_ver}
-module load ESMF/${ESMF_ver}
+module use /scratch2/NCEPDEV/nwprod/hpc-stack/libs/hpc-stack/modulefiles/stack
+module load hpc/1.1.0
+module load hpc-intel/18.0.5.274
+module load hpc-impi/2018.0.4
+module load hdf5/1.10.6
+module load netcdf/4.7.4
 
 module list
 
 #############################################################
 # WCOSS environment settings
 #############################################################
-#### export ROTDIR=%COM%/$NET/$envir
 export cyc=%CYC%
 export cycle=t%CYC%z
-#### export CDATE=$PDY$cyc
-export USE_CFP=YES
 
+export OMP_PLACES=cores
 ############################################################
 # CALL executable job script here
 ############################################################
 ${HOMEgfs}/jobs/JGLOBAL_FORECAST
-
 if [ $? -ne 0 ]; then
    ecflow_client --msg="***JOB ${ECF_NAME} ERROR RUNNING J-SCRIPT ***"
    ecflow_client --abort

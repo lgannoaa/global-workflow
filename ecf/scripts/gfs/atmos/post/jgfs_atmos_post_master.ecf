@@ -1,0 +1,71 @@
+#!/bin/bash
+#SBATCH -J %RUN%_atmos_post_%FHR%_%CYC%
+#SBATCH -o %RUN%_atmos_post_%FHR%_%CYC%.o%j
+#SBATCH -A %HERA_ACCOUNT%
+#SBATCH -q %QUEUE%
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=12
+#SBATCH --ntasks-per-node=1
+#SBATCH --verbose
+#SBATCH --time=0:30:00
+
+model=gfs
+%include <head.h>
+%include <envir-p1.h>
+
+set -x
+
+export NET=%NET:gfs%
+export RUN=%RUN%
+export CDUMP=%RUN%
+
+export FHRGRP=%FHRGRP%
+export FHRLST=%FHRLST%
+export FHR=%FHR%
+export post_times=%HR%
+
+############################################################
+# Load modules
+############################################################
+module use /scratch2/NCEPDEV/nwprod/hpc-stack/libs/hpc-stack/modulefiles/stack
+module load hpc/1.1.0
+module load hpc-intel/18.0.5.274
+module load hpc-impi/2018.0.4
+module load hdf5/1.10.6
+module load netcdf/4.7.4
+module load grib_util/1.2.2
+module load crtm/2.3.0
+export CRTM_FIX=/scratch2/NCEPDEV/nwprod/NCEPLIBS/fix/crtm_v2.3.0
+module load g2tmpl/1.9.1
+module load wgrib2/2.0.8
+export WGRIB2=wgrib2
+
+module list
+
+#############################################################
+# WCOSS environment settings
+#############################################################
+export FHR=%FHR%
+export post_times=%HR%
+export FHRGRP=%FHRGRP%
+export FHRLST=%FHRLST%
+export cyc=%CYC%
+export cycle=t%CYC%z
+export USE_CFP=YES
+export g2tmpl_ver=v${g2tmpl_ver}
+
+############################################################
+# CALL executable job script here
+############################################################
+$HOMEgfs/jobs/JGLOBAL_ATMOS_NCEPPOST
+
+if [ $? -ne 0 ]; then
+   ecflow_client --msg="***JOB ${ECF_NAME} ERROR RUNNING J-SCRIPT ***"
+   ecflow_client --abort
+   exit
+fi
+
+%include <tail.h>
+%manual
+
+%end

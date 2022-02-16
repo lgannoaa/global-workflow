@@ -1,0 +1,45 @@
+#!/bin/bash
+#SBATCH -J gfs_init_%CYC%
+#SBATCH -o gfs_init_%CYC%.o%j
+#SBATCH -A %HERA_ACCOUNT%
+#SBATCH -q %QUEUE%
+#SBATCH --nodes=4
+#SBATCH --cpus-per-task=1
+#SBATCH --ntasks-per-node=6
+#SBATCH --time=0:30:00
+#SBATCH --verbose
+
+model=gfs
+%include <head.h>
+%include <envir-p1.h>
+
+set -x
+
+export NET=%NET:gfs%
+export RUN=%RUN%
+export CDUMP=%RUN%
+
+############################################################
+# Load modules
+############################################################
+
+module list
+
+export cyc=%CYC%
+export cycle=t%CYC%z
+
+############################################################
+# CALL executable job script here
+############################################################
+${HOMEgfs}/jobs/rocoto/init.sh
+
+if [ $? -ne 0 ]; then
+   ecflow_client --msg="***JOB ${ECF_NAME} ERROR RUNNING J-SCRIPT ***"
+   ecflow_client --abort
+   exit
+fi
+
+%include <tail.h>
+%manual
+
+%end

@@ -1,0 +1,3 @@
+suite task_limit
+  limit TOTALITY 12
+endsuite
