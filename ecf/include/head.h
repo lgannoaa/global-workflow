@@ -90,3 +90,4 @@ ERROR() {
 }
 # Trap all error and exit signals
 trap 'ERROR $?' ERR EXIT
+
