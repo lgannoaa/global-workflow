@@ -2,6 +2,13 @@
 export job=${job:-$PBS_JOBNAME}
 export jobid=${jobid:-$job.$PBS_JOBID}
 
+export RUN_ENVIR=emc
+export envir=%ENVIR%
+export MACHINE_SITE=%MACHINE_SITE%
+
+if [ -n "%SENDCANNEDDBN:%" ]; then export SENDCANNEDDBN=${SENDCANNEDDBN:-%SENDCANNEDDBN:%}; fi
+export SENDCANNEDDBN=${SENDCANNEDDBN:-"NO"}
+
 if [[ "$envir" == prod && "$SENDDBN" == YES ]]; then
     export eval=%EVAL:NO%
     if [ $eval == YES ]; then export SIPHONROOT=${UTILROOT}/para_dbn
@@ -11,21 +18,21 @@ if [[ "$envir" == prod && "$SENDDBN" == YES ]]; then
 else
     export SIPHONROOT=${UTILROOT}/fakedbn
 fi
-
+export SIPHONROOT=${UTILROOT}/fakedbn
 export DBNROOT=$SIPHONROOT
 
 if [[ ! " prod para test " =~ " ${envir} " && " ops.prod ops.para " =~ " $(whoami) " ]]; then err_exit "ENVIR must be prod, para, or test [envir-p1.h]"; fi
 
-#### Developer Overwrite
-####  For script level COM path assignment - compath.py gfs/v16.2
-####  Result in path: ${PTMP}/${USER}/${PSLOT}/para/com/gfs/v16.2
 PTMP=/lfs/h2/emc/ptmp
-PSLOT=ecfops
+PSLOT=da-dev16-ecf
 export COMROOT=${PTMP}/${USER}/${PSLOT}/para/com
-export COMPATH=${PTMP}/${USER}/${PSLOT}/para/com/gfs
+export COMPATH=${PTMP}/${USER}/${PSLOT}/para/com/gfs:/lfs/h2/emc/global/noscrub/${USER}/canned/com/obsproc
 export ROTDIR="$(compath.py gfs/${gfs_ver})"
-
 if [ -n "%PDY:%" ]; then
   export PDY=${PDY:-%PDY:%}
   export CDATE=${PDY}%CYC:%
 fi
+export DATAROOT=/lfs/h2/emc/stmp/${USER}/RUNDIRS/${PSLOT}/${CDATE}
+echo $ROTDIR/%RUN:%.${PDY}/%CYC:%/atmos
+mkdir -p $DATAROOT $ROTDIR/%RUN:%.${PDY}/%CYC:%/atmos
+export COMINobsproc=/lfs/h2/emc/global/noscrub/emc.global/dump/%RUN:%.${PDY}/%CYC:%

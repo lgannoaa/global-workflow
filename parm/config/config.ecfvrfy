@@ -110,6 +110,9 @@ fi
 
 if [ $VRFYRAD = "YES" -o $VRFYMINMON = "YES" -o $VRFYOZN = "YES" ]; then
 
+####    Lin Gan
+####    export envir="para"
+
     # Radiance Monitoring
     if [[ "$VRFYRAD" == "YES" && "$CDUMP" == "$CDFNL" ]] ; then
 
@@ -153,7 +156,7 @@ export ens_tracker_ver=v1.1.15.5
 if [ $machine = "WCOSS_DELL_P3" ] ; then
     export ens_tracker_ver=v1.1.15.3
 fi
-export HOMEens_tracker=$BASE_GIT/TC_tracker/${ens_tracker_ver}
+export HOMEens_tracker=$BASE_GIT/tracker/ens_tracker.${ens_tracker_ver}
 if [ $machine = "ORION" ] ; then
     export HOMEens_tracker=$BASE_GIT/tracker/TC_tracker.v1.1.15.2
 fi
