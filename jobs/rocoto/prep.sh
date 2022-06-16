@@ -33,63 +33,56 @@ export OPREFIX="${CDUMP}.t${cyc}z."
 export COMOUT="$ROTDIR/$CDUMP.$PDY/$cyc/$COMPONENT"
 [[ ! -d $COMOUT ]] && mkdir -p $COMOUT
 
-#### Instead of slink to COM; wcoss2 has changed to modify path to look from opsproc (NCO realtime) or EMC dump arch location
-####   This area of the code is now disabled
 ###############################################################
 # If ROTDIR_DUMP=YES, copy dump files to rotdir 
-#if [ $ROTDIR_DUMP = "YES" ]; then
-#   $HOMEgfs/ush/getdump.sh $CDATE $CDUMP $DMPDIR/${CDUMP}${DUMP_SUFFIX}.${PDY}/${cyc}/${COMPONENT} $COMOUT
-#   status=$?
-#   [[ $status -ne 0 ]] && exit $status
+if [ $ROTDIR_DUMP = "YES" ]; then
+   $HOMEgfs/ush/getdump.sh $CDATE $CDUMP $DMPDIR/${CDUMP}${DUMP_SUFFIX}.${PDY}/${cyc}/${COMPONENT} $COMOUT
+   status=$?
+   [[ $status -ne 0 ]] && exit $status
 
 #  Ensure previous cycle gdas dumps are available (used by cycle & downstream)
-#   GDATE=$($NDATE -$assim_freq $CDATE)
-#   gPDY=$(echo $GDATE | cut -c1-8)
-#   gcyc=$(echo $GDATE | cut -c9-10)
-#   GDUMP=gdas
-#   gCOMOUT="$ROTDIR/$GDUMP.$gPDY/$gcyc/$COMPONENT"
-#   if [ ! -s $gCOMOUT/$GDUMP.t${gcyc}z.updated.status.tm00.bufr_d ]; then
-#     $HOMEgfs/ush/getdump.sh $GDATE $GDUMP $DMPDIR/${GDUMP}${DUMP_SUFFIX}.${gPDY}/${gcyc}/${COMPONENT} $gCOMOUT
-#     status=$?
-#     [[ $status -ne 0 ]] && exit $status
-#   fi
+   GDATE=$($NDATE -$assim_freq $CDATE)
+   gPDY=$(echo $GDATE | cut -c1-8)
+   gcyc=$(echo $GDATE | cut -c9-10)
+   GDUMP=gdas
+   gCOMOUT="$ROTDIR/$GDUMP.$gPDY/$gcyc/$COMPONENT"
+   if [ ! -s $gCOMOUT/$GDUMP.t${gcyc}z.updated.status.tm00.bufr_d ]; then
+     $HOMEgfs/ush/getdump.sh $GDATE $GDUMP $DMPDIR/${GDUMP}${DUMP_SUFFIX}.${gPDY}/${gcyc}/${COMPONENT} $gCOMOUT
+     status=$?
+     [[ $status -ne 0 ]] && exit $status
+   fi
 
-#fi
+fi
 
 ###############################################################
 
-####   This area of the code is now disabled because EMC parallel will use syndata.tcvitals.tm00 from dump archive
-####     As of June 14th, EMC dump archive does not archive tcvital file. It archived production syndata.tcvitals.tm00 file.
-####     Will access dump archive for syndata.tcvitals.tm00 file.
-####     Will not need to copy syndata.tcvitals.tm00 to GFS COM because in OBSPROC output in wcoss2 is located in different location.
-####     Will use compath assignment to access this file from EMC dump archive for EMC pre-implementation parallel.
 ###############################################################
 # For running real-time parallels on WCOSS_C, execute tropcy_qc and 
 # copy files from operational syndata directory to a local directory.
 # Otherwise, copy existing tcvital data from globaldump.
 
-#if [ $PROCESS_TROPCY = "YES" ]; then
-#
-#    export ARCHSYNDNCO=$COMROOTp1/arch/prod/syndat
-#    if [ $RUN_ENVIR != "nco" ]; then
-#        export ARCHSYND=${ROTDIR}/syndat
-#        if [ ! -d ${ARCHSYND} ]; then mkdir -p $ARCHSYND; fi
-#        if [ ! -s $ARCHSYND/syndat_akavit ]; then 
-#            for file in syndat_akavit syndat_dateck syndat_stmcat.scr syndat_stmcat syndat_sthisto syndat_sthista ; do
-#                cp $ARCHSYNDNCO/$file $ARCHSYND/. 
-#            done
-#        fi
-#    fi
+if [ $PROCESS_TROPCY = "YES" ]; then
 
-#    [[ $ROTDIR_DUMP = "YES" ]] && rm $COMOUT${CDUMP}.t${cyc}z.syndata.tcvitals.tm00
+    export ARCHSYNDNCO=$COMROOTp1/arch/prod/syndat
+    if [ $RUN_ENVIR != "nco" ]; then
+        export ARCHSYND=${ROTDIR}/syndat
+        if [ ! -d ${ARCHSYND} ]; then mkdir -p $ARCHSYND; fi
+        if [ ! -s $ARCHSYND/syndat_akavit ]; then 
+            for file in syndat_akavit syndat_dateck syndat_stmcat.scr syndat_stmcat syndat_sthisto syndat_sthista ; do
+                cp $ARCHSYNDNCO/$file $ARCHSYND/. 
+            done
+        fi
+    fi
 
-#    $HOMEgfs/jobs/JGLOBAL_ATMOS_TROPCY_QC_RELOC
-#    status=$?
-#    [[ $status -ne 0 ]] && exit $status
+    [[ $ROTDIR_DUMP = "YES" ]] && rm $COMOUT${CDUMP}.t${cyc}z.syndata.tcvitals.tm00
 
-#else
-#    [[ $ROTDIR_DUMP = "NO" ]] && cp $DMPDIR/${CDUMP}${DUMP_SUFFIX}.${PDY}/${cyc}/${COMPONENT}/${CDUMP}.t${cyc}z.syndata.tcvitals.tm00 $COMOUT/
-#fi
+    $HOMEgfs/jobs/JGLOBAL_ATMOS_TROPCY_QC_RELOC
+    status=$?
+    [[ $status -ne 0 ]] && exit $status
+
+else
+    [[ $ROTDIR_DUMP = "NO" ]] && cp $DMPDIR/${CDUMP}${DUMP_SUFFIX}.${PDY}/${cyc}/${COMPONENT}/${CDUMP}.t${cyc}z.syndata.tcvitals.tm00 $COMOUT/
+fi
 
 
 ###############################################################
