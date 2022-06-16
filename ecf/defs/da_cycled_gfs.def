@@ -25,6 +25,7 @@ suite da_cycled_gfs
               family obsproc
                 family dump
                   task jgfs_atmos_tropcy_qc_reloc
+                    defstatus complete
                     event 1 jtwc_bull_email
                     #### time 02:41
                     trigger /da_cycled_gfs/primary/00/workflow_manager/v1.0/cycled/workflow_monitor:release_gfs
@@ -2242,8 +2243,9 @@ suite da_cycled_gfs
               family obsproc
                 family dump
                   task jgdas_atmos_tropcy_qc_reloc
+                    defstatus complete
                     #### time 05:45
-                  trigger /da_cycled_gfs/primary/00/workflow_manager/v1.0/cycled/workflow_monitor:release_gdas
+                    trigger /da_cycled_gfs/primary/00/workflow_manager/v1.0/cycled/workflow_monitor:release_gdas
                 endfamily
                 family prep
                   task jgdas_atmos_emcsfc_sfc_prep
@@ -2616,27 +2618,34 @@ suite da_cycled_gfs
         endfamily             # v2.4
       endfamily               # gfs
       family obsproc
-        defstatus complete
         family v1.0
           family gfs
             family atmos
               family dump
+                defstatus complete
                 task jobsproc_gfs_atmos_dump
                   event release_sfcprep
               endfamily
               family prep
+                edit RUN 'gfs'
+                edit ECF_FILES '%PACKAGEHOME%/ecf/scripts/workflow_manager/cycled/gfs/atmos/obsproc/prep/'
                 task jobsproc_gfs_atmos_prep
+                trigger /da_cycled_gfs/primary/00/workflow_manager/v1.0/cycled/workflow_monitor:release_gfs
               endfamily
             endfamily
           endfamily           # obsproc gfs
           family gdas
             family atmos
               family dump
+                defstatus complete
                 task jobsproc_gdas_atmos_dump
                   event release_sfcprep
               endfamily
               family prep
+                edit RUN 'gdas'
+                edit ECF_FILES '%PACKAGEHOME%/ecf/scripts/workflow_manager/cycled/gdas/atmos/obsproc/prep/'
                 task jobsproc_gdas_atmos_prep
+                trigger /da_cycled_gfs/primary/00/workflow_manager/v1.0/cycled/workflow_monitor:release_gdas
               endfamily
             endfamily
           endfamily           # obsproc gdas
@@ -2732,6 +2741,7 @@ suite da_cycled_gfs
               family obsproc
                 family dump
                   task jgfs_atmos_tropcy_qc_reloc
+                    defstatus complete
                     event 1 jtwc_bull_email
                     #### time 08:41
                     trigger /da_cycled_gfs/primary/06/workflow_manager/v1.0/cycled/workflow_monitor:release_gfs
@@ -4950,6 +4960,7 @@ suite da_cycled_gfs
                 family dump
                   task jgdas_atmos_tropcy_qc_reloc
                     #### time 11:45
+                    defstatus complete
                     trigger /da_cycled_gfs/primary/06/workflow_manager/v1.0/cycled/workflow_monitor:release_gdas
                 endfamily
                 family prep
@@ -5323,27 +5334,34 @@ suite da_cycled_gfs
         endfamily             # v2.4
       endfamily               # gfs
       family obsproc
-        defstatus complete
         family v1.0
           family gfs
             family atmos
               family dump
+                defstatus complete
                 task jobsproc_gfs_atmos_dump
                   event release_sfcprep
               endfamily
               family prep
+                edit RUN 'gfs'
+                edit ECF_FILES '%PACKAGEHOME%/ecf/scripts/workflow_manager/cycled/gfs/atmos/obsproc/prep/'
                 task jobsproc_gfs_atmos_prep
+                trigger /da_cycled_gfs/primary/06/workflow_manager/v1.0/cycled/workflow_monitor:release_gfs
               endfamily
             endfamily
           endfamily           # obsproc gfs
           family gdas
             family atmos
               family dump
+                defstatus complete
                 task jobsproc_gdas_atmos_dump
                   event release_sfcprep
               endfamily
               family prep
+                edit RUN 'gdas'
+                edit ECF_FILES '%PACKAGEHOME%/ecf/scripts/workflow_manager/cycled/gdas/atmos/obsproc/prep/'
                 task jobsproc_gdas_atmos_prep
+                trigger /da_cycled_gfs/primary/06/workflow_manager/v1.0/cycled/workflow_monitor:release_gdas
               endfamily
             endfamily
           endfamily           # obsproc gdas
@@ -5427,6 +5445,7 @@ suite da_cycled_gfs
               family obsproc
                 family dump
                   task jgfs_atmos_tropcy_qc_reloc
+                    defstatus complete
                     event 1 jtwc_bull_email
                     #### time 14:41
                     trigger /da_cycled_gfs/primary/12/workflow_manager/v1.0/cycled/workflow_monitor:release_gfs
@@ -7645,6 +7664,7 @@ suite da_cycled_gfs
               family obsproc
                 family dump
                   task jgdas_atmos_tropcy_qc_reloc
+                    defstatus complete
                     #### time 17:45
                     trigger /da_cycled_gfs/primary/12/workflow_manager/v1.0/cycled/workflow_monitor:release_gdas
                 endfamily
@@ -8019,27 +8039,34 @@ suite da_cycled_gfs
         endfamily             # v2.4
       endfamily               # gfs
       family obsproc
-        defstatus complete
         family v1.0
           family gfs
             family atmos
               family dump
+                defstatus complete
                 task jobsproc_gfs_atmos_dump
                   event release_sfcprep
               endfamily
               family prep
+                edit RUN 'gfs'
+                edit ECF_FILES '%PACKAGEHOME%/ecf/scripts/workflow_manager/cycled/gfs/atmos/obsproc/prep/'
                 task jobsproc_gfs_atmos_prep
+                trigger /da_cycled_gfs/primary/12/workflow_manager/v1.0/cycled/workflow_monitor:release_gfs
               endfamily
             endfamily
           endfamily           # obsproc gfs
           family gdas
             family atmos
               family dump
+                defstatus complete
                 task jobsproc_gdas_atmos_dump
                   event release_sfcprep
               endfamily
               family prep
+                edit RUN 'gdas'
+                edit ECF_FILES '%PACKAGEHOME%/ecf/scripts/workflow_manager/cycled/gdas/atmos/obsproc/prep/'
                 task jobsproc_gdas_atmos_prep
+                trigger /da_cycled_gfs/primary/12/workflow_manager/v1.0/cycled/workflow_monitor:release_gdas
               endfamily
             endfamily
           endfamily           # obsproc gdas
@@ -8123,6 +8150,7 @@ suite da_cycled_gfs
               family obsproc
                 family dump
                   task jgfs_atmos_tropcy_qc_reloc
+                    defstatus complete
                     event 1 jtwc_bull_email
                     #### time 20:41
                     trigger /da_cycled_gfs/primary/18/workflow_manager/v1.0/cycled/workflow_monitor:release_gfs
@@ -10340,6 +10368,7 @@ suite da_cycled_gfs
               family obsproc
                 family dump
                   task jgdas_atmos_tropcy_qc_reloc
+                    defstatus complete
                     #### time 23:45
                   trigger /da_cycled_gfs/primary/18/workflow_manager/v1.0/cycled/workflow_monitor:release_gdas
                 endfamily
@@ -10714,27 +10743,34 @@ suite da_cycled_gfs
         endfamily             # v2.4
       endfamily               # gfs
       family obsproc
-        defstatus complete
         family v1.0
           family gfs
             family atmos
               family dump
+                defstatus complete
                 task jobsproc_gfs_atmos_dump
                   event release_sfcprep
               endfamily
               family prep
+                edit RUN 'gfs'
+                edit ECF_FILES '%PACKAGEHOME%/ecf/scripts/workflow_manager/cycled/gfs/atmos/obsproc/prep/'
                 task jobsproc_gfs_atmos_prep
+                trigger /da_cycled_gfs/primary/18/workflow_manager/v1.0/cycled/workflow_monitor:release_gfs
               endfamily
             endfamily
           endfamily           # obsproc gfs
           family gdas
             family atmos
               family dump
+                defstatus complete
                 task jobsproc_gdas_atmos_dump
                   event release_sfcprep
               endfamily
               family prep
+                edit RUN 'gdas'
+                edit ECF_FILES '%PACKAGEHOME%/ecf/scripts/workflow_manager/cycled/gdas/atmos/obsproc/prep/'
                 task jobsproc_gdas_atmos_prep
+                trigger /da_cycled_gfs/primary/00/workflow_manager/v1.0/cycled/workflow_monitor:release_gdas
               endfamily
             endfamily
           endfamily           # obsproc gdas
