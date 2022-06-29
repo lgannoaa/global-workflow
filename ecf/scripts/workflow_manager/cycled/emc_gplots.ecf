@@ -74,7 +74,7 @@ echo "PDYEND $PDYEND"
 #export PDYEND=20220228
 
 if [[ "$SDATE" -gt "0" ]]; then
-    DAYDIF=`$HOMEgfs/ecf/scripts/workflow_manager/ush/ndays.sh $PDYEND $PDYBEG`
+    DAYDIF=`$HOME_emc_ecf_wm/ush/ndays.sh $PDYEND $PDYBEG`
     export NDAYS=$(expr $DAYDIF + 1)
 fi
 
@@ -151,14 +151,14 @@ else
   METPLOT="NO"
 fi
 
-
-cd $HOMEgfs/ecf/scripts/workflow_manager/scripts
+METPLOT="YES"
+cd $HOME_emc_ecf_wm/scripts
 
 ###############################################################
 # Submit METPLUS plotting jobs
 ###############################################################
 if [ ${METPLOT:-"NO"} = "YES" ]; then
-    METPLOTSH=$HOMEgfs/ecf/scripts/workflow_manager/scripts/metplus_submit_auto.sh
+    METPLOTSH=$HOME_emc_ecf_wm/scripts/metplus_submit_auto.sh
     $METPLOTSH
     status=$?
     [[ $status -ne 0 ]] && exit $status

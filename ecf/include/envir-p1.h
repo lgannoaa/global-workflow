@@ -26,8 +26,9 @@ if [[ ! " prod para test " =~ " ${envir} " && " ops.prod ops.para " =~ " $(whoam
 PTMP=/lfs/h2/emc/ptmp
 PSLOT=da-dev16-ecf
 export COMROOT=${PTMP}/${USER}/${PSLOT}/para/com
-export COMPATH=${PTMP}/${USER}/${PSLOT}/para/com/gfs:/lfs/h2/emc/global/noscrub/${USER}/canned/com/obsproc
+export COMPATH=${PTMP}/${USER}/${PSLOT}/para/com/gfs:${PTMP}/${USER}/${PSLOT}/para/com/obsproc
 export ROTDIR="$(compath.py gfs/${gfs_ver})"
+export COMOUT_PREP="$(compath.py obsproc/v1.0.0)"
 if [ -n "%PDY:%" ]; then
   export PDY=${PDY:-%PDY:%}
   export CDATE=${PDY}%CYC:%
@@ -35,4 +36,7 @@ fi
 export DATAROOT=/lfs/h2/emc/stmp/${USER}/RUNDIRS/${PSLOT}/${CDATE}
 echo $ROTDIR/%RUN:%.${PDY}/%CYC:%/atmos
 mkdir -p $DATAROOT $ROTDIR/%RUN:%.${PDY}/%CYC:%/atmos
-export COMINobsproc=/lfs/h2/emc/global/noscrub/emc.global/dump/%RUN:%.${PDY}/%CYC:%
+#### export COMINobsproc=/lfs/h2/emc/global/noscrub/emc.global/dump/%RUN:%.${PDY}/%CYC:%
+export COMINobsproc=/lfs/h2/emc/ptmp/${USER}/${PSLOT}/para/com/obsproc/v1.0/%RUN:%.${PDY}/%CYC:%/atmos
+#### tcvital assignment
+#### export COMINtcvital=$COMINobsproc

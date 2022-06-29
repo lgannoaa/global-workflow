@@ -3,7 +3,7 @@
 #PBS -j oe
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
-#PBS -l walltime=06:00:00
+#PBS -l walltime=08:00:00
 #PBS -l place=vscatter:exclhost,select=1:ompthreads=1
 #PBS -l debug=true
 
@@ -37,7 +37,8 @@ export METPCASE="g2g1"       #set SDATE_GFS in config.base
 # CALL executable job script here
 ############################################################
 unset model
-${HOMEgfs}/jobs/rocoto/metp.sh
+#### ${HOMEgfs}/jobs/rocoto/metp.sh
+${HOME_emc_ecf_wm}/scripts/metp.sh
 
 if [ $? -ne 0 ]; then
    ecflow_client --msg="***JOB ${ECF_NAME} ERROR RUNNING J-SCRIPT ***"

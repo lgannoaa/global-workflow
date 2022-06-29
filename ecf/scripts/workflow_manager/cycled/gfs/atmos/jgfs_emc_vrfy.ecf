@@ -45,7 +45,8 @@ export DATAROOT=$RUNDIR
 
 #### Disable MINMON
 ####   because it is running separately
-export VRFYMINMON="NO"           # GSI minimization monitoring
+####   enable to copy output stats to $NOSCRUB/monitor/ 
+export VRFYMINMON="YES"           # GSI minimization monitoring
 
 ############################################################
 # CALL executable job script here

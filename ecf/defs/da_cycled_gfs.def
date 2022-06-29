@@ -2618,6 +2618,7 @@ suite da_cycled_gfs
         endfamily             # v2.4
       endfamily               # gfs
       family obsproc
+        edit PROJ 'GFS'
         family v1.0
           family gfs
             family atmos
@@ -2630,7 +2631,7 @@ suite da_cycled_gfs
                 edit RUN 'gfs'
                 edit ECF_FILES '%PACKAGEHOME%/ecf/scripts/workflow_manager/cycled/gfs/atmos/obsproc/prep/'
                 task jobsproc_gfs_atmos_prep
-                trigger /da_cycled_gfs/primary/00/workflow_manager/v1.0/cycled/workflow_monitor:release_gfs
+                trigger /da_cycled_gfs/primary/00/workflow_manager/v1.0/cycled/workflow_monitor:release_gfs_emc_prep
               endfamily
             endfamily
           endfamily           # obsproc gfs
@@ -2645,7 +2646,7 @@ suite da_cycled_gfs
                 edit RUN 'gdas'
                 edit ECF_FILES '%PACKAGEHOME%/ecf/scripts/workflow_manager/cycled/gdas/atmos/obsproc/prep/'
                 task jobsproc_gdas_atmos_prep
-                trigger /da_cycled_gfs/primary/00/workflow_manager/v1.0/cycled/workflow_monitor:release_gdas
+                trigger /da_cycled_gfs/primary/00/workflow_manager/v1.0/cycled/workflow_monitor:release_gdas_emc_prep
               endfamily
             endfamily
           endfamily           # obsproc gdas
@@ -2673,10 +2674,12 @@ suite da_cycled_gfs
             task workflow_monitor
              edit ECF_TRIES 72
              trigger /da_cycled_gfs/primary/18/gfs/v16.3/gdas/atmos/post_processing == complete and /da_cycled_gfs/primary/18/gfs/v16.3/enkfgdas/post == complete
-             event 1 release_gfs
-             event 2 release_gdas
-             event 3 release_enkfgdas
-             event 4 release_metplus
+             event 1 release_gfs_emc_prep
+             event 2 release_gdas_emc_prep
+             event 3 release_gfs
+             event 4 release_gdas
+             event 5 release_enkfgdas
+             event 6 release_metplus
             family gfs
               family atmos
                 task jgfs_emc_vrfy
@@ -5334,6 +5337,7 @@ suite da_cycled_gfs
         endfamily             # v2.4
       endfamily               # gfs
       family obsproc
+        edit PROJ 'GFS'
         family v1.0
           family gfs
             family atmos
@@ -5346,7 +5350,7 @@ suite da_cycled_gfs
                 edit RUN 'gfs'
                 edit ECF_FILES '%PACKAGEHOME%/ecf/scripts/workflow_manager/cycled/gfs/atmos/obsproc/prep/'
                 task jobsproc_gfs_atmos_prep
-                trigger /da_cycled_gfs/primary/06/workflow_manager/v1.0/cycled/workflow_monitor:release_gfs
+                trigger /da_cycled_gfs/primary/06/workflow_manager/v1.0/cycled/workflow_monitor:release_gfs_emc_prep
               endfamily
             endfamily
           endfamily           # obsproc gfs
@@ -5361,7 +5365,7 @@ suite da_cycled_gfs
                 edit RUN 'gdas'
                 edit ECF_FILES '%PACKAGEHOME%/ecf/scripts/workflow_manager/cycled/gdas/atmos/obsproc/prep/'
                 task jobsproc_gdas_atmos_prep
-                trigger /da_cycled_gfs/primary/06/workflow_manager/v1.0/cycled/workflow_monitor:release_gdas
+                trigger /da_cycled_gfs/primary/06/workflow_manager/v1.0/cycled/workflow_monitor:release_gdas_emc_prep
               endfamily
             endfamily
           endfamily           # obsproc gdas
@@ -5377,10 +5381,12 @@ suite da_cycled_gfs
             task workflow_monitor
              edit ECF_TRIES 72
              trigger /da_cycled_gfs/primary/00/gfs/v16.3/gdas/atmos/post_processing == complete and /da_cycled_gfs/primary/00/gfs/v16.3/enkfgdas/post == complete
-             event 1 release_gfs
-             event 2 release_gdas
-             event 3 release_enkfgdas
-             event 4 release_metplus
+             event 1 release_gfs_emc_prep
+             event 2 release_gdas_emc_prep
+             event 3 release_gfs
+             event 4 release_gdas
+             event 5 release_enkfgdas
+             event 6 release_metplus
             family gfs
               family atmos
                 task jgfs_emc_vrfy
@@ -8039,6 +8045,7 @@ suite da_cycled_gfs
         endfamily             # v2.4
       endfamily               # gfs
       family obsproc
+        edit PROJ 'GFS'
         family v1.0
           family gfs
             family atmos
@@ -8051,7 +8058,7 @@ suite da_cycled_gfs
                 edit RUN 'gfs'
                 edit ECF_FILES '%PACKAGEHOME%/ecf/scripts/workflow_manager/cycled/gfs/atmos/obsproc/prep/'
                 task jobsproc_gfs_atmos_prep
-                trigger /da_cycled_gfs/primary/12/workflow_manager/v1.0/cycled/workflow_monitor:release_gfs
+                trigger /da_cycled_gfs/primary/12/workflow_manager/v1.0/cycled/workflow_monitor:release_gfs_emc_prep
               endfamily
             endfamily
           endfamily           # obsproc gfs
@@ -8066,7 +8073,7 @@ suite da_cycled_gfs
                 edit RUN 'gdas'
                 edit ECF_FILES '%PACKAGEHOME%/ecf/scripts/workflow_manager/cycled/gdas/atmos/obsproc/prep/'
                 task jobsproc_gdas_atmos_prep
-                trigger /da_cycled_gfs/primary/12/workflow_manager/v1.0/cycled/workflow_monitor:release_gdas
+                trigger /da_cycled_gfs/primary/12/workflow_manager/v1.0/cycled/workflow_monitor:release_gdas_emc_prep
               endfamily
             endfamily
           endfamily           # obsproc gdas
@@ -8082,10 +8089,12 @@ suite da_cycled_gfs
             task workflow_monitor
              edit ECF_TRIES 72
              trigger /da_cycled_gfs/primary/06/gfs/v16.3/gdas/atmos/post_processing == complete and /da_cycled_gfs/primary/06/gfs/v16.3/enkfgdas/post == complete
-             event 1 release_gfs
-             event 2 release_gdas
-             event 3 release_enkfgdas
-             event 4 release_metplus
+             event 1 release_gfs_emc_prep
+             event 2 release_gdas_emc_prep
+             event 3 release_gfs
+             event 4 release_gdas
+             event 5 release_enkfgdas
+             event 6 release_metplus
             family gfs
               family atmos
                 task jgfs_emc_vrfy
@@ -10743,6 +10752,7 @@ suite da_cycled_gfs
         endfamily             # v2.4
       endfamily               # gfs
       family obsproc
+        edit PROJ 'GFS'
         family v1.0
           family gfs
             family atmos
@@ -10755,7 +10765,7 @@ suite da_cycled_gfs
                 edit RUN 'gfs'
                 edit ECF_FILES '%PACKAGEHOME%/ecf/scripts/workflow_manager/cycled/gfs/atmos/obsproc/prep/'
                 task jobsproc_gfs_atmos_prep
-                trigger /da_cycled_gfs/primary/18/workflow_manager/v1.0/cycled/workflow_monitor:release_gfs
+                trigger /da_cycled_gfs/primary/18/workflow_manager/v1.0/cycled/workflow_monitor:release_gfs_emc_prep
               endfamily
             endfamily
           endfamily           # obsproc gfs
@@ -10770,7 +10780,7 @@ suite da_cycled_gfs
                 edit RUN 'gdas'
                 edit ECF_FILES '%PACKAGEHOME%/ecf/scripts/workflow_manager/cycled/gdas/atmos/obsproc/prep/'
                 task jobsproc_gdas_atmos_prep
-                trigger /da_cycled_gfs/primary/00/workflow_manager/v1.0/cycled/workflow_monitor:release_gdas
+                trigger /da_cycled_gfs/primary/18/workflow_manager/v1.0/cycled/workflow_monitor:release_gdas_emc_prep
               endfamily
             endfamily
           endfamily           # obsproc gdas
@@ -10786,10 +10796,12 @@ suite da_cycled_gfs
             task workflow_monitor
              edit ECF_TRIES 72
              trigger /da_cycled_gfs/primary/12/gfs/v16.3/gdas/atmos/post_processing == complete and /da_cycled_gfs/primary/12/gfs/v16.3/enkfgdas/post == complete
-             event 1 release_gfs
-             event 2 release_gdas
-             event 3 release_enkfgdas
-             event 4 release_metplus
+             event 1 release_gfs_emc_prep
+             event 2 release_gdas_emc_prep
+             event 3 release_gfs
+             event 4 release_gdas
+             event 5 release_enkfgdas
+             event 6 release_metplus
             family gfs
               family atmos
                 task jgfs_emc_vrfy
@@ -10844,7 +10856,12 @@ suite da_cycled_gfs
       edit RUN 'gfs'
       edit CYC '00'
       edit PROJ 'GFS'
-      edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
-      cron 14:00    
+      edit ECF_FILES '%PACKAGEHOME%/ecf/scripts/workflow_manager/cycled'
+      cron 14:00
+    task emc_para_check
+      edit RUN 'gfs'
+      edit PROJ 'GFS'
+      edit ECF_FILES '%PACKAGEHOME%/ecf/scripts/workflow_manager/cycled'
+      cron 06:00    
   endfamily                   # primary
 endsuite                      # prod

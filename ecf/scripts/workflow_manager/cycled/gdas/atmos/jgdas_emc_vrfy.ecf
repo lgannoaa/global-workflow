@@ -44,10 +44,11 @@ export RUNDIR=${DATAROOT}/gdas_emc_vrfy
 export DATAROOT=$RUNDIR
 
 #### Disable MINMON RADMON OZMON for ecflow 
-####   because it is running separately 
-export VRFYRAD="NO"              # Radiance data assimilation monitoring
-export VRFYOZN="NO"              # Ozone data assimilation monitoring
-export VRFYMINMON="NO"           # GSI minimization monitoring
+####   because it is running separately
+####   enable to copy output stats to $NOSCRUB/monitor/
+export VRFYRAD="YES"              # Radiance data assimilation monitoring
+export VRFYOZN="YES"              # Ozone data assimilation monitoring
+export VRFYMINMON="YES"           # GSI minimization monitoring
 
 ############################################################
 # CALL executable job script here

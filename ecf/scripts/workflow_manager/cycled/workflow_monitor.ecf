@@ -37,7 +37,7 @@ export cycle=t${cyc}z
 ############################################################
 # CALL executable job script here
 ############################################################
-${HOMEgfs}/ecf/scripts/workflow_manager/jobs/JECF_MONITOR
+${HOME_emc_ecf_wm}/jobs/JECF_MONITOR
 
 %include <tail.h>
 %manual

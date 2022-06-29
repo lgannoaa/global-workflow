@@ -24,6 +24,8 @@ fi
 
 modelhome=%PACKAGEHOME:%
 eval "export HOME${model:?'model undefined'}=$modelhome"
+#### EMC ecflow workflow manager HOME
+export HOME_emc_ecf_wm=${HOMEgfs}/ecf/scripts/workflow_manager
 eval "versionfile=\$HOME${model}/versions/run.ver"
 eval "versionfilewcoss2=\$HOME${model}/versions/wcoss2.ver"
 if [ -f "$versionfile" ]; then 

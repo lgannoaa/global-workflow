@@ -58,8 +58,7 @@ gcyc=$(echo $GDATE | cut -c9-10)
 # Ensure obsproc input exist
 ##############################################
 
-#### temp workaround for dump dir name changing
-COMPONENT=""
+COMPONENT="atmos"
 
 OBSPROC_GDAS_Trigger=$(compath.py ${envir}/obsproc/${obsproc_ver})/gdas.${PDY}/${cyc}/${COMPONENT}/gdas.t${cyc}z.updated.status.tm00.bufr_d
 IMSSNOW_GDAS_Trigger=$(compath.py ${envir}/obsproc/${obsproc_ver})/gdas.${PDY}/${cyc}/${COMPONENT}/gdas.t${cyc}z.imssnow96.grib2
@@ -69,7 +68,9 @@ COMIN_OBS_gfs=$(compath.py prod/obsproc/${obsproc_ver})/gfs.$PDY/$cyc/${COMPONEN
 COMIN_OBS_gdas=$(compath.py prod/obsproc/${obsproc_ver})/gdas.$PDY/$cyc/${COMPONENT}/gdas.$cycle.prepbufr
 ic=1
 release_gdas="NO"
+ecflow_client --event release_gdas_emc_prep
 release_gfs="NO"
+ecflow_client --event release_gfs_emc_prep
 release_enkfgdas="NO"
 while [ $ic -le 20 ];
 do

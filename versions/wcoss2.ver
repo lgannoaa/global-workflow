@@ -5,5 +5,8 @@ export prod_util_ver=${prod_util_ver:-2.0.9}   # Allow override from ops ecflow
 export obsproc_run_ver=1.0.2-rd
 export prepobs_run_ver=1.0.1-rd
 
+#### Workaround for prepobs_run_ver inconsist with module location
+export prepobs_module_ver=1.0.0
+
 export tracker_ver=v1.1.15.5
 export fit_ver="newm.1.5"

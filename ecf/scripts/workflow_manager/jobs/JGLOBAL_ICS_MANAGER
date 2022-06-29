@@ -56,7 +56,7 @@ export EXECgfs=${HOMEgfs:-$HOMEgfs/exec}
 export FIXgfs=${HOMEgfs:-$HOMEgfs/fix}
 export PARMgfs=${HOMEgfs:-$HOMEgfs/parm}
 export USHgfs=${HOMEgfs:-$HOMEgfs/ush}
-export SCRworkflow_manager=$HOMEgfs/ecf/scripts/workflow_manager/scripts
+export SCRworkflow_manager=$HOME_emc_ecf_wm/scripts
 
 ###########################################
 # Run setpdy and initialize PDY variables
