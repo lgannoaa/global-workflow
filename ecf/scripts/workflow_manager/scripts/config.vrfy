@@ -83,7 +83,7 @@ export plot_by="VALID"
 #             "high", use for journals or professional presentations (external use)
 export SEND2WEB="YES"
 export webhost="emcrzdm.ncep.noaa.gov"
-export webhostid="$USER"
+export webhostid="Lin.Gan"
 export webdir="/home/people/emc/www/htdocs/gmb/${webhostid}/metplus/da-dev16-ecf"
 export img_quality="medium"
 ## METPLUS SETTINGS

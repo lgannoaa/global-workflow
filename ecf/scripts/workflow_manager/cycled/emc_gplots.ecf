@@ -47,12 +47,14 @@ export TIME_WINDOW_HOURS=96
 export VSDBPLOT=NO
 export G2OPLOT=NO
 export METPLOT=YES
-export SDATE=${SDATE:-""}
+#export SDATE=${SDATE:-""}
+export SDATE=$SDATE_GFS
 export NDAYS=${NDAYS:-""}
 
 ###############################################################
 # Configure plot time scale
 ###############################################################
+#export SDATE=`$NDATE +24 $SDATE`
 export EDATE=`$NDATE -${EDATE_BACKUP} $CDATE`
 export EDATE_FIT2OBS=`$NDATE -${EDATE_BACKUP_FIT2OBS} $CDATE`
 
@@ -150,8 +152,8 @@ else
   echo "METPLOT can not be started due to input not exist"
   METPLOT="NO"
 fi
-
-METPLOT="YES"
+#### Testing only
+#### METPLOT="YES"
 cd $HOME_emc_ecf_wm/scripts
 
 ###############################################################

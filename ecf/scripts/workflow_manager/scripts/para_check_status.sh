@@ -20,26 +20,16 @@ cd $DATAMAIL
 ln -s ${HOMEgfs}/ecf/scripts/workflow_manager/scripts/perl
 ln -s ${HOMEgfs}/ecf/scripts/workflow_manager/scripts/lfs
 ln -s ${HOMEgfs}/ecf/scripts/workflow_manager/scripts/mailx
+ln -s ${HOMEgfs}/ecf/scripts/workflow_manager/scripts/qstat
 echo `date`
-echo "GROUP EMC usage for PTMP is -" `perl /apps/local/scripts/lsquota|grep ptmp|awk '{print $2"%"}'` "%"
-echo "GROUP EMC usage for STMP is -" `perl /apps/local/scripts/lsquota|grep stmp|awk '{print $2"%"}'` "%"
+echo "GROUP EMC usage for PTMP is -" `perl /apps/local/scripts/lsquota|grep ptmp|awk '{print $2"%"}'`
+echo "GROUP EMC usage for STMP is -" `perl /apps/local/scripts/lsquota|grep stmp|awk '{print $2"%"}'`
 echo "User $USER PTMP usage in TB is -" `lfs quota -u $USER /lfs/h2/emc/ptmp/|grep "0       -"|awk '{print $1/1073741824}'` "TB"
+echo "Current job in running stat count is -" `qstat -u $USER -s -xu $USER |grep ' R '|wc -l`
 echo ""
 
 #Default empty warning message
 warn=""
-#echo `date`
-#test=`perl /apps/local/scripts/lsquota`
-
-#set -x
-#group_ptmp_quota=`perl /apps/local/scripts/lsquota|grep ptmp|awk '{print $2"%"}'`
-#group_stmp_quota=`perl /apps/local/scripts/lsquota|grep stmp|awk '{print $2"%"}'`
-#ptmp_usage=`/usr/bin/lfs quota -u $USER /lfs/h2/emc/ptmp/|grep "0       -"|awk '{print $1/1073741824}'`
-#set +x
-
-
-
-
 
 #Configure fit2obs file requirement
 count_fits_max=60
