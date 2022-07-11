@@ -8,7 +8,6 @@ set -x
 
 
 type=${1:-gfs}                ##gfs, gdas, enkfgdas or enkfggfs
-COMIN_OBS=$COMIN_OBS
 CDATE=${CDATE:-2018010100}
 PDY=$(echo $CDATE | cut -c 1-8)
 cyc=$(echo $CDATE | cut -c 9-10)
@@ -71,10 +70,6 @@ if [ $type = "gfs" ]; then
   echo  "./logs/${CDATE}/gfs*.log                          " >>gfsa.txt
   echo  "${dirname}${head}gsistat                          " >>gfsa.txt
 
-####  echo  "${dirname}${head}nsstbufr                         " >>gfsa.txt
-####  echo  "${dirname}${head}prepbufr                         " >>gfsa.txt
-####  echo  "${dirname}${head}prepbufr_pre-qc                  " >>gfsa.txt
-####  echo  "${dirname}${head}prepbufr.acft_profiles           " >>gfsa.txt
   echo  "${COMIN_OBS}/${head}nsstbufr                         " >>gfsa.txt
   echo  "${COMIN_OBS}/${head}prepbufr                         " >>gfsa.txt
   echo  "${COMIN_OBS}/${head}prepbufr_pre-qc                  " >>gfsa.txt
@@ -277,10 +272,6 @@ if [ $type = "gdas" ]; then
      echo  "${dirname}${head}radstat               " >>gdas_restarta.txt
   fi
 
-####  echo  "${dirname}${head}nsstbufr                 " >>gdas_restarta.txt
-####  echo  "${dirname}${head}prepbufr                 " >>gdas_restarta.txt
-####  echo  "${dirname}${head}prepbufr_pre-qc          " >>gdas_restarta.txt
-####  echo  "${dirname}${head}prepbufr.acft_profiles   " >>gdas_restarta.txt
   echo  "${COMIN_OBS}/${head}nsstbufr                 " >>gdas_restarta.txt
   echo  "${COMIN_OBS}/${head}prepbufr                 " >>gdas_restarta.txt
   echo  "${COMIN_OBS}/${head}prepbufr_pre-qc          " >>gdas_restarta.txt

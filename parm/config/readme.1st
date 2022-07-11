@@ -1,0 +1,6 @@
+2021101600 - Apply CRTM 2.4.0 Fix file mhs_metop-c.SpcCoeff.bin as a workarounf patch for issue:
+             https://github.com/JCSDA-internal/crtm/issues/338
+2021101718 - Set DELETE_COM_IN_ARCHIVE_JOB="YES"
+2021102100 - Following jobs are under memory adjustment to address Cgroup memory limit exceeded issue:
+             All EMC archive jobs, enkfgdas_diag, gdas_atmos_verfrad, gdas_atmos_emcsfc_sfc_prep, 
+             gfs_wave_prdgen_gridded, gfs_wave_prep.

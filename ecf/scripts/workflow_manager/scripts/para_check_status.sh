@@ -25,7 +25,7 @@ echo `date`
 echo "GROUP EMC usage for PTMP is -" `perl /apps/local/scripts/lsquota|grep ptmp|awk '{print $2"%"}'`
 echo "GROUP EMC usage for STMP is -" `perl /apps/local/scripts/lsquota|grep stmp|awk '{print $2"%"}'`
 echo "User $USER PTMP usage in TB is -" `lfs quota -u $USER /lfs/h2/emc/ptmp/|grep "0       -"|awk '{print $1/1073741824}'` "TB"
-echo "Current job in running stat count is -" `qstat -u $USER -s -xu $USER |grep ' R '|wc -l`
+echo "Current Cactus job in running stat count is -" `qstat -u $USER -s -xu $USER |grep ' R '|wc -l`
 echo ""
 
 #Default empty warning message
@@ -54,10 +54,8 @@ export QSTAT="qstat -f -u $USER -w"
 
 # Lists for checking tarballs on HPSS
 export PARA_CHECK_HPSS_LIST_ENKF=${PARA_CHECK_HPSS_LIST_ENKF:-"enkfgdas enkfgdas_grp01 enkfgdas_grp02 enkfgdas_grp03 enkfgdas_grp04 enkfgdas_grp05 enkfgdas_grp06 enkfgdas_grp07 enkfgdas_grp08"}
-export PARA_CHECK_HPSS_LIST_ENKF_RESTARTA=${PARA_CHECK_HPSS_LIST_ENKF_RESTARTA:-"enkfgdas_restarta_grp01 enkfgdas_restarta_grp02 enkfgdas_restarta_grp03 enkfgdas_restarta_grp04 enkfgdas_restarta_grp05 enkfgdas_r
-estarta_grp06 enkfgdas_restarta_grp07 enkfgdas_restarta_grp08"}
-export PARA_CHECK_HPSS_LIST_ENKF_RESTARTB=${PARA_CHECK_HPSS_LIST_ENKF_RESTARTB:-"enkfgdas_restartb_grp01 enkfgdas_restartb_grp02 enkfgdas_restartb_grp03 enkfgdas_restartb_grp04 enkfgdas_restartb_grp05 enkfgdas_r
-estartb_grp06 enkfgdas_restartb_grp07 enkfgdas_restartb_grp08"}
+export PARA_CHECK_HPSS_LIST_ENKF_RESTARTA=${PARA_CHECK_HPSS_LIST_ENKF_RESTARTA:-"enkfgdas_restarta_grp01 enkfgdas_restarta_grp02 enkfgdas_restarta_grp03 enkfgdas_restarta_grp04 enkfgdas_restarta_grp05 enkfgdas_restarta_grp06 enkfgdas_restarta_grp07 enkfgdas_restarta_grp08"}
+export PARA_CHECK_HPSS_LIST_ENKF_RESTARTB=${PARA_CHECK_HPSS_LIST_ENKF_RESTARTB:-"enkfgdas_restartb_grp01 enkfgdas_restartb_grp02 enkfgdas_restartb_grp03 enkfgdas_restartb_grp04 enkfgdas_restartb_grp05 enkfgdas_restartb_grp06 enkfgdas_restartb_grp07 enkfgdas_restartb_grp08"}
 export PARA_CHECK_HPSS_LIST_GDAS=${PARA_CHECK_HPSS_LIST_GDAS:-"gdas gdas_restarta gdas_restartb"}
 export PARA_CHECK_HPSS_LIST_GFS=${PARA_CHECK_HPSS_LIST_GFS:-"gfs_flux gfs_${OUTPUT_FILE}a gfs_${OUTPUT_FILE}b gfs_restarta gfsa gfsb"}
 

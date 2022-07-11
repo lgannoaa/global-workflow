@@ -1,4 +1,4 @@
-export obsproc_ver="1.0.0-rd"
+export obsproc_ver="1.0.2"
 export ukmet_ver=v2.2.0
 export ecmwf_ver=v2.1.0
 export nam_ver=v4.2.0
@@ -30,7 +30,7 @@ export util_shared_ver="1.4.0"
 export prod_util_ver="2.0.9"
 export grib_util_ver="1.2.3"
 export wgrib2_ver="2.0.7"
-export crtm_ver="2.3.0"
+export crtm_ver="2.4.0"
 export g2tmpl_ver="1.9.1"
 export bacio_ver="2.4.1"
 export w3nco_ver="2.4.1"

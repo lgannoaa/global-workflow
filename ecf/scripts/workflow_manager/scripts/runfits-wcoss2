@@ -1,0 +1,23 @@
+set -euax
+
+fit2obs_cdate=2021101618
+
+export ACCOUNT=GFS-DEV
+export HOMEgfs=/lfs/h2/emc/global/noscrub/lin.gan/para/packages/gfs.v16.3.0
+export version=v16.3.0
+pslot=da-dev16-ecf
+export ROTDIR=/lfs/h2/emc/ptmp/lin.gan/${pslot}/para/com/gfs/v16.3
+export COMDAY=/lfs/h2/emc/ptmp/lin.gan/${pslot}/para/com/output/prod/today
+export ARCDIR=/lfs/h2/emc/global/noscrub/lin.gan/archive/${pslot}
+export OBSDIR=/lfs/h2/emc/ptmp/lin.gan/${pslot}/para/com/obsproc/v1.0
+export COM_PRP='$OBSDIR/gdas.$pdy/$cyc/atmos'
+export COM_INA='$ROTDIR/gdas.$pdy/$cyc/atmos'
+export COM_INF='$ROTDIR/vrfyarch/gfs.$fdy/$fzz'
+export RUN_ENVIR=netcdf
+export ACPROFit=YES
+export CONVNETC=YES
+fitdir=/lfs/h2/emc/global/save/emc.global/git/Fit2Obs/newm.1.5
+subfits_wcoss2=${fitdir}/batrun/subfits_wcoss2
+export DATA_Fits=/lfs/h2/emc/stmp/$USER/RUNDIRS/${pslot}/${fit2obs_cdate}/gdas_emc_vrfy/${fit2obs_cdate}/gdas
+rm -rf $DATA_Fits;sleep 5;mkdir -p $DATA_Fits
+${subfits_wcoss2} ${pslot} ${fit2obs_cdate} ${ROTDIR} ${ARCDIR} ${DATA_Fits}

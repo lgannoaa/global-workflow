@@ -6,7 +6,7 @@ export obsproc_run_ver=1.0.2
 export prepobs_run_ver=1.0.1
 
 #### Workaround for prepobs_run_ver inconsist with module location
-export prepobs_module_ver=1.0.0
+#### export prepobs_module_ver=1.0.0
 
 export tracker_ver=v1.1.15.5
 export fit_ver="newm.1.5"

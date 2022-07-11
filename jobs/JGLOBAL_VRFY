@@ -97,7 +97,9 @@ if [ $VRFYFITS = "YES" -a $CDUMP = $CDFNL -a $CDATE != $SDATE ]; then
     export CONVNETC=YES
 
     $PREPQFITSH $PSLOT $xdate $ROTDIR $ARCDIR $TMPDIR
-
+    status=$?
+    [[ $status -ne 0 ]] && exit $status
+ 
     export RUN_ENVIR=$RUN_ENVIR_SAVE
 
 fi

@@ -61,7 +61,7 @@ cd $PBS_O_WORKDIR/para_check_status
 if [ ! -s ${HOMEgfs}/ecf/scripts/workflow_manager/scripts/mailx ]; then
   ln -s ${HOMEgfs}/ecf/scripts/workflow_manager/scripts/mailx
 fi
-echo "GFS ecflow paralel check" | mailx -s "ECFLOW para_check_status ${PSLOT}" -a ${para_check_status_log} lin.gan@noaa.gov
+echo "GFS Cactus ecflow paralel check" | mailx -s "ECFLOW para_check_status ${PSLOT}" -a ${para_check_status_log} lin.gan@noaa.gov
 #### echo "GFS ecflow paralel check test only" | mailx -s "ECFLOW para_check_status ${PSLOT}" -a ${para_check_status_log} lin.gan@noaa.gov -c emily.liu@noaa.gov russ.treadon@noaa.gov
 
 trap 0

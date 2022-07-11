@@ -39,13 +39,6 @@ if [ $VRFYFITS = "YES" ]; then
     export HYBLEVS=$HOMEgfs/fix/fix_am/global_hyblev.l${LEVS}.txt
     export CUE2RUN=$QUEUE
 
-    export vday=$(echo $CDATE | cut -c1-8)
-    export vcyc=$(echo $CDATE | cut -c9-10)
-    export COMDAY=$ROTDIR/logs/$CDATE
-    export COM_INA=$ROTDIR/gdas.$vday/$vcyc/atmos
-    export COM_INF='$ROTDIR/vrfyarch/gfs.\$fdy/\$fzz'
-    export COM_PRP='$ROTDIR/gdas.$pdy/$cyc/atmos'
-
     export VBACKUP_FITS=24
     export RUN_ENVIR=netcdf
     export CONVNETC="YES"
@@ -55,14 +48,10 @@ if [ $VRFYFITS = "YES" ]; then
         export CONVNETC="YES"
     fi
 
-    if [ $machine = "WCOSS_C" ]; then
-        export fitdir="$BASE_GIT/verif/global/parafits.fv3nems/batrun"
-        export PREPQFITSH="$fitdir/subfits_cray_nems"
+    if [ $machine = "WCOSS2" ]; then
+        export PREPQFITSH="$fitdir/subfits_wcoss2"
     elif [ $machine = "WCOSS_DELL_P3" ]; then
         export PREPQFITSH="$fitdir/subfits_dell_nems"
-    elif [ $machine = "WCOSS2" ]; then
-        export FITDIR=$fitdir
-        export PREPQFITSH="$fitdir/subfits_wcoss2"
     elif [ $machine = "HERA" ]; then
         export PREPQFITSH="$fitdir/subfits_hera"
     elif [ $machine = "ORION" ]; then
@@ -153,17 +142,12 @@ fi
 # Cyclone genesis and cyclone track verification
 #-------------------------------------------------
 
-export ens_tracker_ver=v1.1.15.5
 if [ $machine = "WCOSS_DELL_P3" ] ; then
     export ens_tracker_ver=v1.1.15.3
+    export HOMEens_tracker=$BASE_GIT/tracker/ens_tracker.${ens_tracker_ver}
 fi
-export HOMEens_tracker=$BASE_GIT/TC_tracker/${ens_tracker_ver}
-if [ $machine = "ORION" ] ; then
-    export HOMEens_tracker=$BASE_GIT/tracker/TC_tracker.v1.1.15.2
-fi
-if [ $machine = "WCOSS2" ] ; then
-    export HOMEens_tracker=$BASE_GIT/TC_tracker/${ens_tracker_ver}
-fi
+export HOMEens_tracker=$BASE_GIT/TC_tracker/${tracker_ver}
+
 if [ "$VRFYTRAK" = "YES" ]; then
 
     if [ "$CDUMP" = "gdas" ]; then
