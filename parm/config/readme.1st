@@ -4,3 +4,6 @@
 2021102100 - Following jobs are under memory adjustment to address Cgroup memory limit exceeded issue:
              All EMC archive jobs, enkfgdas_diag, gdas_atmos_verfrad, gdas_atmos_emcsfc_sfc_prep, 
              gfs_wave_prdgen_gridded, gfs_wave_prep.
+2021102200 - Job METPlus and gplot updated with GrADS because previous version no longer exist in Cactus
+             module use /apps/test/lmodules/core/
+             module load GrADS/2.2.2

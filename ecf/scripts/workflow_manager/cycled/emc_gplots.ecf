@@ -25,7 +25,8 @@ module load craype/${craype_ver}
 module load intel/${intel_ver}
 module load cray-mpich/${cray_mpich_ver}
 module load cray-pals/${cray_pals_ver}
-export GRADSBIN=/apps/prod/grads-2.2.1-classic/bin
+#### export GRADSBIN=/apps/prod/grads-2.2.1-classic/bin
+export GRADSBIN=/apps/test/grads/spack/opt/spack/cray-sles15-zen2/gcc-11.2.0/grads-2.2.2-wckmyzg7qh5smosf6och6ehqtqlxoy4f/bin
 export grads=$GRADSBIN/grads
 module load imagemagick/${imagemagick_ver}
 export IMGCONVERT=/apps/spack/imagemagick/7.0.8-7/cce/11.0.1/fyjvsbwngyzlsiluc4udbnxkhlbwkzc3/bin/convert
@@ -55,6 +56,11 @@ export NDAYS=${NDAYS:-""}
 # Configure plot time scale
 ###############################################################
 #export SDATE=`$NDATE +24 $SDATE`
+
+#### gplots testing
+EDATE_BACKUP=24
+EDATE_BACKUP_FIT2OBS=48
+
 export EDATE=`$NDATE -${EDATE_BACKUP} $CDATE`
 export EDATE_FIT2OBS=`$NDATE -${EDATE_BACKUP_FIT2OBS} $CDATE`
 
@@ -121,15 +127,17 @@ if [ $test_ct_PDYBEG -eq "270" -a $test_ct_PDYEND -eq "270" ]; then
   for type in raob acft acar surf sfc; do
     for hour in f00 f06 f12 f24 f36 f48 f60 f72 f84 f96 f108 f120; do
       for cycle_cy in 00 06 12 18; do
-        file=${hour}.${type}.${PDYEND}${cycle_cy}
+        #### file=${hour}.${type}.${PDYEND}${cycle_cy}
+        file=${hour}.${type}.${PDYEND_FIT2OBS}${cycle_cy}
         if [[ ! -s ${file} ]]; then
           echo "${file}} file not there"
+          release_fg_fit2obs="NO"
         fi
       done
     done
   done
 fi
-release_fg_fit2obs="YES"
+#### release_fg_fit2obs="YES"
 # tar -tf ${COMOUT}/gdas.${PDY}/18/atmos/gdas.t18z.cnvstat|wc -l (show have 16 records)
 
 #### Checking module reference input
@@ -151,9 +159,11 @@ if [ $release_fg_gplot = "YES" -a $release_fg_fit2obs = "YES" -a $release_fg_mf 
 else
   echo "METPLOT can not be started due to input not exist"
   METPLOT="NO"
+  exit 88
 fi
 #### Testing only
 #### METPLOT="YES"
+
 cd $HOME_emc_ecf_wm/scripts
 
 ###############################################################
