@@ -94,6 +94,21 @@ cyc=`expr $CDATE | cut -c9-10`
 #echo "Check $PSLOT for $BDATE to $EDATE at `date`"
 echo "Check $PSLOT for $EDATE at `date`"
 
+OFFLINE_ARCHIVE_fcount=`grep "+status=" *_HPSS_ARCHIVE_*.out|grep -v "=0"|grep -v "=72"|wc -l`
+echo "Current found failed OFFLINE ARCHIVE jobs count is: $OFFLINE_ARCHIVE_fcount"
+#if [ $OFFLINE_ARCHIVE_fcount -gt 0 ]; then
+#  exit 902
+#fi
+
+OFFLINE_ARCHIVE_fcount=`grep " exceeded limit " *_HPSS_ARCHIVE_*.out|wc -l`
+echo "Current OFFLINE ARCHIVE jobs exceeded clock limit count is: $OFFLINE_ARCHIVE_fcount"
+#if [ $OFFLINE_ARCHIVE_fcount -gt 0 ]; then
+#  exit 901
+#fi
+
+OFFLINE_ARCHIVE_Qcount=`qstat -u $USER -s -xu $USER|grep _HPSS|grep dev_tra|grep ' Q '|wc -l`
+echo "Current OFFLINE ARCHIVE jobs in queue count is: $OFFLINE_ARCHIVE_Qcount"
+
 echo " "
 echo "-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-"
 echo " Check metplus grid2grid"

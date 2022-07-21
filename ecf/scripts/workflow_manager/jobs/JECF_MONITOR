@@ -55,6 +55,53 @@ gPDY=$(echo $GDATE | cut -c1-8)
 gcyc=$(echo $GDATE | cut -c9-10)
 
 ##############################################
+# Check archive job status
+##############################################
+cd $offline_archive_job_dir
+OFFLINE_ARCHIVE_fcount=`grep "+status=" *_HPSS_ARCHIVE_*.out|grep -v "=0"|grep -v "=72"|wc -l`
+echo "Current found failed OFFLINE ARCHIVE jobs count is: $OFFLINE_ARCHIVE_fcount"
+if [ $OFFLINE_ARCHIVE_fcount -gt 0 ]; then
+  exit 902
+fi
+OFFLINE_ARCHIVE_fcount=`grep " exceeded limit " *_HPSS_ARCHIVE_*.out|wc -l`
+echo "Current OFFLINE ARCHIVE jobs exceeded clock limit count is: $OFFLINE_ARCHIVE_fcount"
+if [ $OFFLINE_ARCHIVE_fcount -gt 0 ]; then
+  exit 901
+fi
+
+# Check from PDYm7 to PDY and start cleanup from first
+for pdy_to_chk in ${PDYm7} ${PDYm6} ${PDYm5} ${PDYm4} ${PDYm3} ${PDYm2} ${PDYm1}
+do
+  mark_it="YES"
+  ct_tmp=`ls *_HPSS_ARCHIVE_*_${pdy_to_chk}${cyc}.out|wc -l`
+  if [ $cyc -eq 00 -o $cyc -eq 18 ]; then
+    if [ ! $ct_tmp -eq 30 ]; then mark_it=NO; fi
+  else
+    if [ ! $ct_tmp -eq 22 ]; then mark_it=NO; fi
+  fi
+
+  ct_tmp=`grep "connecting to hpss" *_HPSS_ARCHIVE_*_${pdy_to_chk}${cyc}.out|wc -l`
+  ct_tmp1=`grep "HTAR: HTAR SUCCESSFUL" *_HPSS_ARCHIVE_*_${pdy_to_chk}${cyc}.out|wc -l`
+  if [ ! $ct_tmp -eq $ct_tmp1 ]; then mark_it=NO; fi
+  if [ $mark_it = "YES" ]; then
+   #mark_it_pdym=$pdy_to_chk
+   mv *_HPSS_ARCHIVE_*_${pdy_to_chk}${cyc}.out ./OLD
+   export CDUMP=gfs
+   export CDATE=${pdy_to_chk}${cyc}
+   ${HOME_emc_ecf_wm}/scripts/global_offline_cleanup.sh
+   export CDUMP=gdas
+   export CDATE=${pdy_to_chk}${cyc}
+   ${HOME_emc_ecf_wm}/scripts/global_offline_cleanup.sh
+   export CDUMP=gdas
+   export CDATE=${pdy_to_chk}${cyc}
+   ${HOME_emc_ecf_wm}/scripts/enkfgdas_offline_cleanup.sh
+  fi
+
+done
+
+mkdir -p $DATA
+cd $DATA
+##############################################
 # Ensure obsproc input exist
 ##############################################
 

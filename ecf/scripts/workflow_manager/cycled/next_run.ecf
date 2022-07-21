@@ -51,11 +51,21 @@ echo "This cycle is complete: Success" >> $ecflowlog
 if [ $PDY == $edate ]; then
   ecflow_client --msg="***Cycled parallel run is completed***"
 else
+  if [ $cyc == 18 ]; then
+    # The PDY to run METPlus jobs
+    export machine=WCOSS2
+    echo $PDY > ${HOME_emc_ecf_wm}/scripts/offline_metplus.dt
+    ${HOME_emc_ecf_wm}/scripts/metplus_generate_stats.sh
+    status=$?
+    [[ $status -ne 0 ]] && exit $status
+  fi
   ecflow_client --alter change variable PDY $PDYp1 /da_cycled_gfs/primary/${cyc}
   ecflow_client --msg="***Cycled parallel $PDY$cyc is done $PDYp1$cyc is in quote next***"
   ecflow_client --requeue=force /da_cycled_gfs/primary/${prev_cyc}
+  # The CDATE for para check job
   ecflow_client --alter add variable PDY ${PDY} /da_cycled_gfs/primary/emc_para_check
   ecflow_client --alter add variable CYC ${cyc} /da_cycled_gfs/primary/emc_para_check
+  # The CDATE for gplots job
   ecflow_client --alter add variable PDY ${PDY} /da_cycled_gfs/primary/emc_gplots
   ecflow_client --alter add variable CYC ${cyc} /da_cycled_gfs/primary/emc_gplots
 fi

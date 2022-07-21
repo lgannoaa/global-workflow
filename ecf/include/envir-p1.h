@@ -25,6 +25,7 @@ if [[ ! " prod para test " =~ " ${envir} " && " ops.prod ops.para " =~ " $(whoam
 
 PTMP=/lfs/h2/emc/ptmp
 PSLOT=da-dev16-ecf
+export OFFLINE_HPSS_ARCH=YES
 export COMROOT=${PTMP}/${USER}/${PSLOT}/para/com
 export COMPATH=${PTMP}/${USER}/${PSLOT}/para/com/gfs:${PTMP}/${USER}/${PSLOT}/para/com/obsproc
 export ROTDIR="$(compath.py gfs/${gfs_ver})"

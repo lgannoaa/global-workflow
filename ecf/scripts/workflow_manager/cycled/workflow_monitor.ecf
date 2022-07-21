@@ -33,6 +33,7 @@ module list
 export edate=%EDATE%
 export cyc=%CYC%
 export cycle=t${cyc}z
+export offline_archive_job_dir=$PBS_O_WORKDIR
 
 ############################################################
 # CALL executable job script here

@@ -374,10 +374,16 @@ if [ $type = "enkfgdas" -o $type = "enkfgfs" ]; then
         fi
      fi 
   done # loop over FHR
-  for fstep in eobs eomg ecen esfc eupd efcs epos ; do
-   echo  "logs/${CDATE}/${CDUMP}${fstep}*.log        " >>enkf${CDUMP}.txt
-  done
-
+  
+  # save rocoto workflow job logs
+  if [ -s logs/${CDATE}/${CDUMP}eupd.log ]; then
+    for fstep in eobs eomg ecen esfc eupd efcs epos ; do
+      echo  "logs/${CDATE}/${CDUMP}${fstep}*.log        " >>enkf${CDUMP}.txt
+    done
+  else
+  # save ecflow workflow job logs
+    echo  "logs/${CDATE}/enkf${CDUMP}*.log        " >>enkf${CDUMP}.txt
+  fi
 
 # Ensemble spread file only available with netcdf output
   fh=3

@@ -3,8 +3,8 @@
 #PBS -j oe
 #PBS -q %QUEUE_ARCH%
 #PBS -A %PROJ%-%PROJENVIR%
-#PBS -l walltime=06:00:00
-#PBS -l place=vscatter,select=1:ncpus=1:mem=16GB
+#PBS -l walltime=00:05:00
+#PBS -l place=vscatter,select=1:ncpus=1:mem=1GB
 #PBS -l debug=true
 
 model=gfs
@@ -56,7 +56,11 @@ sh gfs_${CDATE}_archive_list.sh
 ############################################################
 #### ${HOMEgfs}/jobs/rocoto/arch.sh
 
-${HOMEgfs}/jobs/JGLOBAL_ARCHIVE
+if [ "$OFFLINE_HPSS_ARCH" == NO ]; then
+  ${HOMEgfs}/jobs/JGLOBAL_ARCHIVE
+else
+  ${HOME_emc_ecf_wm}/jobs/JGLOBAL_OFFLINE_ARCHIVE
+fi
 
 if [ $? -ne 0 ]; then
    ecflow_client --msg="***JOB ${ECF_NAME} ERROR RUNNING J-SCRIPT ***"

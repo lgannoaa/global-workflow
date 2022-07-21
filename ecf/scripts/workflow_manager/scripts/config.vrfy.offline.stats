@@ -69,8 +69,10 @@ export OUTPUTROOT=${OUTPUTROOT:-/lfs/h2/emc/stmp/$USER/RUNDIRS/${PSLOT}/verif_gl
 #end_date:         verification end date, format YYYYMMDD
 #make_met_data_by: how to treat dates, "VALID" or "INIT"
 #plot_by:          how to plot data, "VALID" or "INIT"
-export start_date="${STAT_date}"
-export end_date="${STAT_date}"
+#### export start_date="${STAT_date}"
+export start_date="${STAT_DATE}"
+#### export end_date="${STAT_date}"
+export end_date="${STAT_DATE}"
 export make_met_data_by="VALID"
 export plot_by="VALID"
 ## WEB SETTINGS
@@ -101,7 +103,7 @@ export log_MET_output_to_METplus="yes"
 ## DATA DIRECTIVE SETTINGS
 export SENDARCH="YES"
 export SENDMETVIEWER="NO"
-export KEEPDATA="NO"
+export KEEPDATA="YES"
 export SENDECF="NO"
 export SENDCOM="NO"
 export SENDDBN="NO"
