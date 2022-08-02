@@ -17,13 +17,56 @@ export TMPDIR=$DATAMAIL
 if [ ! -d $DATAMAIL ]; then mkdir $DATAMAIL; fi
 
 cd $DATAMAIL
-ln -s ${HOMEgfs}/ecf/scripts/workflow_manager/scripts/perl
-ln -s ${HOMEgfs}/ecf/scripts/workflow_manager/scripts/lfs
-ln -s ${HOMEgfs}/ecf/scripts/workflow_manager/scripts/mailx
-ln -s ${HOMEgfs}/ecf/scripts/workflow_manager/scripts/qstat
+if [ ! -s qstat ]; then
+  ln -s ${HOMEgfs}/ecf/scripts/workflow_manager/scripts/perl
+  ln -s ${HOMEgfs}/ecf/scripts/workflow_manager/scripts/lfs
+  ln -s ${HOMEgfs}/ecf/scripts/workflow_manager/scripts/mailx
+  ln -s ${HOMEgfs}/ecf/scripts/workflow_manager/scripts/qstat
+  ln -s /apps/ops/prod/nco/core/ecflow.v5.6.0.11/bin/ecflow_client
+  ln -s /u/lin.gan/bin/pause_parallel.sh
+fi
+
+PTMP_Usage=`perl /apps/local/scripts/lsquota|grep ptmp|awk '{print $2}'`
+STMP_Usage=`perl /apps/local/scripts/lsquota|grep stmp|awk '{print $2}'`
+COM_Usage=`lfs quota -u $USER /lfs/h2/emc/ptmp/|grep "0       -"|awk '{print $1/1073741824}'`
+OFFLINE_ARCHIVE_Qcount=`qstat -u $USER -s -xu $USER|grep _HPSS|grep dev_tra|grep ' Q '|wc -l`
+
+#### DATA_Usage=`du -s /lfs/h2/emc/stmp/lin.gan|awk '{print $1/1073741824}'`
+DATA_Usage=0
+
+Pause_Parallel=NO
+if [ $PTMP_Usage -gt 97 ]; then
+  echo "Pause parallel at 00Z due to EMC PTMP usage is 90%"
+  Pause_Parallel=YES
+fi
+if [ $STMP_Usage -gt 90 ]; then
+  echo "Pause parallel at 00Z due to EMC STMP usage is 80%"
+  Pause_Parallel=YES
+fi
+if [ $COM_Usage -gt 100 ]; then
+  echo "Pause parallel at 00Z due to parallel COM usage is 100T"
+  Pause_Parallel=YES
+fi
+if [ $OFFLINE_ARCHIVE_Qcount -gt 90 ]; then
+  echo "Pause parallel at 00Z due to HPSS archive job in queue over 90"
+  Pause_Parallel=YES
+fi
+
+DATA_Clean_Up=NO
+if [ $DATA_Usage -gt 10 ]; then
+  echo "Pause parallel at 00Z due to EMC STMP usage is over 10T"
+  DATA_Clean_Up=YES
+fi
+if [ $Pause_Parallel = YES ]; then
+  echo "Pause parallel at 00Z NOW"
+  pause_parallel.sh
+fi
+
 echo `date`
-echo "GROUP EMC usage for PTMP is -" `perl /apps/local/scripts/lsquota|grep ptmp|awk '{print $2"%"}'`
-echo "GROUP EMC usage for STMP is -" `perl /apps/local/scripts/lsquota|grep stmp|awk '{print $2"%"}'`
+#echo "GROUP EMC usage for PTMP is -" `perl /apps/local/scripts/lsquota|grep ptmp|awk '{print $2"%"}'`
+#echo "GROUP EMC usage for STMP is -" `perl /apps/local/scripts/lsquota|grep stmp|awk '{print $2"%"}'`
+echo "GROUP EMC usage for PTMP is - ${PTMP_Usage}%"
+echo "GROUP EMC usage for STMP is - ${STMP_Usage}%"
 echo "User $USER PTMP usage in TB is -" `lfs quota -u $USER /lfs/h2/emc/ptmp/|grep "0       -"|awk '{print $1/1073741824}'` "TB"
 echo "Current Cactus job in running stat count is -" `qstat -u $USER -s -xu $USER |grep ' R '|wc -l`
 echo ""
@@ -94,6 +137,9 @@ cyc=`expr $CDATE | cut -c9-10`
 #echo "Check $PSLOT for $BDATE to $EDATE at `date`"
 echo "Check $PSLOT for $EDATE at `date`"
 
+#### OFFLINE_ARCHIVE_Qcount=`qstat -u $USER -s -xu $USER|grep _HPSS|grep dev_tra|grep ' Q '|wc -l`
+echo "Current OFFLINE ARCHIVE jobs in queue count is: $OFFLINE_ARCHIVE_Qcount"
+
 OFFLINE_ARCHIVE_fcount=`grep "+status=" *_HPSS_ARCHIVE_*.out|grep -v "=0"|grep -v "=72"|wc -l`
 echo "Current found failed OFFLINE ARCHIVE jobs count is: $OFFLINE_ARCHIVE_fcount"
 #if [ $OFFLINE_ARCHIVE_fcount -gt 0 ]; then
@@ -105,9 +151,6 @@ echo "Current OFFLINE ARCHIVE jobs exceeded clock limit count is: $OFFLINE_ARCHI
 #if [ $OFFLINE_ARCHIVE_fcount -gt 0 ]; then
 #  exit 901
 #fi
-
-OFFLINE_ARCHIVE_Qcount=`qstat -u $USER -s -xu $USER|grep _HPSS|grep dev_tra|grep ' Q '|wc -l`
-echo "Current OFFLINE ARCHIVE jobs in queue count is: $OFFLINE_ARCHIVE_Qcount"
 
 echo " "
 echo "-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-"
@@ -135,7 +178,6 @@ cd $metplusdir/precip/ccpa_accum24hr/00Z/$PSLOT
 pwd
 echo " "
 ls -l | tail -5
-
 
 if [ $COUNT_FITLOGS -gt 0 ]; then
   echo " "
@@ -307,6 +349,10 @@ if [ $CHECK_HPSS2 = YES ]; then
 fi
 
 rm -rf $TMPDIR
+
+if [ $Pause_Parallel = YES ]; then
+  exit 2
+fi
 
 exit
 

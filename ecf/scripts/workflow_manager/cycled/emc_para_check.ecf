@@ -3,14 +3,14 @@
 #PBS -j oe
 #PBS -q %QUEUE_ARCH%
 #PBS -A %PROJ%-%PROJENVIR%
-#PBS -l walltime=00:10:00
+#PBS -l walltime=00:30:00
 #PBS -l place=vscatter,select=1:ncpus=1:mem=1GB
 #PBS -l debug=true
 
 model=gfs
 %include <head.h>
 %include <envir-p1.h>
-
+#### QUEUE_ARCH
 set -x
 
 export NET=%NET:gfs%

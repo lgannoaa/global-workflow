@@ -137,7 +137,10 @@ if [ $test_ct_PDYBEG -eq "270" -a $test_ct_PDYEND -eq "270" ]; then
     done
   done
 fi
-#### release_fg_fit2obs="YES"
+
+#### fit2obs failed; debug in progress
+release_fg_fit2obs="YES"
+
 # tar -tf ${COMOUT}/gdas.${PDY}/18/atmos/gdas.t18z.cnvstat|wc -l (show have 16 records)
 
 #### Checking module reference input

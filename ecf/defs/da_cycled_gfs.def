@@ -10862,6 +10862,6 @@ suite da_cycled_gfs
       edit RUN 'gfs'
       edit PROJ 'GFS'
       edit ECF_FILES '%PACKAGEHOME%/ecf/scripts/workflow_manager/cycled'
-      cron 02:00 22:00 02:00    
+      cron 00:00 23:00 01:00    
   endfamily                   # primary
 endsuite                      # prod

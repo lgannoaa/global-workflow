@@ -60,14 +60,19 @@ gcyc=$(echo $GDATE | cut -c9-10)
 cd $offline_archive_job_dir
 OFFLINE_ARCHIVE_fcount=`grep "+status=" *_HPSS_ARCHIVE_*.out|grep -v "=0"|grep -v "=72"|wc -l`
 echo "Current found failed OFFLINE ARCHIVE jobs count is: $OFFLINE_ARCHIVE_fcount"
-if [ $OFFLINE_ARCHIVE_fcount -gt 0 ]; then
-  exit 902
-fi
+#if [ $OFFLINE_ARCHIVE_fcount -gt 0 ]; then
+#  exit 901
+#fi
 OFFLINE_ARCHIVE_fcount=`grep " exceeded limit " *_HPSS_ARCHIVE_*.out|wc -l`
 echo "Current OFFLINE ARCHIVE jobs exceeded clock limit count is: $OFFLINE_ARCHIVE_fcount"
-if [ $OFFLINE_ARCHIVE_fcount -gt 0 ]; then
-  exit 901
-fi
+#if [ $OFFLINE_ARCHIVE_fcount -gt 0 ]; then
+#  exit 902
+#fi
+OFFLINE_ARCHIVE_fcount=`grep " - aborting" *_HPSS_ARCHIVE_*.out|wc -l`
+echo "Current OFFLINE ARCHIVE jobs with aborting error count is: $OFFLINE_ARCHIVE_fcount"
+#if [ $OFFLINE_ARCHIVE_fcount -gt 0 ]; then
+#  exit 903
+#fi
 
 # Check from PDYm7 to PDY and start cleanup from first
 for pdy_to_chk in ${PDYm7} ${PDYm6} ${PDYm5} ${PDYm4} ${PDYm3} ${PDYm2} ${PDYm1}

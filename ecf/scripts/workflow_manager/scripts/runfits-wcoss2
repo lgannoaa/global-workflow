@@ -1,23 +1,46 @@
-set -euax
+set -x
 
-fit2obs_cdate=2021101618
+module load craype/2.7.10
+module load cray-mpich/8.1.9
+module load wgrib2/2.0.7
+module load python/3.8.6
 
-export ACCOUNT=GFS-DEV
+export PDY=20211110
+export PDY_M1=20211109
+export cyc=00
+
+export CDATE=${PDY}${cyc}
+cdate_r=${PDY}${cyc}
+cdate_a=${PDY_M1}${cyc}
 export HOMEgfs=/lfs/h2/emc/global/noscrub/lin.gan/para/packages/gfs.v16.3.0
-export version=v16.3.0
-pslot=da-dev16-ecf
-export ROTDIR=/lfs/h2/emc/ptmp/lin.gan/${pslot}/para/com/gfs/v16.3
-export COMDAY=/lfs/h2/emc/ptmp/lin.gan/${pslot}/para/com/output/prod/today
-export ARCDIR=/lfs/h2/emc/global/noscrub/lin.gan/archive/${pslot}
-export OBSDIR=/lfs/h2/emc/ptmp/lin.gan/${pslot}/para/com/obsproc/v1.0
+export EXPDIR=/lfs/h2/emc/global/noscrub/lin.gan/para/packages/gfs.v16.3.0/parm/config
+configs="base ecfvrfy"
+config_path=$EXPDIR
+for config in $configs; do
+    . $config_path/config.$config
+    status=$?
+    [[ $status -ne 0 ]] && exit $status
+done
+. $BASE_ENV/${machine}.env vrfy
+status=$?
+[[ $status -ne 0 ]] && exit $status
+
+export CDUMPFCST=gfs
+export TMPDIR=/lfs/h2/emc/stmp/lin.gan/RUNDIRS/da-dev16-ecf/${cdate_r}/gdas_emc_vrfy/${cdate_r}/gdas
+export xdate=$cdate_a
+export RUN_ENVIR_SAVE=netcdf
+export RUN_ENVIR=netcdf
+export COMDAY=/lfs/h2/emc/ptmp/lin.gan/da-dev16-ecf/para/com/output/prod/today
+export OBSDIR=/lfs/h2/emc/ptmp/lin.gan/da-dev16-ecf/para/com/obsproc/v1.0
 export COM_PRP='$OBSDIR/gdas.$pdy/$cyc/atmos'
 export COM_INA='$ROTDIR/gdas.$pdy/$cyc/atmos'
 export COM_INF='$ROTDIR/vrfyarch/gfs.$fdy/$fzz'
 export RUN_ENVIR=netcdf
 export ACPROFit=YES
 export CONVNETC=YES
-fitdir=/lfs/h2/emc/global/save/emc.global/git/Fit2Obs/newm.1.5
-subfits_wcoss2=${fitdir}/batrun/subfits_wcoss2
-export DATA_Fits=/lfs/h2/emc/stmp/$USER/RUNDIRS/${pslot}/${fit2obs_cdate}/gdas_emc_vrfy/${fit2obs_cdate}/gdas
-rm -rf $DATA_Fits;sleep 5;mkdir -p $DATA_Fits
-${subfits_wcoss2} ${pslot} ${fit2obs_cdate} ${ROTDIR} ${ARCDIR} ${DATA_Fits}
+export ACCOUNT=GFS-DEV
+export FITDIR=/lfs/h2/emc/global/noscrub/lin.gan/git/Fit2Obs/newm.1.5/batrun
+export ARCDIR=/lfs/h2/emc/global/noscrub/lin.gan/archive/da-dev16-ecf
+
+/lfs/h2/emc/global/noscrub/lin.gan/git/Fit2Obs/newm.1.5/batrun/subfits_wcoss2 da-dev16-ecf ${xdate} /lfs/h2/emc/ptmp/lin.gan/da-dev16-ecf/para/com/gfs/v16.3 /lfs/h2/emc/global/noscrub/lin.gan/archive/da-dev16-ecf ${TMPDIR}
+

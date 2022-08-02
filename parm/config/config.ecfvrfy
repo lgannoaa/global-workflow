@@ -34,7 +34,8 @@ export RUNMOS="NO"                # whether to run entire MOS package
 
 if [ $VRFYFITS = "YES" ]; then
 
-    export fitdir="$BASE_GIT/Fit2Obs/${fit_ver}/batrun"
+    #### export fitdir="$BASE_GIT/Fit2Obs/${fit_ver}/batrun"
+    export fitdir="/lfs/h2/emc/global/noscrub/lin.gan/git/Fit2Obs/newm.1.5/batrun"
     export PRVT=$HOMEgfs/fix/fix_gsi/prepobs_errtable.global
     export HYBLEVS=$HOMEgfs/fix/fix_am/global_hyblev.l${LEVS}.txt
     export CUE2RUN=$QUEUE
