@@ -24,7 +24,7 @@ export DBNROOT=$SIPHONROOT
 if [[ ! " prod para test " =~ " ${envir} " && " ops.prod ops.para " =~ " $(whoami) " ]]; then err_exit "ENVIR must be prod, para, or test [envir-p1.h]"; fi
 
 PTMP=/lfs/h2/emc/ptmp
-PSLOT=da-dev16-ecf
+PSLOT=retro1-v16-ecf
 export OFFLINE_HPSS_ARCH=YES
 export COMROOT=${PTMP}/${USER}/${PSLOT}/para/com
 export COMPATH=${PTMP}/${USER}/${PSLOT}/para/com/gfs:${PTMP}/${USER}/${PSLOT}/para/com/obsproc

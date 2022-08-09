@@ -4,7 +4,7 @@
 ####   depending on what date you want to generate stat files you'll change "STAT_DATE" in this file
 set -x
 
-export PSLOT=da-dev16-ecf
+export PSLOT=retro1-v16-ecf
 export EXPDIR=/lfs/h2/emc/global/noscrub/lin.gan/git/gfsda.v16.3.0/parm/config
 
 export HOMEgfs=/lfs/h2/emc/global/noscrub/lin.gan/para/packages/gfs.v16.3.0

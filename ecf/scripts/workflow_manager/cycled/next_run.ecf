@@ -59,15 +59,15 @@ else
     status=$?
     [[ $status -ne 0 ]] && exit $status
   fi
-  ecflow_client --alter change variable PDY $PDYp1 /retro1-v16-ecf/primary/${cyc}
+  ecflow_client --alter change variable PDY $PDYp1 /cycled_v16_3/primary/${cyc}
   ecflow_client --msg="***Cycled parallel $PDY$cyc is done $PDYp1$cyc is in quote next***"
-  ecflow_client --requeue=force /retro1-v16-ecf/primary/${prev_cyc}
+  ecflow_client --requeue=force /cycled_v16_3/primary/${prev_cyc}
   # The CDATE for para check job
-  ecflow_client --alter add variable PDY ${PDY} /retro1-v16-ecf/primary/emc_para_check
-  ecflow_client --alter add variable CYC ${cyc} /retro1-v16-ecf/primary/emc_para_check
+  ecflow_client --alter add variable PDY ${PDY} /cycled_v16_3/primary/emc_para_check
+  ecflow_client --alter add variable CYC ${cyc} /cycled_v16_3/primary/emc_para_check
   # The CDATE for gplots job
-  ecflow_client --alter add variable PDY ${PDY} /retro1-v16-ecf/primary/emc_gplots
-  ecflow_client --alter add variable CYC ${cyc} /retro1-v16-ecf/primary/emc_gplots
+  ecflow_client --alter add variable PDY ${PDY} /cycled_v16_3/primary/emc_gplots
+  ecflow_client --alter add variable CYC ${cyc} /cycled_v16_3/primary/emc_gplots
 fi
 
 rm -rf $DATA

@@ -3,7 +3,7 @@
 #PBS -j oe
 #PBS -q %QUEUE_ARCH%
 #PBS -A %PROJ%-%PROJENVIR%
-#PBS -l walltime=00:30:00
+#PBS -l walltime=00:03:00
 #PBS -l place=vscatter,select=1:ncpus=1:mem=1GB
 #PBS -l debug=true
 
@@ -33,17 +33,7 @@ export cyc=%CYC%
 export cycle=t${cyc}z
 export EXPDIR=${EXPDIR:-$HOMEgfs/parm/config}
 export CDATE="$PDY$cyc"
-export PSLOT=${PSLOT:-"da-dev16-ecf"}
-#source $EXPDIR/config.base
-#export PSLOT=${PSLOT:-"ecfr"}
-#export EDATE_BACKUP=48
-#export EDATE_BACKUP_FIT2OBS=72
-#export TIME_WINDOW_HOURS=96
-#export VSDBPLOT=NO
-#export G2OPLOT=NO
-#export METPLOT=YES
-#export SDATE=${SDATE:-""}
-#export NDAYS=${NDAYS:-""}
+export PSLOT=${PSLOT:-"retro1-v16-ecf"}
 
 ###############################################################
 # Submit METPLUS plotting jobs
@@ -51,10 +41,17 @@ export PSLOT=${PSLOT:-"da-dev16-ecf"}
 mkdir -p $PBS_O_WORKDIR/para_check_status
 para_check_status_log=$PBS_O_WORKDIR/para_check_status/para_check_status.log
 rm -f $para_check_status_log
-METPLOTSH=$HOME_emc_ecf_wm/scripts/para_check_status.sh
-ksh $METPLOTSH &>$PBS_O_WORKDIR/para_check_status/para_check_status.log
+
+export FAILED_ARCHIVE_RERUN=YES
+
+PARA_CHECK_SH=$HOME_emc_ecf_wm/scripts/para_check_status.sh
+ksh $PARA_CHECK_SH &>$PBS_O_WORKDIR/para_check_status/para_check_status.log
 status=$?
 [[ $status -ne 0 ]] && exit $status
+if [ "$FAILED_ARCHIVE_RERUN" = "YES" ]; then
+  ARCHIVE_RERUN_FAILED_SH=$HOME_emc_ecf_wm/scripts/arch_rerun_failed.sh
+  sh $ARCHIVE_RERUN_FAILED_SH
+fi
 
 cd $PBS_O_WORKDIR/para_check_status
 

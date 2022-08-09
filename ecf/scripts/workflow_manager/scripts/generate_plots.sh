@@ -25,7 +25,7 @@ set -x
 ###############################################################
 # User defined variables below
 
-export PSLOT="ecfr"
+export PSLOT="retro1-v16-ecf"
 
 #### export EDATE_BACKUP=0
 #export EDATE_BACKUP=48  #Requested by RUSS on 7/1/2021

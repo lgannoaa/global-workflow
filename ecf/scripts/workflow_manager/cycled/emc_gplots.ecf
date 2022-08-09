@@ -41,7 +41,7 @@ export cycle=t%CYC%z
 export EXPDIR=${EXPDIR:-$HOMEgfs/parm/config}
 export CDATE="$PDY$cyc"
 source $EXPDIR/config.base
-export PSLOT=${PSLOT:-"ecfr"}
+export PSLOT=${PSLOT:-"retro1-v16-ecf"}
 export EDATE_BACKUP=48
 export EDATE_BACKUP_FIT2OBS=72
 export TIME_WINDOW_HOURS=96

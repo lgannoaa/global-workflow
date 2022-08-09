@@ -53,7 +53,7 @@ export RUN_MAPSDA=${RUN_MAPSDA:-"NO"}
 #model_hpss_dir_list:    HPSS directory of data
 #model_data_run_hpss:    get files from HPSS ("YES") if not online
 #hpss_walltime:          how long to run HPSS job to get data in minutes
-export model_list="gfs da-dev16-ecf"
+export model_list="gfs retro1-v16-ecf"
 export model_dir_list="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/model_data /lfs/h2/emc/global/noscrub/lin.gan/archive"
 export model_stat_dir_list="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive /lfs/h2/emc/global/noscrub/lin.gan/archive"
 export model_file_format_list="pgbf{lead?fmt=%2H}.gfs.{init?fmt=%Y%m%d%H} pgbf{lead?fmt=%2H}.gfs.{init?fmt=%Y%m%d%H}.grib2"
@@ -84,7 +84,7 @@ export plot_by="VALID"
 export SEND2WEB="YES"
 export webhost="emcrzdm.ncep.noaa.gov"
 export webhostid="Lin.Gan"
-export webdir="/home/people/emc/www/htdocs/gmb/${webhostid}/metplus/da-dev16-ecf"
+export webdir="/home/people/emc/www/htdocs/gmb/${webhostid}/metplus/retro1-v16-ecf"
 export img_quality="medium"
 ## METPLUS SETTINGS
 #MET_version:               MET version to use: 9.1
@@ -165,7 +165,7 @@ if [ $RUN_GRID2GRID_STEP2 = YES ]; then
     #####    g2g2_[type]_event_eq:        do event equalization (True) or not (False)
     #####    g2g2_[type]_grid:            NCEP grid verification was done on
     #g2g2_make_scorecard: create scorecard on METviewer AWS (YES) or not(NO)
-    export g2g2_model_plot_name_list="gfs da-dev16-ecf"
+    export g2g2_model_plot_name_list="gfs retro1-v16-ecf"
     export g2g2_type_list="anom pres sfc"
     export g2g2_anom_truth_name_list="self_anl self_anl"
     export g2g2_anom_gather_by_list="VSDB VSDB"
@@ -252,7 +252,7 @@ if [ $RUN_GRID2OBS_STEP2 = YES ]; then
     #####    g2o2_[type]_fhr_max:          forecast hour to end verification HH[H]
     #####    g2o2_[type]_event_eq:         do event equalization (True) or not (False)
     #####    g2o2_[type]_grid:             NCEP grid verification was done on
-    export g2o2_model_plot_name_list="gfs da-dev16-ecf"
+    export g2o2_model_plot_name_list="gfs retro1-v16-ecf"
     export g2o2_type_list="upper_air conus_sfc"
     export g2o2_upper_air_msg_type_list="ADPUPA"
     export g2o2_upper_air_gather_by_list="VSDB VSDB"
@@ -321,7 +321,7 @@ if [ $RUN_PRECIP_STEP2 = YES ]; then
     #####    precip2_[type]_fhr_max:        forecast hour to end verification HH[H]
     #####    precip2_[type]_event_eq:       do event equalization (True) or not (False)
     #####    precip2_[type]_grid:           NCEP grid verification was done on
-    export precip2_model_plot_name_list="gfs da-dev16-ecf"
+    export precip2_model_plot_name_list="gfs retro1-v16-ecf"
     export precip2_type_list="ccpa_accum24hr"
     export precip2_ccpa_accum24hr_gather_by_list="VSDB VSDB"
     export precip2_ccpa_accum24hr_fcyc_list="00 06 12 18"
@@ -399,7 +399,7 @@ if [ $RUN_FIT2OBS_PLOTS = YES ]; then
    #fit2obs_plots_finc:       increment (hours) between forecast lengths for timeout plots
    #fit2obs_plots_fmax:       max forecast length to show for timeout plots
    #fit2obs_plots_scrdir:     source directory of fit-to-obs scripts
-   export fit2obs_plots_expnlist="fnl da-dev16-ecf"
+   export fit2obs_plots_expnlist="fnl retro1-v16-ecf"
    export fit2obs_plots_expdlist="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/fit2obs_data /lfs/h2/emc/global/noscrub/$USER/archive"
    export fit2obs_plots_endianlist="little little"
    export fit2obs_plots_cycle="00"
@@ -454,7 +454,7 @@ if [ $RUN_MAPS2D = YES ]; then
     #maps2d_model2model_forecast_anl_diff: plot the difference of model forecast from an analysis (YES) or don't (NO)
     #maps2d_model2obs_use_ceres: use CERES data for cloud and radiation obs. (YES) or use ISCCP, SRB, NVAP, UWisc for cloud and radiation obs. (NO)
     #maps2d_model2obs_use_monthly_mean: use monthly mean from datasets, if available (YES) or use climatology generated from datasets (NO)
-    export maps2d_model_plot_name_list="gfs da-dev16-ecf"
+    export maps2d_model_plot_name_list="gfs retro1-v16-ecf"
     export maps2d_latlon_area="-90 90 0 360"
     export maps2d_plot_diff="YES"
     export maps2d_anl_file_format_list="pgbanl.gfs.{valid?fmt=%Y%m%d%H} pgbanl.gfs.{valid?fmt=%Y%m%d%H}.grib2"
@@ -487,7 +487,7 @@ if [ $RUN_MAPSDA = YES ]; then
     #mapsda_ens_model_dir_list: directory where model ens files are located
     #mapsda_ens_model_file_format_list: file format for ens files
     #mapsda_ens_model_data_run_hpss: get files from HPSS ("YES") if not online
-    export mapsda_model_plot_name_list="gfs da-dev16-ecf" 
+    export mapsda_model_plot_name_list="gfs retro1-v16-ecf" 
     export mapsda_latlon_area="-90 90 0 360"
     export mapsda_plot_diff="NO"
     export mapsda_type_list="gdas ens"

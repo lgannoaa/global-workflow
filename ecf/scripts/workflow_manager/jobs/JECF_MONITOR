@@ -79,10 +79,17 @@ for pdy_to_chk in ${PDYm7} ${PDYm6} ${PDYm5} ${PDYm4} ${PDYm3} ${PDYm2} ${PDYm1}
 do
   mark_it="YES"
   ct_tmp=`ls *_HPSS_ARCHIVE_*_${pdy_to_chk}${cyc}.out|wc -l`
-  if [ $cyc -eq 00 -o $cyc -eq 18 ]; then
-    if [ ! $ct_tmp -eq 30 ]; then mark_it=NO; fi
-  else
-    if [ ! $ct_tmp -eq 22 ]; then mark_it=NO; fi
+#  if [ $cyc -eq 00 -o $cyc -eq 18 ]; then
+#    if [ ! $ct_tmp -eq 30 ]; then mark_it=NO; fi
+#  else
+#    if [ ! $ct_tmp -eq 22 ]; then mark_it=NO; fi
+#  fi
+
+  if [ $ct_tmp -lt 18 ]; then mark_it=NO; fi
+  if [ $ct_tmp -gt 19 ]; then
+    if [ $cyc -eq 00 -o $cyc -eq 18 ]; then
+      if [ ! $ct_tmp -eq 30 ]; then mark_it=NO; fi
+    fi
   fi
 
   ct_tmp=`grep "connecting to hpss" *_HPSS_ARCHIVE_*_${pdy_to_chk}${cyc}.out|wc -l`

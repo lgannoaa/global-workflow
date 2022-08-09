@@ -26,12 +26,12 @@ status=$?
 [[ $status -ne 0 ]] && exit $status
 
 export CDUMPFCST=gfs
-export TMPDIR=/lfs/h2/emc/stmp/lin.gan/RUNDIRS/da-dev16-ecf/${cdate_r}/gdas_emc_vrfy/${cdate_r}/gdas
+export TMPDIR=/lfs/h2/emc/stmp/lin.gan/RUNDIRS/retro1-v16-ecf/${cdate_r}/gdas_emc_vrfy/${cdate_r}/gdas
 export xdate=$cdate_a
 export RUN_ENVIR_SAVE=netcdf
 export RUN_ENVIR=netcdf
-export COMDAY=/lfs/h2/emc/ptmp/lin.gan/da-dev16-ecf/para/com/output/prod/today
-export OBSDIR=/lfs/h2/emc/ptmp/lin.gan/da-dev16-ecf/para/com/obsproc/v1.0
+export COMDAY=/lfs/h2/emc/ptmp/lin.gan/retro1-v16-ecf/para/com/output/prod/today
+export OBSDIR=/lfs/h2/emc/ptmp/lin.gan/retro1-v16-ecf/para/com/obsproc/v1.0
 export COM_PRP='$OBSDIR/gdas.$pdy/$cyc/atmos'
 export COM_INA='$ROTDIR/gdas.$pdy/$cyc/atmos'
 export COM_INF='$ROTDIR/vrfyarch/gfs.$fdy/$fzz'
@@ -40,7 +40,7 @@ export ACPROFit=YES
 export CONVNETC=YES
 export ACCOUNT=GFS-DEV
 export FITDIR=/lfs/h2/emc/global/noscrub/lin.gan/git/Fit2Obs/newm.1.5/batrun
-export ARCDIR=/lfs/h2/emc/global/noscrub/lin.gan/archive/da-dev16-ecf
+export ARCDIR=/lfs/h2/emc/global/noscrub/lin.gan/archive/retro1-v16-ecf
 
-/lfs/h2/emc/global/noscrub/lin.gan/git/Fit2Obs/newm.1.5/batrun/subfits_wcoss2 da-dev16-ecf ${xdate} /lfs/h2/emc/ptmp/lin.gan/da-dev16-ecf/para/com/gfs/v16.3 /lfs/h2/emc/global/noscrub/lin.gan/archive/da-dev16-ecf ${TMPDIR}
+/lfs/h2/emc/global/noscrub/lin.gan/git/Fit2Obs/newm.1.5/batrun/subfits_wcoss2 retro1-v16-ecf ${xdate} /lfs/h2/emc/ptmp/lin.gan/retro1-v16-ecf/para/com/gfs/v16.3 /lfs/h2/emc/global/noscrub/lin.gan/archive/retro1-v16-ecf ${TMPDIR}
 
