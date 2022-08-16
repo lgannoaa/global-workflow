@@ -44,10 +44,16 @@ rm -f $para_check_status_log
 
 export FAILED_ARCHIVE_RERUN=YES
 
-PARA_CHECK_SH=$HOME_emc_ecf_wm/scripts/para_check_status.sh
-ksh $PARA_CHECK_SH &>$PBS_O_WORKDIR/para_check_status/para_check_status.log
+PARACHECKSH=$HOME_emc_ecf_wm/scripts/para_check_status.sh
+ksh $PARACHECKSH &>$PBS_O_WORKDIR/para_check_status/para_check_status.log
 status=$?
 [[ $status -ne 0 ]] && exit $status
+
+HCOASH=$HOME_emc_ecf_wm/scripts/health_check_offline_archive.sh
+sh $HCOASH $CDATE
+status=$?
+[[ $status -ne 0 ]] && exit $status
+
 if [ "$FAILED_ARCHIVE_RERUN" = "YES" ]; then
   ARCHIVE_RERUN_FAILED_SH=$HOME_emc_ecf_wm/scripts/arch_rerun_failed.sh
   sh $ARCHIVE_RERUN_FAILED_SH

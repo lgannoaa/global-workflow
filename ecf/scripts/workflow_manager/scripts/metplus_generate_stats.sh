@@ -15,7 +15,7 @@ runvrfysh=$HOMEgfs/ecf/scripts/workflow_manager/scripts/run_verif_global.sh
 vlist="GRID2GRID GRID2OBS PRECIP"
 cd $HOMEgfs/ecf/scripts/workflow_manager/scripts
 export STAT_DATE=`cat offline_metplus.dt`
-#### export STAT_DATE=20211030
+#### export STAT_DATE=20211104
 
 for vtype in $vlist; do
     export OUTPUTROOT=/lfs/h2/emc/stmp/${USER}/RUNDIRS/${PSLOT}/verif_global_standalone_stats_${vtype}.$$

@@ -115,7 +115,7 @@ while [ $GDATE -le $GDATEEND ]; do
     if [ -d $COMIN ]; then
         rocotolog="$EXPDIR/logs/${GDATE}.log"
         if [ -f $rocotolog ]; then
-            testend=$(tail -n 1 $rocotolog | grep "This cycle is complete: Success")
+            testend=$(tail -n 1 $rocotolog | grep "This cycle should be removed")
             rc=$?
             if [ $rc -eq 0 ]; then
                 if [ -d $COMINwave ]; then rm -rf $COMINwave ; fi
