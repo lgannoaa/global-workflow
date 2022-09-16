@@ -1,3 +1,4 @@
+#!/bin/bash
 set +x
 
 #### This job is to check for offline archive jobs for:
@@ -42,11 +43,11 @@ success_job_count=`grep "HTAR: HTAR SUCCESSFUL" *_HPSS_ARCHIVE*${CDATE}.out|wc -
 echo "Total successful job count: ${success_job_count}"
 job_hit_walltime_count=`grep "job killed: walltime " *_HPSS_ARCHIVE*${CDATE}.out|wc -l`
 echo "job killed on walltime count: ${job_hit_walltime_count}"
-job_with_status_error_count=`grep "status=" *_HPSS_ARCHIVE_*.out|grep -v "=0"|grep -v "=72"|grep -v "?"|wc -l`
+job_with_status_error_count=`grep "status=" *_HPSS_ARCHIVE*${CDATE}.out|grep -v "=0"|grep -v "=72"|grep -v "?"|wc -l`
 echo "job killed on status error count: ${job_with_status_error_count}"
+job_with_system_error_count=`grep " Error -5 on last I/O operation" *_HPSS_ARCHIVE*${CDATE}.out|wc -l`
+echo "job killed on system error count: ${job_with_system_error_count}"
 
-#running_job_count=${qq}|grep " R "|grep HPSS|awk -v CDATE=${CDATE} '{print "qstat -f ",$1,"|grep Job_Name|grep CDATE "}'
-#running_job_count=`${qq}|grep " R "|grep HPSS|awk -v CDATE=${CDATE} '{print "qstat -f ",$1,"|grep Job_Name"}' |grep ${CDATE}`
 echo "Job running filter: $DATA/rr.sh"
 `${qq}|grep " R "|grep HPSS|awk -v CDATE=${CDATE} '{print "qstat -f ",$1,"|grep Job_Name|grep",CDATE}' &> $DATA/rr.sh`
 sh $DATA/rr.sh &> $DATA/RR1.log
@@ -60,24 +61,20 @@ sh $DATA/qq.sh &> $DATA/QQ1.log
 quote_job_count=`cat $DATA/QQ1.log|wc -l`
 echo "Job still in Queue count: ${quote_job_count}"
 
-zombie_job_count=$((job_exist_count-success_job_count-job_hit_walltime_count-job_with_status_error_count-(running_job_count+quote_job_count)))
-echo "zombie job count: ${zombie_job_count}"
-
-#test only
-#zombie_job_count=$((job_exist_count-success_job_count-(running_job_count+quote_job_count)))
-
-if [ $((running_job_count+quote_job_count)) -eq 18 -o $((running_job_count+quote_job_count)) -eq 30 ]; then
+if [ $((success_job_count+running_job_count+quote_job_count-job_exist_count)) -eq 0 ]; then
   echo "Proceed without error"
   exit 0
 fi
 
+zombie_job_count=$((success_job_count+job_hit_walltime_count+job_with_status_error_count+job_with_system_error_count+running_job_count+quote_job_count-job_exist_count))
+echo "zombie job count: ${zombie_job_count}"
 if [ $zombie_job_count -eq 0 ]; then
   echo "Proceed without error"
   ZOMBIE_JOB_FOUND="NO"
 else
   echo "Found zombie job in $CDATE"
   ZOMBIE_JOB_FOUND="YES"
-  exit 9
+  #### exit 9
 fi
 
 exit 0

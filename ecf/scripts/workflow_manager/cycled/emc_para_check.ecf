@@ -3,7 +3,7 @@
 #PBS -j oe
 #PBS -q %QUEUE_ARCH%
 #PBS -A %PROJ%-%PROJENVIR%
-#PBS -l walltime=00:03:00
+#PBS -l walltime=00:50:00
 #PBS -l place=vscatter,select=1:ncpus=1:mem=1GB
 #PBS -l debug=true
 
@@ -52,7 +52,7 @@ status=$?
 HCOASH=$HOME_emc_ecf_wm/scripts/health_check_offline_archive.sh
 sh $HCOASH $CDATE
 status=$?
-[[ $status -ne 0 ]] && exit $status
+#### [[ $status -ne 0 ]] && exit $status
 
 if [ "$FAILED_ARCHIVE_RERUN" = "YES" ]; then
   ARCHIVE_RERUN_FAILED_SH=$HOME_emc_ecf_wm/scripts/arch_rerun_failed.sh

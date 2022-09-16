@@ -78,29 +78,10 @@ echo "Current OFFLINE ARCHIVE jobs with aborting error count is: $OFFLINE_ARCHIV
 for pdy_to_chk in ${PDYm7} ${PDYm6} ${PDYm5} ${PDYm4} ${PDYm3} ${PDYm2} ${PDYm1}
 do
   mark_it="YES"
-  ct_tmp=`ls *_HPSS_ARCHIVE_*_${pdy_to_chk}${cyc}.out|wc -l`
-#  if [ $cyc -eq 00 -o $cyc -eq 18 ]; then
-#    if [ ! $ct_tmp -eq 30 ]; then mark_it=NO; fi
-#  else
-#    if [ ! $ct_tmp -eq 22 ]; then mark_it=NO; fi
-#  fi
-
-  if [ $ct_tmp -lt 18 ]; then mark_it=NO; fi
-  if [ $ct_tmp -gt 22 ]; then
-    if [ $cyc -eq 00 ]; then
-      if [ ! $ct_tmp -eq 30 ]; then mark_it=NO; fi
-    fi
-    if [ $cyc -eq 18 ]; then
-      if [ ! $ct_tmp -eq 27 ]; then mark_it=NO; fi
-    fi
-  fi
-
-  #### ct_tmp=`grep "connecting to hpss" *_HPSS_ARCHIVE_*_${pdy_to_chk}${cyc}.out|wc -l`
   ct_tmp=`ls *_HPSS_ARCHIVE_*_${pdy_to_chk}${cyc}.sh|wc -l`
   ct_tmp1=`grep "HTAR: HTAR SUCCESSFUL" *_HPSS_ARCHIVE_*_${pdy_to_chk}${cyc}.out|wc -l`
   if [ ! $ct_tmp -eq $ct_tmp1 ]; then mark_it=NO; fi
   if [ $mark_it = "YES" ]; then
-   #mark_it_pdym=$pdy_to_chk
    ecflowlog="$EXPDIR/logs/${pdy_to_chk}${cyc}.log"
    echo "This cycle should be removed" >> $ecflowlog 
    mv *_HPSS_ARCHIVE_*_${pdy_to_chk}${cyc}.out ./OLD
@@ -114,7 +95,6 @@ do
    export CDATE=${pdy_to_chk}${cyc}
    ${HOME_emc_ecf_wm}/scripts/enkfgdas_offline_cleanup.sh
   fi
-
 done
 
 mkdir -p $DATA
@@ -131,6 +111,22 @@ OBSPROC_GFS_Trigger=$(compath.py ${envir}/obsproc/${obsproc_ver})/gfs.${PDY}/${c
 IMSSNOW_gfs_Trigger=$(compath.py ${envir}/obsproc/${obsproc_ver})/gfs.${PDY}/${cyc}/${COMPONENT}/gfs.t${cyc}z.imssnow96.grib2
 COMIN_OBS_gfs=$(compath.py prod/obsproc/${obsproc_ver})/gfs.$PDY/$cyc/${COMPONENT}/gfs.$cycle.prepbufr
 COMIN_OBS_gdas=$(compath.py prod/obsproc/${obsproc_ver})/gdas.$PDY/$cyc/${COMPONENT}/gdas.$cycle.prepbufr
+
+global_dump_dir_gdas=${DMPDIR}/gdas.${PDY}/${cyc}/atmos/gdas.t${cyc}z.updated.status.tm00.bufr_d
+global_dump_dir_gfs=${DMPDIR}/gfs.${PDY}/${cyc}/atmos/gfs.t${cyc}z.updated.status.tm00.bufr_d
+if [ -f $global_dump_dir_gdas ]; then
+  ecflow_client --event release_gdas_emc_prep
+else
+  sleep 200
+  exit 95  
+fi
+if [ -f $global_dump_dir_gfs ]; then
+  ecflow_client --event release_gfs_emc_prep
+else
+  sleep 200
+  exit 95
+fi
+
 ic=1
 release_gdas="NO"
 ecflow_client --event release_gdas_emc_prep

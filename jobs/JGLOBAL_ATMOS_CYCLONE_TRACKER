@@ -86,9 +86,11 @@ export EXECens_tracker=${EXECens_tracker:-$HOMEens_tracker/exec}
 export FIXens_tracker=${FIXens_tracker:-$HOMEens_tracker/fix}
 export USHens_tracker=${USHens_tracker:-$HOMEens_tracker/ush}
 
+
 ##############################################
 # Define COM and Data directories
 ##############################################
+export COMIN=${ROTDIR}/${RUN}.${PDY}/${cyc}/$COMPONENT
 export COMINgfs=${ROTDIR}/gfs.${PDY}/${cyc}/$COMPONENT
 export gfsdir=${COMINgfs}
 export COMINgdas=${ROTDIR}/gdas.${PDY}/${cyc}/$COMPONENT
@@ -121,9 +123,9 @@ export cmodel=$CDUMP
 export loopnum=1
 
 #-----------input data checking -----------------
-#${USHens_tracker}/data_check_gfs.sh
+${USHens_tracker}/data_check_gfs.sh
 # exit code 6 = missing data of opportunity
-#if [ $? -eq 6 ]; then exit; fi
+if [ $? -eq 6 ]; then exit; fi
 #------------------------------------------------
 
 ${USHens_tracker}/extrkr_gfs.sh ${loopnum} ${cmodel} ${CDATE} ${pert} ${DATA}

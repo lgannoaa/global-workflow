@@ -48,6 +48,9 @@ export DATAROOT=$RUNDIR
 ####   enable to copy output stats to $NOSCRUB/monitor/ 
 export VRFYMINMON="YES"           # GSI minimization monitoring
 
+#### Required for Tracker
+export COMINsyn=/lfs/h1/ops/prod/com/gfs/v16.2/syndat
+
 ############################################################
 # CALL executable job script here
 ############################################################

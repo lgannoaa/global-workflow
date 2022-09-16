@@ -25,13 +25,10 @@ if [ ! -s qstat ]; then
   ln -s /u/lin.gan/bin/pause_parallel.sh
 fi
 
-PTMP_Usage=`perl /apps/local/scripts/lsquota|grep ptmp|awk '{print $2}'`
-STMP_Usage=`perl /apps/local/scripts/lsquota|grep stmp|awk '{print $2}'`
+PTMP_Usage=`perl /usr/local/bin/lsquota|grep ptmp|awk '{print $2}'`
+STMP_Usage=`perl /usr/local/bin/lsquota|grep stmp|awk '{print $2}'`
 COM_Usage=`lfs quota -u $USER /lfs/h2/emc/ptmp/|grep "0       -"|awk '{print $1/1073741824}'`
 OFFLINE_ARCHIVE_Qcount=`qstat -u $USER -s -xu $USER|grep _HPSS|grep dev_tra|grep ' Q '|wc -l`
-
-#### DATA_Usage=`du -s /lfs/h2/emc/stmp/lin.gan|awk '{print $1/1073741824}'`
-DATA_Usage=0
 
 Pause_Parallel=NO
 if [ $PTMP_Usage -gt 97 ]; then
@@ -42,31 +39,26 @@ if [ $STMP_Usage -gt 90 ]; then
   echo "Pause parallel at 00Z due to EMC STMP usage is 90%"
   Pause_Parallel=YES
 fi
-if [ $COM_Usage -gt 200 ]; then
-  echo "Pause parallel at 00Z due to parallel COM usage is 200T"
+if [ $COM_Usage -gt 600 ]; then
+  echo "Pause parallel at 00Z due to parallel COM usage is 600T"
   Pause_Parallel=YES
 fi
-if [ $OFFLINE_ARCHIVE_Qcount -gt 90 ]; then
-  echo "Pause parallel at 00Z due to HPSS archive job in queue over 90"
+if [ $OFFLINE_ARCHIVE_Qcount -gt 300 ]; then
+  echo "Pause parallel at 00Z due to HPSS archive job in queue over 300"
   Pause_Parallel=YES
 fi
 
-DATA_Clean_Up=NO
-if [ $DATA_Usage -gt 10 ]; then
-  echo "Pause parallel at 00Z due to EMC STMP usage is over 10T"
-  DATA_Clean_Up=YES
-fi
 if [ $Pause_Parallel = YES ]; then
   echo "Pause parallel at 00Z NOW"
   pause_parallel.sh
 fi
 
 echo `date`
-#echo "GROUP EMC usage for PTMP is -" `perl /apps/local/scripts/lsquota|grep ptmp|awk '{print $2"%"}'`
-#echo "GROUP EMC usage for STMP is -" `perl /apps/local/scripts/lsquota|grep stmp|awk '{print $2"%"}'`
 echo "GROUP EMC usage for PTMP is - ${PTMP_Usage}%"
 echo "GROUP EMC usage for STMP is - ${STMP_Usage}%"
 echo "User $USER PTMP usage in TB is -" `lfs quota -u $USER /lfs/h2/emc/ptmp/|grep "0       -"|awk '{print $1/1073741824}'` "TB"
+echo "Nodes used:"
+all=$(pbsnodes -Sja);for job in $(qselect -u lin.gan -sR| cut -d. -f1); do grep -c ${job}<<<$all ;done | awk '{s+=$1} END {print s}'
 echo "Cactus running job count is -" `qstat -u $USER -s -xu $USER |grep ' R '|wc -l`
 echo ""
 
@@ -90,7 +82,6 @@ export metplusdir=${metplus:-$NOSCRUB/archive/metplus_data/by_VSDB}
 export FIT_DIR=${FIT_DIR:-$ARCDIR/fits}
 export VBACKUP_FITS=${VBACKUP_FITS:-0}
 export PARA_CHECK_BACKUP=${PARA_CHECK_BACKUP:-72}
-#export QSTAT=${QSTAT:-/opt/pbs/bin/qstat}
 export QSTAT="qstat -f -u $USER -w"
 
 
@@ -101,21 +92,15 @@ export PARA_CHECK_HPSS_LIST_ENKF_RESTARTB=${PARA_CHECK_HPSS_LIST_ENKF_RESTARTB:-
 export PARA_CHECK_HPSS_LIST_GDAS=${PARA_CHECK_HPSS_LIST_GDAS:-"gdas gdas_restarta gdas_restartb"}
 export PARA_CHECK_HPSS_LIST_GFS=${PARA_CHECK_HPSS_LIST_GFS:-"gfs_flux gfs_${OUTPUT_FILE}a gfs_${OUTPUT_FILE}b gfs_restarta gfsa gfsb"}
 
-#export DATAMAIL=$STMP/${PSLOT}${CDATE}check
-#export TMPDIR=$DATAMAIL
-#if [ ! -d $DATAMAIL ]; then mkdir $DATAMAIL; fi
 
 # Back up PARA_CHECK_BACKUP from CDATE.
 export BDATE=`$NDATE -${PARA_CHECK_BACKUP} $CDATE`
-#export BHDATE=`$NDATE -${PARA_CHECK_BACKUP} $HDATE`
-#export BDATE_HPSS=`$NDATE -0 $HDATE`
 export BHDATE=`$NDATE -${PARA_CHECK_BACKUP} $CDATE`
 export BDATE_HPSS=`$NDATE -0 $CDATE`
 export EDATE=$CDATE
 export EDATE_FIT=`$NDATE -${VBACKUP_FITS:-00} $EDATE`
 
-# Check $COMROT/logs for most recent fit2obs log file.  get cdate for this log file
-#### cd $ROTDIR/logs
+# Check $COMROT/logs for most recent fit2obs log file. Get cdate for this log file
 cd $PBS_O_WORKDIR
 COUNT_FITLOGS=`ls -lt FITS* | wc -l`
 if [ $COUNT_FITLOGS -gt 0 ]; then
@@ -125,9 +110,6 @@ if [ $COUNT_FITLOGS -gt 0 ]; then
     fi
 fi
 
-# Check if any fit2obs jobs running
-# CDATE_FIT_RUN=`/u/emc.glopara/bin/qjob |grep $PSLOT |grep FITS |cut -d"." -f3 |cut -c1-10`
-
 # Get subset of CDATE
 day=`expr $CDATE | cut -c1-8`
 cyc=`expr $CDATE | cut -c9-10`
@@ -136,20 +118,16 @@ cyc=`expr $CDATE | cut -c9-10`
 #echo "Check $PSLOT for $BDATE to $EDATE at `date`"
 echo "Check $PSLOT for $EDATE at `date`"
 
-#### OFFLINE_ARCHIVE_Qcount=`qstat -u $USER -s -xu $USER|grep _HPSS|grep dev_tra|grep ' Q '|wc -l`
 echo "Current OFFLINE ARCHIVE jobs in queue count is: $OFFLINE_ARCHIVE_Qcount"
 
 Failed_ARCHIVE_fcount1=`grep "+status=" *_HPSS_ARCHIVE_*.out|grep -v "=0"|grep -v "=72"|wc -l`
 echo "Current found failed OFFLINE ARCHIVE jobs count is: $Failed_ARCHIVE_fcount1"
-#if [ $Failed_ARCHIVE_fcount1 -gt 0 ]; then
-#  exit 902
-#fi
-
 Failed_ARCHIVE_fcount2=`grep "job killed: walltime " *_HPSS_ARCHIVE_*.out|wc -l`
 echo "Current OFFLINE ARCHIVE jobs exceeded clock limit count is: $Failed_ARCHIVE_fcount2"
-#if [ $Failed_ARCHIVE_fcount2 -gt 0 ]; then
-#  exit 901
-#fi
+Failed_ARCHIVE_fcount3=`grep " - aborting" *_HPSS_ARCHIVE_*.out|wc -l`
+echo "Current OFFLINE ARCHIVE jobs failed with aborting status count is: $Failed_ARCHIVE_fcount3"
+Failed_ARCHIVE_fcount4=`grep " Error -5 on last I/O operation" *_HPSS_ARCHIVE_*.out|wc -l`
+echo "Current OFFLINE ARCHIVE jobs failed system error count is: $Failed_ARCHIVE_fcount4"
 
 echo " "
 echo "-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-"
@@ -224,42 +202,6 @@ while [[ $date -le $CDATE ]]; do
    ADATE=`$NDATE +06 $date`
    date=$ADATE
 done
-
-if [ $CHECK_HPSS1 = YES ]; then
- echo " "
- echo "Check HPSS jobs"
- cd $COMROT
- date=$BDATE_HPSS
- while [ $date -le $EDATE ] ; do
-   for file in `ls *${date}*ARC*dayfile`; do
-      count=`grep "HTAR: HTAR FAIL" $file | wc -l`
-      if [ $count -gt 0 ]; then
-         echo `grep "HTAR: HTAR FAIL" $file` $file
-      else
-         count=`grep "HTAR: HTAR SUCC" $file | wc -l`
-         if [ $count -gt 0 ]; then
-# check on htar verification
-            count_vy=`grep "HTAR: Verify complete" $file | wc -l`
-            if [ $count_vy -gt 0 ]; then
-              rate=`grep "MB/s"  $file |awk '{print "HPSS transfer rate:", $20, $21}'`
-              echo `grep "HTAR: HTAR SUCC" $file` $file " verified $rate"
-            else
-              echo "HTAR FAILED to verify $file"
-            fi
-         else
-            count=`grep "defined signal" $file | wc -l`
-            if [ $count -gt 0 ]; then
-               echo `grep "HTAR: HTAR signal FAIL" $file` $file
-            else
-               echo "$file RUNNING"
-            fi
-         fi
-      fi
-   done
-   adate=`$NDATE +06 $date`
-   date=$adate
- done
-fi
 
 if [ $CHECK_HPSS2 = YES ]; then
     CDATE_HPSS=$BDATE_HPSS

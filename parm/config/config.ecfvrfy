@@ -156,25 +156,18 @@ fi
 # Cyclone genesis and cyclone track verification
 #-------------------------------------------------
 
-export ens_tracker_ver=v1.1.15.5
 if [ $machine = "WCOSS_DELL_P3" ] ; then
     export ens_tracker_ver=v1.1.15.3
+    export HOMEens_tracker=$BASE_GIT/tracker/ens_tracker.${ens_tracker_ver}
 fi
-export HOMEens_tracker=$BASE_GIT/tracker/ens_tracker.${ens_tracker_ver}
-if [ $machine = "ORION" ] ; then
-    export HOMEens_tracker=$BASE_GIT/tracker/TC_tracker.v1.1.15.2
-fi
-if [ $machine = "WCOSS2" ] ; then
-    export HOMEens_tracker=$BASE_GIT/TC_tracker/${ens_tracker_ver}
-fi
-if [ "$VRFYTRAK" = "YES" ]; then
+export HOMEens_tracker=$BASE_GIT/TC_tracker/${tracker_ver}
 
+if [ "$VRFYTRAK" = "YES" ]; then
+    export TRACKERSH="$HOMEgfs/jobs/JGLOBAL_ATMOS_CYCLONE_TRACKER"
     if [ "$CDUMP" = "gdas" ]; then
-        export TRACKERSH="$HOMEgfs/jobs/JGDAS_ATMOS_CYCLONE_TRACKER"
         export FHOUT_CYCLONE=3            
         export FHMAX_CYCLONE=$FHMAX
     else
-        export TRACKERSH="$HOMEgfs/jobs/JGFS_ATMOS_CYCLONE_TRACKER"
         export FHOUT_CYCLONE=6            
         export FHMAX_CYCLONE=$(( FHMAX_GFS<240 ? FHMAX_GFS : 240 ))
     fi

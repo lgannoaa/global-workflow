@@ -9,7 +9,7 @@
 #PBS -l debug=true
 
 model=gfs
-%include <head_crtm240.h>
+%include <head.h>
 %include <envir-p1.h>
 
 set -x

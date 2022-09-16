@@ -1,12 +1,12 @@
 #PBS -S /bin/bash
 #PBS -N %RUN%_emc_arch_%CYC%
 #PBS -j oe
-#PBS -q %QUEUE_ARCH%
+#PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
 #PBS -l walltime=00:30:00
-#PBS -l place=vscatter,select=1:ncpus=1:mem=20GB
+#PBS -l place=vscatter,select=1:ncpus=1:mem=60GB
 #PBS -l debug=true
-
+#### QUEUE_ARCH
 model=gfs
 %include <head.h>
 %include <envir-p1.h>
