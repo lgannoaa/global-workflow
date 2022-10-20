@@ -69,6 +69,7 @@ export OUTPUTROOT=${OUTPUTROOT:-/lfs/h2/emc/stmp/$USER/RUNDIRS/${PSLOT}/verif_gl
 #make_met_data_by: how to treat dates, "VALID" or "INIT"
 #plot_by:          how to plot data, "VALID" or "INIT"
 export start_date="${gfsv16_start_date}"
+##### export start_date="20220101"
 export end_date="${gfsv16_end_date}"
 export make_met_data_by="VALID"
 export plot_by="VALID"
@@ -100,7 +101,10 @@ export log_MET_output_to_METplus="yes"
 ## DATA DIRECTIVE SETTINGS
 export SENDARCH="YES"
 export SENDMETVIEWER="NO"
-export KEEPDATA=${KEEPDATA:-YES}
+
+#### export KEEPDATA=${KEEPDATA:-YES}
+export KEEPDATA="NO"
+
 export SENDECF="NO"
 export SENDCOM="NO"
 export SENDDBN="NO"

@@ -123,6 +123,11 @@ if [ $DO_MAKEPREPBUFR = "YES" ]; then
     status=$?
     [[ $status -ne 0 ]] && exit $status
 
+#### Copy nsstbufr to COMOUT as part of obsproc package update on 20221003
+    $NCP $DMPDIR/${CDUMP}x.${PDY}/${cyc}/${COMPONENT}/${OPREFIX}nsstbufr $COMOUT/${OPREFIX}nsstbufr
+    status=$?
+    [[ $status -ne 0 ]] && exit $status
+
 #else
 #    if [ $ROTDIR_DUMP = "NO" ]; then
 #	$NCP $DMPDIR/${CDUMP}${DUMP_SUFFIX}.${PDY}/${cyc}/${COMPONENT}/${OPREFIX}prepbufr               $COMOUT/${OPREFIX}prepbufr

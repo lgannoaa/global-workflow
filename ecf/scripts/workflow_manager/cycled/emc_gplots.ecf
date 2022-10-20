@@ -25,7 +25,6 @@ module load craype/${craype_ver}
 module load intel/${intel_ver}
 module load cray-mpich/${cray_mpich_ver}
 module load cray-pals/${cray_pals_ver}
-#### export GRADSBIN=/apps/prod/grads-2.2.1-classic/bin
 export GRADSBIN=/apps/test/grads/spack/opt/spack/cray-sles15-zen2/gcc-11.2.0/grads-2.2.2-wckmyzg7qh5smosf6och6ehqtqlxoy4f/bin
 export grads=$GRADSBIN/grads
 module load imagemagick/${imagemagick_ver}
@@ -48,7 +47,6 @@ export TIME_WINDOW_HOURS=96
 export VSDBPLOT=NO
 export G2OPLOT=NO
 export METPLOT=YES
-#export SDATE=${SDATE:-""}
 export SDATE=$SDATE_GFS
 export NDAYS=${NDAYS:-""}
 

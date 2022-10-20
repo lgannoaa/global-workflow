@@ -55,9 +55,19 @@ gPDY=$(echo $GDATE | cut -c1-8)
 gcyc=$(echo $GDATE | cut -c9-10)
 
 ##############################################
+# Clear job stat
+##############################################
+ecflow_client --alter clear_flag zombie /cycled_v16_3/primary/${cyc}/workflow_manager/v1.0/cycled/workflow_monitor
+
+##############################################
 # Check archive job status
 ##############################################
 cd $offline_archive_job_dir
+Failed_Dump_MissMatch=`grep "incompatable analysis and observation date/timeamsuabufr" ${offline_archive_job_dir}/*_atmos_analysis_*.o*|wc -l`
+if [ $Failed_Dump_MissMatch -gt 0 ]; then
+  echo "Found dump missmatch issue. Stop parallel"
+  exit 901
+fi
 OFFLINE_ARCHIVE_fcount=`grep "+status=" *_HPSS_ARCHIVE_*.out|grep -v "=0"|grep -v "=72"|wc -l`
 echo "Current found failed OFFLINE ARCHIVE jobs count is: $OFFLINE_ARCHIVE_fcount"
 #if [ $OFFLINE_ARCHIVE_fcount -gt 0 ]; then
@@ -115,16 +125,35 @@ COMIN_OBS_gdas=$(compath.py prod/obsproc/${obsproc_ver})/gdas.$PDY/$cyc/${COMPON
 global_dump_dir_gdas=${DMPDIR}/gdas.${PDY}/${cyc}/atmos/gdas.t${cyc}z.updated.status.tm00.bufr_d
 global_dump_dir_gfs=${DMPDIR}/gfs.${PDY}/${cyc}/atmos/gfs.t${cyc}z.updated.status.tm00.bufr_d
 if [ -f $global_dump_dir_gdas ]; then
-  ecflow_client --event release_gdas_emc_prep
-else
-  sleep 200
-  exit 95  
-fi
-if [ -f $global_dump_dir_gfs ]; then
-  ecflow_client --event release_gfs_emc_prep
+  echo "Found $global_dump_dir_gdas"
+  # ecflow_client --event release_gdas_emc_prep
 else
   sleep 200
   exit 95
+fi
+if [ -f $global_dump_dir_gfs ]; then
+  echo "Found $global_dump_dir_gfs"
+  #ecflow_client --event release_gfs_emc_prep
+else
+  sleep 200
+  exit 95
+fi
+
+gda_gdasx_nsst=${DMPDIR}/gdasx.${PDY}/${cyc}/atmos/gdas.t${cyc}z.nsstbufr
+gda_gfsx_nsst=${DMPDIR}/gfsx.${PDY}/${cyc}/atmos/gfs.t${cyc}z.nsstbufr
+if [ -f $gda_gdasx_nsst ]; then
+  echo "Found $gda_gdasx_nsst"
+  #ecflow_client --event release_gdas_emc_prep
+else
+  sleep 200
+  exit 93
+fi
+if [ -f $gda_gfsx_nsst ]; then
+  echo "Found $gda_gfsx_nsst"
+  #ecflow_client --event release_gfs_emc_prep
+else
+  sleep 200
+  exit 93
 fi
 
 ic=1

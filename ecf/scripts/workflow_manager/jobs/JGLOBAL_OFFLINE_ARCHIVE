@@ -269,6 +269,10 @@ if [ $CDUMP = "gfs" ]; then
     fi
 
     #for downstream products
+
+#### Do not archive testing jobs
+WAFSF="NO"
+
     if [ $DO_BUFRSND = "YES" -o $WAFSF = "YES" ]; then
         #### htar -P -cvf $ATARDIR/$CDATE/gfs_downstream.tar `cat $ARCH_LIST/gfs_downstream.txt`
         #### tar -P -cvf $COM_ARCHOFFLINE/$CDATE/gfs_downstream.tar `cat $ARCH_LIST/gfs_downstream.txt`

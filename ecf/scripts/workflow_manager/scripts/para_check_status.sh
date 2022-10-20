@@ -31,11 +31,11 @@ COM_Usage=`lfs quota -u $USER /lfs/h2/emc/ptmp/|grep "0       -"|awk '{print $1/
 OFFLINE_ARCHIVE_Qcount=`qstat -u $USER -s -xu $USER|grep _HPSS|grep dev_tra|grep ' Q '|wc -l`
 
 Pause_Parallel=NO
-if [ $PTMP_Usage -gt 97 ]; then
+if [ $PTMP_Usage -gt 98 ]; then
   echo "Pause parallel at 00Z due to EMC PTMP usage is 97%"
   Pause_Parallel=YES
 fi
-if [ $STMP_Usage -gt 90 ]; then
+if [ $STMP_Usage -gt 98 ]; then
   echo "Pause parallel at 00Z due to EMC STMP usage is 90%"
   Pause_Parallel=YES
 fi
@@ -84,7 +84,6 @@ export VBACKUP_FITS=${VBACKUP_FITS:-0}
 export PARA_CHECK_BACKUP=${PARA_CHECK_BACKUP:-72}
 export QSTAT="qstat -f -u $USER -w"
 
-
 # Lists for checking tarballs on HPSS
 export PARA_CHECK_HPSS_LIST_ENKF=${PARA_CHECK_HPSS_LIST_ENKF:-"enkfgdas enkfgdas_grp01 enkfgdas_grp02 enkfgdas_grp03 enkfgdas_grp04 enkfgdas_grp05 enkfgdas_grp06 enkfgdas_grp07 enkfgdas_grp08"}
 export PARA_CHECK_HPSS_LIST_ENKF_RESTARTA=${PARA_CHECK_HPSS_LIST_ENKF_RESTARTA:-"enkfgdas_restarta_grp01 enkfgdas_restarta_grp02 enkfgdas_restarta_grp03 enkfgdas_restarta_grp04 enkfgdas_restarta_grp05 enkfgdas_restarta_grp06 enkfgdas_restarta_grp07 enkfgdas_restarta_grp08"}
@@ -117,9 +116,7 @@ cyc=`expr $CDATE | cut -c9-10`
 # Check parallel status
 #echo "Check $PSLOT for $BDATE to $EDATE at `date`"
 echo "Check $PSLOT for $EDATE at `date`"
-
 echo "Current OFFLINE ARCHIVE jobs in queue count is: $OFFLINE_ARCHIVE_Qcount"
-
 Failed_ARCHIVE_fcount1=`grep "+status=" *_HPSS_ARCHIVE_*.out|grep -v "=0"|grep -v "=72"|wc -l`
 echo "Current found failed OFFLINE ARCHIVE jobs count is: $Failed_ARCHIVE_fcount1"
 Failed_ARCHIVE_fcount2=`grep "job killed: walltime " *_HPSS_ARCHIVE_*.out|wc -l`
