@@ -1,0 +1,25 @@
+#! /usr/bin/env bash
+
+########## config.atmanl ##########
+# configuration common to all atm var analysis tasks
+
+echo "BEGIN: config.atmanl"
+
+export OBS_LIST_YAML="{{ OBS_LIST_YAML }}"
+export VAR_JEDI_TEST_YAML="{{ VAR_JEDI_TEST_YAML }}"
+export FV3INC_JEDI_TEST_YAML="{{ FV3INC_JEDI_TEST_YAML }}"
+export STATICB_TYPE="{{ STATICB_TYPE }}"
+export layout_x_atmanl="{{ LAYOUT_X_ATMANL }}"
+export layout_y_atmanl="{{ LAYOUT_Y_ATMANL }}"
+export io_layout_x="{{ IO_LAYOUT_X }}"
+export io_layout_y="{{ IO_LAYOUT_Y }}"
+
+export TASK_CONFIG_YAML="${PARMgfs}/gdas/atm/atm_det_config.yaml.j2"
+
+export LOCALIZATION_TYPE="bump"
+
+export NUMBER_OUTER_LOOPS="{{ NUMBER_OUTER_LOOPS | default() }}"
+export NINNER_LOOP1="{{ NINNER_LOOP1 | default () }}"
+export NINNER_LOOP2="{{ NINNER_LOOP2 | default () }}"
+
+echo "END: config.atmanl"

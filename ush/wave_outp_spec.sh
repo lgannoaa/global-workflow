@@ -1,5 +1,5 @@
-#!/bin/bash
-#                                                                       
+#! /usr/bin/env bash
+
 ################################################################################
 #
 # UNIX Script Documentation Block
@@ -17,244 +17,145 @@
 #
 # Attributes:
 #   Language: Bourne-again (BASH) shell
-#   Machine: WCOSS-DELL-P3
 #
 ################################################################################
 # --------------------------------------------------------------------------- #
 # 0.  Preparations
+
 # 0.a Basic modes of operation
-
-  # set execution trace prompt.  ${0##*/} adds the script's basename
-  PS4=" \${SECONDS} ${0##*/} L\${LINENO} + "
-  set -x
-
-  # Use LOUD variable to turn on/off trace.  Defaults to YES (on).
-  export LOUD=${LOUD:-YES}; [[ $LOUD = yes ]] && export LOUD=YES
-  [[ "$LOUD" != YES ]] && set +x
-   
-  bloc=$1
-  ymdh=$2
-  specdir=$3
-  workdir=$4
-
-  YMDHE=`$NDATE $FHMAX_WAV_PNT $CDATE`
-
-  cd $workdir
-
-  rm -rf ${specdir}_${bloc}
-  mkdir ${specdir}_${bloc}
-  err=$?
-  if [ "$err" != '0' ]
-  then
-    set +x
-    echo ' '
-    echo '****************************************************************************** '
-    echo '*** FATAL ERROR : ERROR IN ww3_outp_spec (COULD NOT CREATE TEMP DIRECTORY) *** '
-    echo '****************************************************************************** '
-    echo ' '
-    [[ "$LOUD" = YES ]] && set -x
-    postmsg "$jlogfile" "FATAL ERROR : ERROR IN ww3_outp_spec (Could not create temp directory)"
-    exit 1
-  fi
-
-  cd ${specdir}_${bloc}
-
-  set +x
-  echo ' '
-  echo '+--------------------------------+'
-  echo '!       Make spectral file       |'
-  echo '+--------------------------------+'
-  echo "   Model ID        : $WAV_MOD_TAG"
-  [[ "$LOUD" = YES ]] && set -x
+buoy=$1
+ymdh=$2
+specdir=$3
+workdir=$4
 
 # 0.b Check if buoy location set
 
-  if [ "$#" -lt '1' ]
-  then
-    set +x
-    echo ' '
-    echo '***********************************************'
-    echo '*** LOCATION ID IN ww3_outp_spec.sh NOT SET ***'
-    echo '***********************************************'
-    echo ' '
-    [[ "$LOUD" = YES ]] && set -x
-    postmsg "$jlogfile" "LOCATION ID IN ww3_outp_spec.sh NOT SET"
+if [[ $# -lt 1 ]]; then
+    echo 'FATAL ERROR: LOCATION ID IN wave_outp_spec.sh NOT SET'
     exit 1
-  else
-    buoy=$bloc
-    grep $buoy ${DATA}/buoy_log.ww3 > tmp_list.loc
-    while read line
-    do
-      buoy_name=`echo $line | awk '{print $2}'`
-      if [ $buoy = $buoy_name ]
-      then
-        point=`echo $line | awk '{ print $1 }'`
-        set +x
-        echo "              Location ID/#   : $buoy (${point})"
-        echo "   Spectral output start time : $ymdh "
-        echo ' '
-        [[ "$LOUD" = YES ]] && set -x
-        break
-      fi
-    done < tmp_list.loc
-    if [ -z "$point" ]
-    then
-      set +x
-      echo '******************************************************'
-      echo '*** LOCATION ID IN ww3_outp_spec.sh NOT RECOGNIZED ***'
-      echo '******************************************************'
-      echo ' '
-      [[ "$LOUD" = YES ]] && set -x
-      postmsg "$jlogfile" "LOCATION ID IN ww3_outp_spec.sh NOT RECOGNIZED"
-      exit 2
+else
+    point=$(awk "{if (\$2 == \"${buoy}\"){print \$1; exit} }" "${DATA}/buoy_log.ww3")
+    if [[ -z "${point}" ]]; then
+        echo 'FATAL ERROR: LOCATION ID IN ww3_outp_spec.sh NOT RECOGNIZED'
+        exit 2
+    else
+        printf "\n              Location ID/#   : %s (%s) ${buoy} (${point})\n   Spectral output start time : %s" "${buoy}" "${point}" "${ymdh}"
     fi
-  fi
-
+fi
 
 # 0.c Define directories and the search path.
 #     The tested variables should be exported by the postprocessor script.
 
-  if [ -z "$CDATE" ] || [ -z "$dtspec" ] || [ -z "$EXECwave" ] || \
-     [ -z "$WAV_MOD_TAG" ] || [ -z "${STA_DIR}" ]
-  then
-    set +x
-    echo ' '
-    echo '******************************************************'
-    echo '*** EXPORTED VARIABLES IN ww3_outp_spec.sh NOT SET ***'
-    echo '******************************************************'
-    echo ' '
-    [[ "$LOUD" = YES ]] && set -x
-    postmsg "$jlogfile" "EXPORTED VARIABLES IN ww3_outp_spec.sh NOT SET"
+if [[ -z "${PDY+0}" || -z "${cyc+0}" || -z "${dtspec+0}" || -z "${EXECgfs+0}" || -z "${WAV_MOD_TAG+0}" || -z "${STA_DIR+0}" ]]; then
+    echo 'FATAL ERROR: EXPORTED VARIABLES IN ww3_outp_spec.sh NOT SET'
     exit 3
-  fi
+fi
 
-# 0.d Starting time for output
+cd "${workdir}" || exit 1
 
-  tstart="`echo $ymdh | cut -c1-8` `echo $ymdh | cut -c9-10`0000"
-  YMD="`echo $ymdh | cut -c1-8`"
-  HMS="`echo $ymdh | cut -c9-10`0000"
-  set +x
-  echo "   Output starts at $tstart."
-  echo ' '
-  [[ "$LOUD" = YES ]] && set -x
+rm -rf "${specdir}_${buoy}"
+mkdir -p "${specdir}_${buoy}"
+cd "${specdir}_${buoy}" || exit 1
 
-# 0.e sync important files
+cat << EOF
+
++--------------------------------+
+!       Make spectral file       |
++--------------------------------+
+   Model ID        : ${WAV_MOD_TAG}
+EOF
+
+# 0.d sync important files
 
 #  $FSYNC ${DATA}/mod_def.${waveuoutpGRD}
 #  $FSYNC ${DATA}/out_pnt.${waveuoutpGRD}
 #  $FSYNC ${DATA}/ww3_outp_spec.inp.tmpl
 
-# 0.f Links to mother directory
+# 0.e Links to mother directory
 
-  ln -s ${DATA}/output_${ymdh}0000/mod_def.${waveuoutpGRD} ./mod_def.ww3
-  ln -s ${DATA}/output_${ymdh}0000/out_pnt.${waveuoutpGRD} ./out_pnt.ww3
+${NLN} "${DATA}/output_${ymdh}0000/mod_def.${waveuoutpGRD}" ./mod_def.ww3
+${NLN} "${DATA}/output_${ymdh}0000/out_pnt.${waveuoutpGRD}" ./out_pnt.ww3
 
 # --------------------------------------------------------------------------- #
 # 2.  Generate spectral data file
 # 2.a Input file for postprocessor
 
-  set +x
-  echo "   Generate input file for ww3_outp."
-  [[ "$LOUD" = YES ]] && set -x
+echo "   Generate input file for ww3_outp."
 
-  if [ "$specdir" = "bull" ]
-  then
-    tstart="`echo $ymdh | cut -c1-8` `echo $ymdh | cut -c9-10`0000"
-    truntime="`echo $CDATE | cut -c1-8` `echo $CDATE | cut -c9-10`0000"
-    sed -e "s/TIME/$tstart/g" \
-      -e "s/DT/$dtspec/g" \
-      -e "s/POINT/$point/g" \
-      -e "s/REFT/$truntime/g" \
-                               ${DATA}/ww3_outp_bull.inp.tmpl > ww3_outp.inp
-    outfile=${buoy}.bull
-    coutfile=${buoy}.cbull
-  else
-    sed -e "s/TIME/$tstart/g" \
-      -e "s/DT/$dtspec/g" \
-      -e "s/POINT/$point/g" \
-      -e "s/ITYPE/1/g" \
-      -e "s/FORMAT/F/g" \
-                               ${DATA}/ww3_outp_spec.inp.tmpl > ww3_outp.inp
-    outfile=ww3.`echo $tstart | cut -c3-8``echo $tstart | cut -c10-11`.spc
-  fi
+tstart="${ymdh:0:8} ${ymdh:8:2}0000"
+printf "   Output starts at %s.\n" "${tstart}"
+
+if [[ "${specdir}" == "bull" ]]; then
+    truntime="${PDY} ${cyc}0000"
+    sed -e "s/TIME/${tstart}/g" \
+        -e "s/DT/${dtspec}/g" \
+        -e "s/POINT/${point}/g" \
+        -e "s/REFT/${truntime}/g" \
+        "${DATA}/ww3_outp_bull.inp.tmpl" > ww3_outp.inp
+    outfile="${buoy}.bull"
+    coutfile="${buoy}.cbull"
+else
+    sed -e "s/TIME/${tstart}/g" \
+        -e "s/DT/${dtspec}/g" \
+        -e "s/POINT/${point}/g" \
+        -e "s/ITYPE/1/g" \
+        -e "s/FORMAT/F/g" \
+        "${DATA}/ww3_outp_spec.inp.tmpl" > ww3_outp.inp
+    outfile="ww3.${tstart:2:5}${tstart:9:2}.spc"
+fi
 
 # 2.b Run the postprocessor
 
-  set +x
-  echo "   Executing $EXECwave/ww3_outp"
-  [[ "$LOUD" = YES ]] && set -x
+export pgm="${NET,,}_ww3_outp.x"
+source prep_step
 
-  export pgm=ww3_outp;. prep_step
-  $EXECwave/ww3_outp 1> outp_${specdir}_${buoy}.out 2>&1
-  export err=$?;err_chk
+echo "   Executing ${EXECgfs}/${pgm}"
 
-
-  if [ "$err" != '0' ]
-  then
-    set +x
-    echo ' '
-    echo '******************************************** '
-    echo '*** FATAL ERROR : ERROR IN ww3_outp *** '
-    echo '******************************************** '
-    echo ' '
-    [[ "$LOUD" = YES ]] && set -x
-    postmsg "$jlogfile" "FATAL ERROR : ERROR IN ww3_outp"
+"${EXECgfs}/${pgm}" 1> "outp_${specdir}_${buoy}.out" 2>&1
+export err=$?
+if [[ ${err} -ne 0 ]]; then
+    echo "FATAL ERROR : ERROR IN ${pgm} *** "
     exit 4
-  fi
+fi
 
 # --------------------------------------------------------------------------- #
 # 3.  Clean up
 # 3.a Move data to directory for station ascii files
 
-  if [ -f $outfile ]
-  then
-   if [ "${ymdh}" = "${CDATE}" ]
-   then
-     if [ "$specdir" = "bull" ]
-     then
-       cat $outfile | sed -e '9,$d' >> ${STA_DIR}/${specdir}fhr/$WAV_MOD_TAG.${ymdh}.$buoy.bull
-       cat $coutfile | sed -e '8,$d' >> ${STA_DIR}/c${specdir}fhr/$WAV_MOD_TAG.${ymdh}.$buoy.cbull
-     else
-       cat $outfile >> ${STA_DIR}/${specdir}fhr/$WAV_MOD_TAG.${ymdh}.$buoy.spec
-     fi
-   elif [ "${ymdh}" = "${YMDHE}" ]
-   then
-     if [ "$specdir" = "bull" ]
-     then
-       cat $outfile | sed -e '1,7d' >> ${STA_DIR}/${specdir}fhr/$WAV_MOD_TAG.${ymdh}.$buoy.bull
-       cat $coutfile | sed -e '1,6d' >> ${STA_DIR}/c${specdir}fhr/$WAV_MOD_TAG.${ymdh}.$buoy.cbull
-     else
-       cat $outfile | sed -n "/^${YMD} ${HMS}$/,\$p" >> ${STA_DIR}/${specdir}fhr/$WAV_MOD_TAG.${ymdh}.$buoy.spec
-     fi
-   else
-     if [ "$specdir" = "bull" ]
-     then
-       cat $outfile | sed -e '1,7d' | sed -e '2,$d' >> ${STA_DIR}/${specdir}fhr/$WAV_MOD_TAG.${ymdh}.$buoy.bull
-       cat $coutfile | sed -e '1,6d' | sed -e '2,$d' >> ${STA_DIR}/c${specdir}fhr/$WAV_MOD_TAG.${ymdh}.$buoy.cbull
-     else
-       cat $outfile | sed -n "/^${YMD} ${HMS}$/,\$p" >> ${STA_DIR}/${specdir}fhr/$WAV_MOD_TAG.${ymdh}.$buoy.spec
-     fi
-   fi
-  else
-    set +x
-    echo ' '
-    echo '***************************************************************** '
-    echo '*** FATAL ERROR : OUTPUT DATA FILE FOR BOUY $bouy NOT FOUND *** '
-    echo '***************************************************************** '
-    echo ' '
-    [[ "$LOUD" = YES ]] && set -x
-    postmsg "$jlogfile" "FATAL ERROR : OUTPUT DATA FILE FOR BOUY $bouy NOT FOUND"
+YMDHE=$(date --utc +%Y%m%d%H -d "${PDY} ${cyc} + ${FHMAX_WAV_PNT} hours")
+model_start_date=$(date --utc +%Y%m%d%H -d "${PDY} ${cyc} + ${OFFSET_START_HOUR} hours")
+
+if [[ -f "${outfile}" ]]; then
+    if [[ "${ymdh}" == "${model_start_date}" ]]; then
+        if [[ "${specdir}" == "bull" ]]; then
+            sed '9,$d' "${outfile}" >> "${STA_DIR}/${specdir}fhr/${WAV_MOD_TAG}.${ymdh}.${buoy}.bull"
+            sed '8,$d' "${coutfile}" >> "${STA_DIR}/c${specdir}fhr/${WAV_MOD_TAG}.${ymdh}.${buoy}.cbull"
+        else
+            cat "${outfile}" >> "${STA_DIR}/${specdir}fhr/${WAV_MOD_TAG}.${ymdh}.${buoy}.spec"
+        fi
+    elif [[ "${ymdh}" == "${YMDHE}" ]]; then
+        if [[ "${specdir}" == "bull" ]]; then
+            sed '1,7d' "${outfile}" >> "${STA_DIR}/${specdir}fhr/${WAV_MOD_TAG}.${ymdh}.${buoy}.bull"
+            sed '1,6d' "${coutfile}" >> "${STA_DIR}/c${specdir}fhr/${WAV_MOD_TAG}.${ymdh}.${buoy}.cbull"
+        else
+            sed -n "/^${ymdh:0:8} ${ymdh:8:2}0000$/,\$p" "${outfile}" >> "${STA_DIR}/${specdir}fhr/${WAV_MOD_TAG}.${ymdh}.${buoy}.spec"
+        fi
+    else
+        if [[ "${specdir}" == "bull" ]]; then
+            sed '8q;d' "${outfile}" >> "${STA_DIR}/${specdir}fhr/${WAV_MOD_TAG}.${ymdh}.${buoy}.bull"
+            sed '7q;d' "${coutfile}" >> "${STA_DIR}/c${specdir}fhr/${WAV_MOD_TAG}.${ymdh}.${buoy}.cbull"
+        else
+            sed -n "/^${ymdh:0:8} ${ymdh:8:2}0000$/,\$p" "${outfile}" >> "${STA_DIR}/${specdir}fhr/${WAV_MOD_TAG}.${ymdh}.${buoy}.spec"
+        fi
+    fi
+else
+    echo "FATAL ERROR: OUTPUT DATA FILE FOR BUOY '${buoy}' NOT FOUND"
     exit 5
-  fi
+fi
 
 # 3.b Clean up the rest
 
-  cd ..
-  rm -rf ${specdir}_${bloc}
-
-  set +x
-  echo ' '
-  echo 'End of ww3_outp_spec.sh at'
-  date
+cd "${workdir}" || exit 1
+rm -rf "${specdir}_${buoy}"
 
 # End of ww3_outp_spec.sh ---------------------------------------------------- #

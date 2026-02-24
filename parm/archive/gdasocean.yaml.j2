@@ -1,0 +1,8 @@
+gdasocean:
+    name: "GDASOCEAN"
+    target: "{{ ATARDIR }}/{{ cycle_YMDH }}/gdasocean.tar"
+    # the FHMIN-hour forecast is skipped when DOIAU="NO"
+    required:
+        - "{{ COMIN_OCEAN_HISTORY }}/{{ RUN }}.t{{ cycle_HH }}z.inst.f006.nc"
+        - '{{ COMIN_CONF }}/ufs.MOM_input'
+        - '{{ COMIN_CONF }}/MOM_parameter_doc.all'

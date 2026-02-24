@@ -1,0 +1,9 @@
+gdaswave_restart:
+    name: "GDASWAVE_RESTART"
+    target: "{{ ATARDIR }}/{{ cycle_YMDH }}/gdaswave_restart.tar"
+    required:
+        # TODO explicitly name the wave restart files to archive
+        # NOTE: there are 2 restart files, one is needed to be saved at the same time as restartb is saved
+        #  The other which is +6 from the cycle date is needed every cycle for downstream jobs
+        # offset_dt_fv3 is pre-calculated in Python: +3H if DOIAU, +6H otherwise (FV3 format: YYYYMMDD.HHMMSS)
+        - "{{ COMIN_WAVE_RESTART }}/{{ offset_dt_fv3 }}.restart.ww3.nc"

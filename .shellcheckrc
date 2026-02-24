@@ -1,0 +1,22 @@
+# Global settings for Shellcheck (https://github.com/koalaman/shellcheck)
+enable=all
+
+external-sources=false
+
+# Disable variable referenced but not assigned
+disable=SC2154
+
+# Disable following non-constant source
+disable=SC1090
+
+# Disable non-existent binary
+disable=SC1091
+
+# Disable -p -m only applies to deepest directory
+disable=SC2174
+
+# Disable warning of functions in test statements
+disable=SC2310
+
+# Disable masking of return codes from chained commands.  Use `set -o pipefail` to trap them.
+disable=SC2312

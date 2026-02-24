@@ -1,5 +1,5 @@
-#!/bin/bash
-#                                                                       
+#! /usr/bin/env bash
+
 ################################################################################
 #
 # UNIX Script Documentation Block
@@ -17,262 +17,141 @@
 #
 # Attributes:
 #   Language: Bourne-again (BASH) shell
-#   Machine: WCOSS-DELL-P3
 #
-# Requirements:                                                             
-# - wgrib2 with IPOLATES library                                            
-#                                                                           
+# Requirements:
+# - wgrib2 with IPOLATES library
+#
 ################################################################################
 # --------------------------------------------------------------------------- #
 # 0.  Preparations
-# 0.a Basic modes of operation
 
-  # set execution trace prompt.  ${0##*/} adds the script's basename
-  PS4=" \${SECONDS} ${0##*/} L\${LINENO} + "
-  set -x
+# Script inputs
+grdID=$1
+GRIDNR=$2
+MODNR=$3
+valid_time=$4
+fhr=$5
+grid_region=$6
+grid_res=$7
+grib_flags=$8
 
-  # Use LOUD variable to turn on/off trace.  Defaults to YES (on).
-  export LOUD=${LOUD:-YES}; [[ $LOUD = yes ]] && export LOUD=YES
-  [[ "$LOUD" != YES ]] && set +x
+cd "${DATA}" || exit 99
 
-  cd $GRIBDATA
-#  postmsg "$jlogfile" "Making GRIB2 Files."   # commented to reduce unnecessary output to jlogfile
+grib_DATA="${DATA}/grib_${grdID}"
+rm -rf "${grib_DATA}"
+mkdir -p "${grib_DATA}"
+cd "${grib_DATA}" || exit 99
 
-  alertName=`echo $RUN|tr [a-z] [A-Z]`
-
-  grdID=$1 
-  gribDIR=${grdID}_grib 
-  rm -rfd ${gribDIR}
-  mkdir ${gribDIR}
-  err=$?
-  if [ $err != 0 ]
-  then
-    set +x
-    echo ' '
-    echo '******************************************************************************* '
-    echo '*** FATAL ERROR : ERROR IN ww3_grib2 (COULD NOT CREATE TEMP DIRECTORY) *** '
-    echo '******************************************************************************* '
-    echo ' '
-    [[ "$LOUD" = YES ]] && set -x
-    postmsg "$jlogfile" "FATAL ERROR : ERROR IN ww3_grib2 (Could not create temp directory)"
-    exit 1
-  fi
-
-  cd ${gribDIR}
-
-# 0.b Define directories and the search path.
-#     The tested variables should be exported by the postprocessor script.
-
-  GRIDNR=$2
-  MODNR=$3
-  ymdh=$4
-  fhr=$5
-  grdnam=$6
-  grdres=$7
-  gribflags=$8
-  ngrib=1 # only one time slice
-  dtgrib=3600 # only one time slice
 # SBS one time slice per file
-  FH3=$(printf %03i $fhr)
+FH3=$(printf %03i "${fhr}")
+
+# create the COM directory var
+com_varname="COMOUT_WAVE_GRID_${grid_region}_${grid_res}"
+com_dir="${!com_varname}"
+mkdir -p "${com_dir}"
 
 # Verify if grib2 file exists from interrupted run
-  ENSTAG=""
-  if [ ${waveMEMB} ]; then ENSTAG=".${membTAG}${waveMEMB}" ; fi
-  outfile=${WAV_MOD_TAG}.${cycle}${ENSTAG}.${grdnam}.${grdres}.f${FH3}.grib2
+outfile="${RUN}.t${cyc}z.${grid_region}.${grid_res}.f${FH3}.grib2"
 
-# Only create file if not present in COM
-  if [ ! -s ${COMOUT}/gridded/${outfile}.idx ]; then
+# Check if outfile exists in COM
+if [[ -s "${com_dir}/${outfile}" ]] && [[ -s "${com_dir}/${outfile}.idx" ]]; then
+    echo "File ${com_dir}/${outfile}[.idx] found, skipping generation process"
+    exit 0
+fi
 
-  set +x
-  echo ' '
-  echo '+--------------------------------+'
-  echo '!         Make GRIB files        |'
-  echo '+--------------------------------+'
-  echo "   Model ID         : $WAV_MOD_TAG"
-  [[ "$LOUD" = YES ]] && set -x
+# Copy template files to grib_DATA (required for ww3_grib.x)
+cpreq "${PARMgfs}/wave/ww3_grib2.${grdID}.inp.tmpl" "./ww3_grib2.${grdID}.inp.tmpl"
 
-  if [ -z "$CDATE" ] || [ -z "$cycle" ] || [ -z "$EXECwave" ] || \
-     [ -z "$COMOUT" ] || [ -z "$WAV_MOD_TAG" ] || [ -z "$SENDCOM" ] || \
-     [ -z "$gribflags" ] || \
-     [ -z "$GRIDNR" ] || [ -z "$MODNR" ] || [ -z "$SENDDBN" ]
-  then
-    set +x
-    echo ' '
-    echo '***************************************************'
-    echo '*** EXPORTED VARIABLES IN postprocessor NOT SET ***'
-    echo '***************************************************'
-    echo ' '
-    [[ "$LOUD" = YES ]] && set -x
-    postmsg "$jlogfile" "EXPORTED VARIABLES IN postprocessor NOT SET"
-    exit 1
-  fi
+# Link mod_def files from DATA into grib_DATA
+${NLN} "${DATA}/mod_def.${grdID}" "./mod_def.ww3"
 
-# 0.c Starting time for output
+# Link interpolated output from DATA (WW3 or ww3_gint.x generated this file)
+${NLN} "${DATA}/out_grd.${grdID}" "./out_grd.ww3"
 
-  tstart="`echo $ymdh | cut -c1-8` `echo $ymdh | cut -c9-10`0000"
+# Create the input file for the ww3_grib2 code
+ngrib=1     # only one time slice
+dtgrib=3600 # only one time slice
+tstart="${valid_time:0:8} ${valid_time:8:2}0000"
 
-  set +x
-  echo "   Starting time    : $tstart"
-  echo "   Time step        : Single SBS
-  echo "   Number of times  : Single SBS
-  echo "   GRIB field flags : $gribflags"
-  echo ' '
-  [[ "$LOUD" = YES ]] && set -x
+sed -e "s/TIME/${tstart}/g" \
+    -e "s/DT/${dtgrib}/g" \
+    -e "s/NT/${ngrib}/g" \
+    -e "s/GRIDNR/${GRIDNR}/g" \
+    -e "s/MODNR/${MODNR}/g" \
+    -e "s/FLAGS/${grib_flags}/g" \
+    "ww3_grib2.${grdID}.inp.tmpl" > ww3_grib.inp
+cat ww3_grib.inp
 
-# 0.e Links to working directory
+# Run the ww3_grib generation code
+export pgm="${NET,,}_ww3_grib.x"
+source prep_step
+"${EXECgfs}/${pgm}" > "grib2_${grid_region}_${FH3}.out" 2>&1
+export err=$?
+if [[ ${err} -ne 0 ]]; then
+    echo "FATAL ERROR: ${pgm} returned non-zero status: ${err}; exiting!"
+    exit "${err}"
+fi
+cat "grib2_${grid_region}_${FH3}.out"
 
-  ln -s ${DATA}/mod_def.$grdID mod_def.ww3
-  ln -s ${DATA}/output_${ymdh}0000/out_grd.$grdID out_grd.ww3 
+if [[ ! -s gribfile ]]; then
+    echo "FATAL ERROR: '${pgm}' failed!"
+    exit 2
+fi
 
-# --------------------------------------------------------------------------- #
-# 1.  Generate GRIB file with all data
-# 1.a Generate input file for ww3_grib2
-#     Template copied in mother script ...
-
-  set +x
-  echo "   Generate input file for ww3_grib2"
-  [[ "$LOUD" = YES ]] && set -x
-
-  sed -e "s/TIME/$tstart/g" \
-      -e "s/DT/$dtgrib/g" \
-      -e "s/NT/$ngrib/g" \
-      -e "s/GRIDNR/$GRIDNR/g" \
-      -e "s/MODNR/$MODNR/g" \
-      -e "s/FLAGS/$gribflags/g" \
-                               ${DATA}/ww3_grib2.${grdID}.inp.tmpl > ww3_grib.inp
-
-
-  echo "ww3_grib.inp" 
-  cat ww3_grib.inp
-# 1.b Run GRIB packing program
-
-  set +x
-  echo "   Run ww3_grib2"
-  echo "   Executing $EXECwave/ww3_grib"
-  [[ "$LOUD" = YES ]] && set -x
-
-  export pgm=ww3_grib;. prep_step
-  $EXECwave/ww3_grib > grib2_${grdnam}_${FH3}.out 2>&1
-  export err=$?;err_chk
-
-    if [ ! -s gribfile ]; then
-      set +x
-      echo ' '
-      echo '************************************************ '
-      echo '*** FATAL ERROR : ERROR IN ww3_grib encoding *** '
-      echo '************************************************ '
-      echo ' '
-      [[ "$LOUD" = YES ]] && set -x
-      postmsg "$jlogfile" "FATAL ERROR : ERROR IN ww3_grib2"
-      exit 3
-    fi
-
-  if [ $fht -gt 0 ]; then 
-    $WGRIB2 gribfile -set_date $CDATE -set_ftime "$fhr hour fcst" -grib ${COMOUT}/gridded/${outfile}
+if [[ ${fhr} -gt 0 ]]; then
+    ${WGRIB2} gribfile -set_date "${PDY}${cyc}" -set_ftime "${fhr} hour fcst" -grib "${outfile}"
     err=$?
-  else 
-    $WGRIB2 gribfile -set_date $CDATE -set_ftime "$fhr hour fcst" -set table_1.4 1 -set table_1.2 1 -grib ${COMOUT}/gridded/${outfile}   
+else
+    ${WGRIB2} gribfile -set_date "${PDY}${cyc}" -set_ftime "${fhr} hour fcst" \
+        -set table_1.4 1 -set table_1.2 1 -grib "${outfile}"
     err=$?
-  fi 
+fi
 
-  if [ $err != 0 ]
-  then
-    set +x
-    echo ' '
-    echo '********************************************* '
-    echo '*** FATAL ERROR : ERROR IN ww3_grib2 *** '
-    echo '********************************************* '
-    echo ' '
-    [[ "$LOUD" = YES ]] && set -x
-    postmsg "$jlogfile" "FATAL ERROR : ERROR IN ww3_grib2"
+if [[ ${err} -ne 0 ]]; then
+    echo "FATAL ERROR: Error creating '${outfile}' with '${WGRIB2}'"
     exit 3
-  fi
+fi
 
 # Create index
-    $WGRIB2 -s $COMOUT/gridded/${outfile} > $COMOUT/gridded/${outfile}.idx
+${WGRIB2} -s "${outfile}" > "${outfile}.idx"
 
-# Create grib2 subgrid is this is the source grid
-  if [ "${grdID}" = "${WAV_SUBGRBSRC}" ]; then
+# Move grib files to COM directory
+if [[ -s "${outfile}" && -s "${outfile}.idx" ]]; then
+    cpfs "${outfile}" "${com_dir}/${outfile}"
+    cpfs "${outfile}.idx" "${com_dir}/${outfile}.idx"
+    echo "INFO: Copied ${outfile} and ${outfile}.idx from ${grib_DATA} to COM"
+else
+    echo "FATAL ERROR: ${outfile} and ${outfile}.idx not found in ${grib_DATA} to copy to COM"
+    exit 4
+fi
+
+# Create grib2 subgrid if this is the source grid
+if [[ "${grdID}" == "${WAV_SUBGRBSRC}" ]]; then
     for subgrb in ${WAV_SUBGRB}; do
-      subgrbref=`echo ${!subgrb} | cut -d " " -f 1-20`
-      subgrbnam=`echo ${!subgrb} | cut -d " " -f 21`
-      subgrbres=`echo ${!subgrb} | cut -d " " -f 22`
-      subfnam="${WAV_MOD_TAG}.${cycle}${ENSTAG}.${subgrbnam}.${subgrbres}.f${FH3}.grib2"
-      $COPYGB2 -g "${subgrbref}" -i0 -x  ${COMOUT}/gridded/${outfile} ${COMOUT}/gridded/${subfnam}
-      $WGRIB2 -s $COMOUT/gridded/${subfnam} > $COMOUT/gridded/${subfnam}.idx
-   done
-  fi
+        subgrbref=$(echo "${!subgrb}" | cut -d " " -f 1-20)
+        subgrbnam=$(echo "${!subgrb}" | cut -d " " -f 21)
+        subgrbres=$(echo "${!subgrb}" | cut -d " " -f 22)
+        subfnam="${RUN}.t${cyc}z.${subgrbnam}.${subgrbres}.f${FH3}.grib2"
 
-# 1.e Save in /com
+        ${COPYGB2} -g "${subgrbref}" -i0 -x "${outfile}" "${subfnam}"
+        ${WGRIB2} -s "${subfnam}" > "${subfnam}.idx"
 
-    if [ ! -s $COMOUT/gridded/${outfile} ]
-    then
-      set +x
-      echo ' '
-      echo '********************************************* '
-      echo '*** FATAL ERROR : ERROR IN ww3_grib2 *** '
-      echo '********************************************* '
-      echo ' '
-      echo " Error in moving grib file ${outfile} to com"
-      echo ' '
-      [[ "$LOUD" = YES ]] && set -x
-      postmsg "$jlogfile" "FATAL ERROR : ERROR IN ww3_grib2"
-      exit 4
-    fi
-    if [ ! -s $COMOUT/gridded/${outfile} ]
-    then
-      set +x
-      echo ' '
-      echo '*************************************************** '
-      echo '*** FATAL ERROR : ERROR IN ww3_grib2 INDEX FILE *** '
-      echo '*************************************************** '
-      echo ' '
-      echo " Error in moving grib file ${outfile}.idx to com"
-      echo ' '
-      [[ "$LOUD" = YES ]] && set -x
-      postmsg "$jlogfile" "FATAL ERROR : ERROR IN creating ww3_grib2 index"
-      exit 4
-    fi
+        if [[ -s "${subfnam}" && -s "${subfnam}.idx" ]]; then
+            cpfs "${subfnam}" "${com_dir}/${subfnam}"
+            cpfs "${subfnam}.idx" "${com_dir}/${subfnam}.idx"
+            echo "INFO: Copied ${subfnam} and ${subfnam}.idx from ${GRIBDATA} to COM"
+        else
+            echo "FATAL ERROR: ${subfnam} and ${subfnam}.idx not found in ${grib_DATA} to copy to COM"
+            exit 5
+        fi
+    done
+fi
 
-    # if [ "$SENDDBN" = 'YES' ]
-    if [[ "$SENDDBN" = 'YES' ]] && [[ ${outfile} != *global.0p50* ]]
-    then
-      set +x
-      echo "   Alerting GRIB file as $COMOUT/gridded/${outfile}"
-      echo "   Alerting GRIB index file as $COMOUT/gridded/${outfile}.idx"
-      [[ "$LOUD" = YES ]] && set -x
-      # $DBNROOT/bin/dbn_alert MODEL WAVE_GRIB_GB2 $job $COMOUT/gridded/${outfile}
-      $DBNROOT/bin/dbn_alert MODEL ${alertName}_WAVE_GB2 $job $COMOUT/gridded/${outfile}
-      $DBNROOT/bin/dbn_alert MODEL ${alertName}_WAVE_GB2_WIDX $job $COMOUT/gridded/${outfile}.idx
-    else
-      echo "${outfile} is global.0p50, not alert out"
-    fi
-
- 
-# --------------------------------------------------------------------------- #
-# 3.  Clean up the directory
-
-  rm -f gribfile
-
-  set +x
-  echo "   Removing work directory after success."
-  [[ "$LOUD" = YES ]] && set -x
-
-  cd ../
-  mv -f ${gribDIR} done.${gribDIR}
-
-  else
-    set +x
-    echo ' '
-    echo " File ${COMOUT}/gridded/${outfile} found, skipping generation process"
-    echo ' '
-    [[ "$LOUD" = YES ]] && set -x
-  fi
-
-  set +x
-  echo ' '
-  echo "End of ww3_grib2.sh at"
-  date
-  [[ "$LOUD" = YES ]] && set -x
-
-# End of ww3_grib2.sh -------------------------------------------------- #
+if [[ "${SENDDBN}" == 'YES' && "${outfile}" != *global.0p50* ]]; then
+    echo "INFO: Alerting GRIB file as ${outfile}"
+    echo "INFO: Alerting GRIB index file as ${outfile}.idx"
+    "${DBNROOT}/bin/dbn_alert" MODEL "${RUN^^}_WAVE_GB2" "${job}" "${com_dir}/${outfile}"
+    "${DBNROOT}/bin/dbn_alert" MODEL "${RUN^^}_WAVE_GB2_WIDX" "${job}" "${com_dir}/${outfile}.idx"
+else
+    echo "INFO: ${outfile} is global.0p50 or SENDDBN is NO, no alert sent"
+fi

@@ -1,5 +1,5 @@
-#!/bin/bash
-#                                                                       
+#! /usr/bin/env bash
+
 ################################################################################
 #
 # UNIX Script Documentation Block
@@ -19,119 +19,50 @@
 #
 # --------------------------------------------------------------------------- #
 # 0.  Preparations
+
 # 0.a Basic modes of operation
+grdID=${1?Must provide grdID}
 
-  # set execution trace prompt.  ${0##*/} adds the script's basename
-  PS4=" \${SECONDS} ${0##*/} L\${LINENO} + "
-  set -x
+echo "INFO: Generating mod_def file for ${grdID}"
 
-  # Use LOUD variable to turn on/off trace.  Defaults to YES (on).
-  export LOUD=${LOUD:-YES}; [[ $LOUD = yes ]] && export LOUD=YES
-  [[ "$LOUD" != YES ]] && set +x
-
-  postmsg "$jlogfile" "Generating mod_def file"
-
-  mkdir -p moddef_${1}
-  cd moddef_${1}
-
-  grdID=$1
-
-  set +x
-  echo ' '
-  echo '+--------------------------------+'
-  echo '!     Generate moddef file       |'
-  echo '+--------------------------------+'
-  echo "   Grid            : $1"
-  echo ' '
-  [[ "$LOUD" = YES ]] && set -x
-
-# 0.b Check if grid set
-
-  if [ "$#" -lt '1' ]
-  then
-    set +x
-    echo ' '
-    echo '**************************************************'
-    echo '*** Grid not identifife in ww3_mod_def.sh ***'
-    echo '**************************************************'
-    echo ' '
-    [[ "$LOUD" = YES ]] && set -x
-    postmsg "$jlogfile" "GRID IN ww3_mod_def.sh NOT SET"
-    exit 1
-  else
-    grdID=$1
-  fi
-
-# 0.c Define directories and the search path.
-#     The tested variables should be exported by the postprocessor script.
-
-  if [ -z "$grdID" ] || [ -z "$EXECwave" ] || [ -z "$wave_sys_ver" ]
-  then
-    set +x
-    echo ' '
-    echo '*********************************************************'
-    echo '*** EXPORTED VARIABLES IN ww3_mod_def.sh NOT SET ***'
-    echo '*********************************************************'
-    echo ' '
-    [[ "$LOUD" = YES ]] && set -x
-    postmsg "$jlogfile" "EXPORTED VARIABLES IN ww3_mod_def.sh NOT SET"
-    exit 2
-  fi
+mkdir -p "moddef_${grdID}"
+cd "moddef_${grdID}" || exit 2
 
 # --------------------------------------------------------------------------- #
-# 2.  Create mod_def file 
+# 2.  Create mod_def file
 
-  set +x
-  echo ' '
-  echo '   Creating mod_def file ...'
-  echo "   Executing $EXECwave/ww3_grid"
-  echo ' '
-  [[ "$LOUD" = YES ]] && set -x
- 
-  rm -f ww3_grid.inp 
-  ln -sf ../ww3_grid.inp.$grdID ww3_grid.inp
- 
-  $EXECwave/ww3_grid 1> grid_${grdID}.out 2>&1
-  err=$?
+rm -f "ww3_grid.inp"
+${NLN} "../ww3_grid.inp.${grdID}" "ww3_grid.inp"
 
-  if [ "$err" != '0' ]
-  then
-    set +x
-    echo ' '
-    echo '******************************************** '
-    echo '*** FATAL ERROR : ERROR IN ww3_grid *** '
-    echo '******************************************** '
-    echo ' '
-    [[ "$LOUD" = YES ]] && set -x
-    postmsg "$jlogfile" "FATAL ERROR : ERROR IN ww3_grid"
-    exit 3
-  fi
- 
-  if [ -f mod_def.ww3 ]
-  then
-    cp mod_def.ww3 $COMOUT/rundata/${CDUMP}wave.mod_def.${grdID}
-    mv mod_def.ww3 ../mod_def.$grdID
-  else
-    set +x
-    echo ' '
-    echo '******************************************** '
-    echo '*** FATAL ERROR : MOD DEF FILE NOT FOUND *** '
-    echo '******************************************** '
-    echo ' '
-    [[ "$LOUD" = YES ]] && set -x
-    postmsg "$jlogfile" "FATAL ERROR : Mod def File creation FAILED"
+if [[ -f "../${grdID}.msh" ]]; then
+    rm -f "${grdID}.msh"
+    ${NLN} "../${grdID}.msh" "${grdID}.msh"
+fi
+
+export pgm="${NET,,}_ww3_grid.x"
+
+echo "INFO: Executing ${EXECgfs}/${NET,,}_ww3_grid.x"
+
+"${EXECgfs}/${pgm}"
+export err=$?
+
+if [[ "${err}" != '0' ]]; then
+    echo "FATAL ERROR: Error in ${pgm}"
+    exit "${err}"
+fi
+
+if [[ -f mod_def.ww3 ]]; then
+    cpfs "mod_def.ww3" "${COMOUT_WAVE_PREP}/${RUN}.t${cyc}z.mod_def.${grdID}.bin"
+    mv "mod_def.ww3" "../mod_def.${grdID}"
+else
+    echo "FATAL ERROR: Mod def file not created for ${grdID}"
     exit 4
-  fi
+fi
 
 # --------------------------------------------------------------------------- #
 # 3.  Clean up
 
-  cd ..
-  rm -rf moddef_$grdID
-
-  set +x
-  echo ' '
-  echo 'End of ww3_mod_def.sh at'
-  date
+cd ..
+rm -rf "moddef_${grdID}"
 
 # End of ww3_mod_def.sh ------------------------------------------------- #

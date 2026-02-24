@@ -1,0 +1,16 @@
+gdaswave:
+    {% set head = "gdas.t" + cycle_HH + "z." %}
+    name: "GDASWAVE"
+    target: "{{ ATARDIR }}/{{ cycle_YMDH }}/gdaswave.tar"
+    required:
+        {# offset_dt_fv3 is pre-calculated in Python: +6H (FV3 format: YYYYMMDD.HHMMSS) #}
+        - "{{ COMIN_WAVE_RESTART }}/{{ offset_dt_fv3 }}.restart.ww3.nc"
+        # TODO explicitly name the wave grid files to archive
+        {% for file_path in WAVE_GRID_RES_COM_list %}
+        - "{{ file_path }}/{{ head }}*"
+        {% endfor %}
+
+        # Wave point output
+        - "{{ COMIN_WAVE_STATION }}/{{ head }}bull.tar"
+        - "{{ COMIN_WAVE_STATION }}/{{ head }}cbull.tar"
+        - "{{ COMIN_WAVE_STATION }}/{{ head }}spec.tar.gz"

@@ -1,4 +1,5 @@
-#!/bin/ksh
+#! /usr/bin/env bash
+
 ################################################################################
 ####  UNIX Script Documentation Block
 #                      .                                             .
@@ -8,7 +9,9 @@
 # Author:        George Gayno       Org: NP23         Date: 2018-01-30
 #
 # Abstract: This script makes a global gaussian grid surface analysis from
-#           fv3gfs surface analysis tiles
+#           fv3gfs surface analysis tiles.  The gaussian grid resolution is
+#           the gaussian equivalent of the history file resolution (may be
+#           different than restart resolution).
 #
 # Script history log:
 # 2018-01-30  Gayno  initial script
@@ -17,50 +20,15 @@
 # Usage:  gaussian_sfcanl.sh
 #
 #   Imported Shell Variables:
-#     CASE          Model resolution.  Defaults to C768.
+#     CASE          Forecast model and restart resolution.  Defaults to C768.
+#     CASE_HIST     History file output resolution.  Defaults to $CASE.
 #     DONST         Process NST fields when 'yes'.  Default is 'no'.
-#     OUTPUT_FILE   Output gaussian analysis file format.  Default is "nemsio"
-#                   Set to "netcdf" for netcdf output file
-#                   Otherwise, output in nemsio.
-#     BASEDIR       Root directory where all scripts and fixed files reside.
-#                   Default is /nwprod2.
-#     HOMEgfs       Directory for gfs version.  Default is
-#                   $BASEDIR/gfs_ver.v15.0.0}
-#     FIXam         Directory for the global fixed climatology files.
-#                   Defaults to $HOMEgfs/fix/fix_am
-#     FIXfv3        Directory for the model grid and orography netcdf
-#                   files.  Defaults to $HOMEgfs/fix/fix_fv3_gmted2010
 #     FIXWGTS       Weight file to use for interpolation
-#     EXECgfs       Directory of the program executable.  Defaults to
-#                   $HOMEgfs/exec
-#     DATA          Working directory
-#                   (if nonexistent will be made, used and deleted)
-#                   Defaults to current working directory
 #     COMOUT        Output directory
 #                   (if nonexistent will be made)
 #                   defaults to current working directory
-#     XC            Suffix to add to executables. Defaults to none.
 #     GAUSFCANLEXE  Program executable.
-#                   Defaults to $EXECgfs/gaussian_sfcanl.exe
-#     INISCRIPT     Preprocessing script.  Defaults to none.
-#     LOGSCRIPT     Log posting script.  Defaults to none.
-#     ERRSCRIPT     Error processing script
-#                   defaults to 'eval [[ $err = 0 ]]'
-#     ENDSCRIPT     Postprocessing script
-#                   defaults to none
-#     CDATE         Output analysis date in yyyymmddhh format. Required.
-#     PGMOUT        Executable standard output
-#                   defaults to $pgmout, then to '&1'
-#     PGMERR        Executable standard error
-#                   defaults to $pgmerr, then to '&1'
-#     pgmout        Executable standard output default
-#     pgmerr        Executable standard error default
-#     REDOUT        standard output redirect ('1>' or '1>>')
-#                   defaults to '1>', or to '1>>' to append if $PGMOUT is a file
-#     REDERR        standard error redirect ('2>' or '2>>')
-#                   defaults to '2>', or to '2>>' to append if $PGMERR is a file
-#     VERBOSE       Verbose flag (YES or NO)
-#                   defaults to NO
+#                   Defaults to $EXECgfs/gaussian_sfcanl.x
 #     gfs_ver       Version number of gfs directory.  Default is
 #                   v15.0.0.
 #     OMP_NUM_
@@ -69,28 +37,22 @@
 #                   Default is none.
 #
 #   Exported Shell Variables:
-#     PGM           Current program name
 #     pgm
-#     ERR           Last return code
 #     err
 #
 #   Modules and files referenced:
-#     scripts    : $INISCRIPT
-#                  $LOGSCRIPT
-#                  $ERRSCRIPT
-#                  $ENDSCRIPT
+#     scripts    :
 #
 #     programs   : $GAUSFCANLEXE
 #
-#     fixed data : $FIXfv3/${CASE}/${CASE}_oro_data.tile*.nc
-#                  $FIXWGTS
-#                  $FIXam/global_hyblev.l65.txt
+#     fixed data : ${FIXorog}/${CASE}/${CASE}.mx${OCNRES}_oro_data.tile*.nc
+#                  ${FIXWGTS}
+#                  ${FIXgfs}/am/global_hyblev.l65.txt
 #
-#     input data : $COMOUT/RESTART/${PDY}.${cyc}0000.sfcanl_data.tile*.nc
+#     input data : ${COMIN_ATMOS_RESTART}/${PDY}.${cyc}0000.sfcanl_data.tile*.nc
+#                  ${COMIN_ATMOS_ANALYSIS}/increment.sfc.i006.tile${i}.nc"
 #
-#     output data: $PGMOUT
-#                  $PGMERR
-#                  $COMOUT/${APREFIX}sfcanl${ASUFFIX}
+#     output data: $COMOUT/${APREFIX}analysis.sfc.a006.nc
 #
 # Remarks:
 #
@@ -105,141 +67,105 @@
 #
 # Attributes:
 #   Language: POSIX shell
-#   Machine: IBM SP
 #
 ################################################################################
 
-#  Set environment.
-VERBOSE=${VERBOSE:-"NO"}
-if [[ "$VERBOSE" = "YES" ]] ; then
-   echo $(date) EXECUTING $0 $* >&2
-   set -x
-fi
-
 CASE=${CASE:-C768}
-res=$(echo $CASE | cut -c2-)
-LONB_CASE=$((res*4))
-LATB_CASE=$((res*2))
-LONB_SFC=${LONB_SFC:-$LONB_CASE}
-LATB_SFC=${LATB_SFC:-$LATB_CASE}
+CASE_HIST=${CASE_HIST:-${CASE}}
+resh=${CASE_HIST:1}
+LONB_CASE=$((resh * 4))
+LATB_CASE=$((resh * 2))
+LONB_SFC=${LONB_SFC:-${LONB_CASE}}
+LATB_SFC=${LATB_SFC:-${LATB_CASE}}
 DONST=${DONST:-"NO"}
 LEVS=${LEVS:-64}
-LEVSP1=$(($LEVS+1))
-OUTPUT_FILE=${OUTPUT_FILE:-"nemsio"}
-if [ $OUTPUT_FILE = "netcdf" ]; then
-    export NETCDF_OUT=".true."
-else
-    export NETCDF_OUT=".false."
-fi
-
-#  Directories.
-gfs_ver=${gfs_ver:-v15.0.0}
-BASEDIR=${BASEDIR:-${NWROOT:-/nwprod2}}
-HOMEgfs=${HOMEgfs:-$BASEDIR/gfs_ver.${gfs_ver}}
-EXECgfs=${EXECgfs:-$HOMEgfs/exec}
-FIXfv3=${FIXfv3:-$HOMEgfs/fix/fix_fv3_gmted2010}
-FIXam=${FIXam:-$HOMEgfs/fix/fix_am}
-FIXWGTS=${FIXWGTS:-$FIXfv3/$CASE/fv3_SCRIP_${CASE}_GRIDSPEC_lon${LONB_SFC}_lat${LATB_SFC}.gaussian.neareststod.nc}
-DATA=${DATA:-$(pwd)}
-COMOUT=${COMOUT:-$(pwd)}
+LEVSP1=$((LEVS + 1))
+FIXWGTS=${FIXWGTS:-${FIXorog}/${CASE}/fv3_SCRIP_${CASE}_GRIDSPEC_lon${LONB_SFC}_lat${LATB_SFC}.gaussian.neareststod.nc}
 
 #  Filenames.
-XC=${XC}
-GAUSFCANLEXE=${GAUSFCANLEXE:-$EXECgfs/gaussian_sfcanl.exe}
-SIGLEVEL=${SIGLEVEL:-$FIXam/global_hyblev.l${LEVSP1}.txt}
-
-CDATE=${CDATE:?}
+GAUSFCANLEXE=${GAUSFCANLEXE:-${EXECgfs}/gaussian_sfcanl.x}
+SIGLEVEL=${SIGLEVEL:-${FIXgfs}/am/global_hyblev.l${LEVSP1}.txt}
 
 #  Other variables.
-export NLN=${NLN:-"/bin/ln -sf"}
-export PGMOUT=${PGMOUT:-${pgmout:-'&1'}}
-export PGMERR=${PGMERR:-${pgmerr:-'&2'}}
-export REDOUT=${REDOUT:-'1>'}
-export REDERR=${REDERR:-'2>'}
 
 # Set defaults
 ################################################################################
 #  Preprocessing
-$INISCRIPT
-pwd=$(pwd)
-if [[ -d $DATA ]]
-then
-   mkdata=NO
-else
-   mkdir -p $DATA
-   mkdata=YES
-fi
-cd $DATA||exit 99
-[[ -d $COMOUT ]]||mkdir -p $COMOUT
-cd $DATA
 
 ################################################################################
 #  Make surface analysis
-export PGM=$GAUSFCANLEXE
-export pgm=$PGM
-$LOGSCRIPT
-
-PDY=$(echo $CDATE | cut -c1-8)
-cyc=$(echo $CDATE | cut -c9-10)
-iy=$(echo $CDATE | cut -c1-4)
-im=$(echo $CDATE | cut -c5-6)
-id=$(echo $CDATE | cut -c7-8)
-ih=$(echo $CDATE | cut -c9-10)
-
-export OMP_NUM_THREADS=${OMP_NUM_THREADS_SFC:-1}
 
 # input interpolation weights
-$NLN $FIXWGTS ./weights.nc
+cpreq "${FIXWGTS}" "./weights.nc"
 
 # input analysis tiles (with nst records)
-$NLN $COMOUT/RESTART/${PDY}.${cyc}0000.sfcanl_data.tile1.nc   ./anal.tile1.nc
-$NLN $COMOUT/RESTART/${PDY}.${cyc}0000.sfcanl_data.tile2.nc   ./anal.tile2.nc
-$NLN $COMOUT/RESTART/${PDY}.${cyc}0000.sfcanl_data.tile3.nc   ./anal.tile3.nc
-$NLN $COMOUT/RESTART/${PDY}.${cyc}0000.sfcanl_data.tile4.nc   ./anal.tile4.nc
-$NLN $COMOUT/RESTART/${PDY}.${cyc}0000.sfcanl_data.tile5.nc   ./anal.tile5.nc
-$NLN $COMOUT/RESTART/${PDY}.${cyc}0000.sfcanl_data.tile6.nc   ./anal.tile6.nc
+cpreq "${COMIN_ATMOS_RESTART}/${PDY}.${cyc}0000.sfcanl_data.tile1.nc" "./anal.tile1.nc"
+cpreq "${COMIN_ATMOS_RESTART}/${PDY}.${cyc}0000.sfcanl_data.tile2.nc" "./anal.tile2.nc"
+cpreq "${COMIN_ATMOS_RESTART}/${PDY}.${cyc}0000.sfcanl_data.tile3.nc" "./anal.tile3.nc"
+cpreq "${COMIN_ATMOS_RESTART}/${PDY}.${cyc}0000.sfcanl_data.tile4.nc" "./anal.tile4.nc"
+cpreq "${COMIN_ATMOS_RESTART}/${PDY}.${cyc}0000.sfcanl_data.tile5.nc" "./anal.tile5.nc"
+cpreq "${COMIN_ATMOS_RESTART}/${PDY}.${cyc}0000.sfcanl_data.tile6.nc" "./anal.tile6.nc"
 
 # input orography tiles
-$NLN $FIXfv3/$CASE/${CASE}_oro_data.tile1.nc   ./orog.tile1.nc
-$NLN $FIXfv3/$CASE/${CASE}_oro_data.tile2.nc   ./orog.tile2.nc
-$NLN $FIXfv3/$CASE/${CASE}_oro_data.tile3.nc   ./orog.tile3.nc
-$NLN $FIXfv3/$CASE/${CASE}_oro_data.tile4.nc   ./orog.tile4.nc
-$NLN $FIXfv3/$CASE/${CASE}_oro_data.tile5.nc   ./orog.tile5.nc
-$NLN $FIXfv3/$CASE/${CASE}_oro_data.tile6.nc   ./orog.tile6.nc
+cpreq "${FIXorog}/${CASE}/${CASE}.mx${OCNRES}_oro_data.tile1.nc" "./orog.tile1.nc"
+cpreq "${FIXorog}/${CASE}/${CASE}.mx${OCNRES}_oro_data.tile2.nc" "./orog.tile2.nc"
+cpreq "${FIXorog}/${CASE}/${CASE}.mx${OCNRES}_oro_data.tile3.nc" "./orog.tile3.nc"
+cpreq "${FIXorog}/${CASE}/${CASE}.mx${OCNRES}_oro_data.tile4.nc" "./orog.tile4.nc"
+cpreq "${FIXorog}/${CASE}/${CASE}.mx${OCNRES}_oro_data.tile5.nc" "./orog.tile5.nc"
+cpreq "${FIXorog}/${CASE}/${CASE}.mx${OCNRES}_oro_data.tile6.nc" "./orog.tile6.nc"
 
-$NLN $SIGLEVEL                                 ./vcoord.txt
+cpreq "${SIGLEVEL}" "./vcoord.txt"
 
-# output gaussian global surface analysis files
-$NLN $COMOUT/${APREFIX}sfcanl${ASUFFIX} ./sfc.gaussian.analysis.file
+# Namelist uses booleans now
+if [[ "${DONST}" == "YES" ]]; then
+    do_nst=".true."
+else
+    do_nst=".false."
+fi
+
+# Add soil increments to gdas gaussian sfcanal if they are not added by gcycle (i.e., when landiau=true)
+LSOIL_INCR=${LSOIL_INCR:-2}
+if [[ "${DO_LAND_IAU:-.false.}" == ".true." ]]; then
+    for i in $(seq 1 6); do
+        sfc_inc="${COMIN_ATMOS_ANALYSIS}/increment.sfc.i006.tile${i}.nc"
+        cpreq "${sfc_inc}" "./sfc_inc.tile${i}.nc"
+    done
+fi
 
 # Executable namelist
-cat <<EOF > fort.41
- &setup
-  yy=$iy,
-  mm=$im,
-  dd=$id,
-  hh=$ih,
-  igaus=$LONB_SFC,
-  jgaus=$LATB_SFC,
-  donst=$DONST,
-  netcdf_out=$NETCDF_OUT
- /
+cat << EOF > fort.41
+&setup
+  yy=${PDY:0:4},
+  mm=${PDY:4:2},
+  dd=${PDY:6:2},
+  hh=${cyc},
+  igaus=${LONB_SFC},
+  jgaus=${LATB_SFC},
+  donst=${do_nst},
+  imp_physics=${imp_physics:-8},
+  landsfcmdl=${landsfcmdl:-2},
+  add_soil_inc=${DO_LAND_IAU},
+  lsoil_incr=${LSOIL_INCR},
+  sfc_inc_file="./sfc_inc",
+/
 EOF
+cat fort.41
 
-$APRUNSFC $GAUSFCANLEXE
+export pgm="${GAUSFCANLEXE}"
+export OMP_NUM_THREADS=${OMP_NUM_THREADS_SFC:-1}
+${APRUNSFC} "${GAUSFCANLEXE}"
+export err=$?
+if [[ ${err} -ne 0 ]]; then
+    echo "FATAL ERROR: ${GAUSFCANLEXE} returned non-zero exit status!"
+    exit "${err}"
+fi
 
-export ERR=$?
-export err=$ERR
-$ERRSCRIPT||exit 2
+# output gaussian global surface analysis files
+if [[ -f "sfc.gaussian.analysis.file" ]]; then
+    cpfs "./sfc.gaussian.analysis.file" "${COMOUT_ATMOS_ANALYSIS}/${APREFIX}analysis.sfc.a006.nc"
+fi
 
 ################################################################################
 #  Postprocessing
-cd $pwd
-[[ $mkdata = YES ]]&&rmdir $DATA
-$ENDSCRIPT
-set +x
-if [[ "$VERBOSE" = "YES" ]]
-then
-   echo $(date) EXITING $0 with return code $err >&2
-fi
-exit $err
+
+exit 0

@@ -1,0 +1,7 @@
+ocean_6hravg:
+    name: "OCEAN_6HRAVG"
+    target: "{{ ATARDIR }}/{{ cycle_YMDH }}/ocean_6hravg.tar"
+    required:
+        {% for fhr in range(6, FHMAX_GFS + 6, 6) %}
+        - "{{ COMIN_OCEAN_HISTORY }}/gfs.t{{ cycle_HH }}z.6hr_avg.f{{ '%03d' % fhr }}.nc"
+        {% endfor %}

@@ -1,0 +1,20 @@
+# Variables provided by archive_vrfy_vars.py:
+# - cycle_HH, cycle_YMDH, cycle_YMD, head
+# - VFYARC (archive directory)
+# - COMIN_ATMOS_ENSSTAT_1p00 (calculated in Python with MEMDIR='ensstat')
+
+# Build head string (e.g., 'gfs.t00z.')
+{% set head = RUN + ".t" + cycle_HH + "z." %}
+
+# Create directories first
+mkdir:
+    - "{{ VFYARC }}"
+
+# Define all source-destination pairs for archiving
+# Use copy_req for files that MUST exist (raise error if missing)
+copy_req:
+    # GEFS ensemble mean forecast files - REQUIRED
+    {% for fhr in range(FHMIN_GFS, FHMAX_GFS + FHOUT_GFS, FHOUT_GFS) %}
+    - ["{{ COMIN_ATMOS_ENSSTAT_1p00 }}/{{ head }}mean.pres_.1p00.f{{ '%03d'|format(fhr) }}.grib2",
+       "{{ VFYARC }}/{{ head }}mean.pres_.1p00.f{{ '%03d'|format(fhr) }}.grib2"]
+    {% endfor %}

@@ -1,96 +1,109 @@
-#!/bin/sh
+#! /usr/bin/env bash
 set -x
 
-# Check final exec folder exists
-if [ ! -d "../exec" ]; then
-  mkdir ../exec
+# shellcheck disable=SC2155
+readonly HOMEgfs_=$(cd "$(dirname "$(readlink -f -n "${BASH_SOURCE[0]}")")" && git rev-parse --show-toplevel)
+cd "${HOMEgfs_}/sorc" || exit 1
+
+# Default settings
+PDLIB="ON"
+
+while getopts ":j:a:dvw" option; do
+    case "${option}" in
+        d) BUILD_TYPE="Debug" ;;
+        j) BUILD_JOBS="${OPTARG}" ;;
+        v) export BUILD_VERBOSE="YES" ;;
+        w) PDLIB="OFF" ;;
+        :)
+            echo "[${BASH_SOURCE[0]}]: ${option} requires an argument"
+            ;;
+        *)
+            echo "[${BASH_SOURCE[0]}]: Unrecognized option: ${option}"
+            ;;
+    esac
+done
+
+# Determine machine and load modules
+source "${HOMEgfs_}/ush/detect_machine.sh"
+set +x
+source "${HOMEgfs_}/sorc/ufs_model.fd/tests/module-setup.sh"
+module use "${HOMEgfs_}/sorc/ufs_model.fd/modulefiles"
+module load "ufs_${MACHINE_ID}.intel"
+set -x
+
+#Set WW3 directory
+cd "${HOMEgfs_}/sorc/ufs_model.fd/WW3" || exit 1
+WW3_DIR=$(pwd -P)
+export WW3_DIR
+
+# Determine which switch to use
+if [[ "${PDLIB}" == "ON" ]]; then
+    ww3switch="model/bin/switch_meshcap_pdlib"
+    path_build="${WW3_DIR}/build/pdlib_ON"
+    path_install="${WW3_DIR}/install/pdlib_ON"
+else
+    ww3switch="model/bin/switch_meshcap"
+    path_build="${WW3_DIR}/build/pdlib_OFF"
+    path_install="${WW3_DIR}/install/pdlib_OFF"
+fi
+export SWITCHFILE="${WW3_DIR}/${ww3switch}"
+
+#create build directory:
+if [[ -d "${path_build}" ]]; then
+    rm -rf "${path_build}"
+fi
+mkdir -p "${path_build}" || exit 1
+cd "${path_build}" || exit 1
+echo "Forcing a SHRD build"
+
+buildswitch="${path_build}/switch"
+
+cat "${SWITCHFILE}" > "${path_build}/tempswitch"
+
+sed -e "s/DIST/SHRD/g" \
+    -e "s/OMPG / /g" \
+    -e "s/OMPH / /g" \
+    -e "s/MPIT / /g" \
+    -e "s/MPI / /g" \
+    -e "s/PIO / /g" \
+    -e "s/B4B / /g" \
+    -e "s/PDLIB / /g" \
+    -e "s/SCOTCH / /g" \
+    -e "s/METIS / /g" \
+    -e "s/NOGRB/NCEP2/g" \
+    "${path_build}/tempswitch" > "${path_build}/switch"
+rm "${path_build}/tempswitch"
+
+echo "Switch file is ${buildswitch} with switches:"
+cat "${buildswitch}"
+
+#define cmake build options
+MAKE_OPT="-DCMAKE_INSTALL_PREFIX=${path_install}"
+if [[ "${BUILD_TYPE:-"Release"}" == "Debug" ]]; then
+    MAKE_OPT+=" -DCMAKE_BUILD_TYPE=Debug"
 fi
 
-finalexecdir=$( pwd -P )/../exec
+#Build executables:
+# shellcheck disable=SC2086
+cmake "${WW3_DIR}" -DSWITCH="${buildswitch}" ${MAKE_OPT}
+rc=$?
+if ((rc != 0)); then
+    echo "Fatal error in cmake."
+    exit "${rc}"
+fi
 
-set +x
-source ./machine-setup.sh > /dev/null 2>&1
-source ../modulefiles/modulefile.ww3.$target
-set -x 
+make -j "${BUILD_JOBS:-8}"
+rc=$?
+if ((rc != 0)); then
+    echo "Fatal error in make."
+    exit "${rc}"
+fi
 
+make install
+rc=$?
+if ((rc != 0)); then
+    echo "Fatal error in make install."
+    exit "${rc}"
+fi
 
-if [ $target = hera ]; then target=hera.intel ; fi
-if [ $target = orion ]; then target=orion.intel ; fi
-if [ $target = stampede ]; then target=stampede.intel ; fi
-
-#cd ufs_coupled.fd/WW3
-cd fv3gfs.fd/WW3
-export WW3_DIR=$( pwd -P )/model
-export WW3_BINDIR="${WW3_DIR}/bin"
-export WW3_TMPDIR=${WW3_DIR}/tmp
-export WW3_EXEDIR=${WW3_DIR}/exe
-export WW3_COMP=$target 
-export WW3_CC=gcc
-export WW3_F90=gfortran
-export SWITCHFILE="${WW3_DIR}/esmf/switch"
-
-export WWATCH3_ENV=${WW3_BINDIR}/wwatch3.env
-export PNG_LIB=${PNG_LIB:-$PNG_ROOT/lib64/libpng.a}
-export Z_LIB=${Z_LIB:-$ZLIB_ROOT/lib/libz.a}
-export JASPER_LIB=${JASPER_LIB:-$JASPER_ROOT/lib64/libjasper.a}
-export WWATCH3_NETCDF=NC4
-export NETCDF_CONFIG=$NETCDF_ROOT/bin/nc-config
-
-rm  $WWATCH3_ENV
-echo '#'                                              > $WWATCH3_ENV
-echo '# ---------------------------------------'      >> $WWATCH3_ENV
-echo '# Environment variables for wavewatch III'      >> $WWATCH3_ENV
-echo '# ---------------------------------------'      >> $WWATCH3_ENV
-echo '#'                                              >> $WWATCH3_ENV
-echo "WWATCH3_LPR      $PRINTER"                      >> $WWATCH3_ENV
-echo "WWATCH3_F90      $WW3_F90"                      >> $WWATCH3_ENV
-echo "WWATCH3_CC       $WW3_CC"                       >> $WWATCH3_ENV
-echo "WWATCH3_DIR      $WW3_DIR"                      >> $WWATCH3_ENV
-echo "WWATCH3_TMP      $WW3_TMPDIR"                   >> $WWATCH3_ENV
-echo 'WWATCH3_SOURCE   yes'                           >> $WWATCH3_ENV
-echo 'WWATCH3_LIST     yes'                           >> $WWATCH3_ENV
-echo ''                                               >> $WWATCH3_ENV
-
-${WW3_BINDIR}/w3_clean -m 
-${WW3_BINDIR}/w3_setup -q -c $WW3_COMP $WW3_DIR
-
-echo $(cat ${SWITCHFILE}) > ${WW3_BINDIR}/tempswitch
-
-sed -e "s/DIST/SHRD/g"\
-    -e "s/OMPG/ /g"\
-    -e "s/OMPH/ /g"\
-    -e "s/MPIT/ /g"\
-    -e "s/MPI/ /g"\
-    -e "s/PDLIB/ /g"\
-       ${WW3_BINDIR}/tempswitch > ${WW3_BINDIR}/switch
-
-#Build exes for prep jobs: 
-${WW3_BINDIR}/w3_make ww3_grid 
-${WW3_BINDIR}/w3_make ww3_prep
-${WW3_BINDIR}/w3_make ww3_prnc
-
-#Build exes for post jobs (except grib)"
-${WW3_BINDIR}/w3_make ww3_outp 
-${WW3_BINDIR}/w3_make ww3_outf
-${WW3_BINDIR}/w3_make ww3_outp
-${WW3_BINDIR}/w3_make ww3_gint
-${WW3_BINDIR}/w3_make ww3_ounf
-${WW3_BINDIR}/w3_make ww3_ounp
-
-#Update switch for grib: 
-echo $(cat ${SWITCHFILE}) > ${WW3_BINDIR}/tempswitch
-
-sed -e "s/DIST/SHRD/g"\
-    -e "s/OMPG/ /g"\
-    -e "s/OMPH/ /g"\
-    -e "s/MPIT/ /g"\
-    -e "s/MPI/ /g"\
-    -e "s/PDLIB/ /g"\
-    -e "s/NOGRB/NCEP2 NCO/g"\
-       ${WW3_BINDIR}/tempswitch > ${WW3_BINDIR}/switch
-#Build exe for grib
-${WW3_BINDIR}/w3_make ww3_grib
-
-cp $WW3_EXEDIR/ww3_* $finalexecdir/
-${WW3_BINDIR}/w3_clean -c
-rm ${WW3_BINDIR}/tempswitch 
+exit 0

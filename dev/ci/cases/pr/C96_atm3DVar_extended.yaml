@@ -1,0 +1,31 @@
+experiment:
+  net: gfs
+  mode: cycled
+  pslot: {{ 'pslot' | getenv }}
+  app: ATM
+  resdetatmos: 96
+  comroot: {{ 'RUNTESTS' | getenv }}/COMROOT
+  expdir: {{ 'RUNTESTS' | getenv }}/EXPDIR
+  icsdir: {{ 'ICSDIR_ROOT' | getenv }}/C96C48/20250808
+  idate: 2021122018
+  edate: 2021122118
+  nens: 0
+  interval: 6
+  start: cold
+  yaml: {{ HOMEgfs }}/dev/ci/cases/yamls/gfs_extended_ci.yaml
+
+skip_ci_on_hosts:
+  - hera
+  - ursa
+  - gaeac6
+  - orion
+  - hercules
+  - awsepicglobalworkflow
+
+workflow:
+  engine: rocoto
+  rocoto:
+    maxtries: 2
+    cyclethrottle: 3
+    taskthrottle: 75
+    verbosity: 2

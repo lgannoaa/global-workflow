@@ -1,0 +1,17 @@
+gfs_restarta:
+    {% set head = "gfs.t" + cycle_HH + "z." %}
+    name: "GFS_RESTARTA"
+    target: "{{ ATARDIR }}/{{ cycle_YMDH }}/gfs_restarta.tar"
+    required:
+        {% if MODE == "cycled" %}
+        {# anl_time_YMD and anl_time_HH are pre-calculated in Python: -3H if DOHYBVAR and DOIAU, 0H otherwise #}
+        {% for i_tile in range(1, 7) %}
+        - "{{ COMIN_ATMOS_RESTART }}/{{ anl_time_YMD }}.{{ anl_time_HH }}0000.sfcanl_data.tile{{ i_tile }}.nc"
+        {% endfor %}
+        {% elif MODE == "forecast-only" %}
+        - "{{ COMIN_ATMOS_INPUT }}/gfs_ctrl.nc"
+        {% for i_tile in range(1, 7) %}
+        - "{{ COMIN_ATMOS_INPUT }}/gfs_data.tile{{ i_tile }}.nc"
+        - "{{ COMIN_ATMOS_INPUT }}/sfc_data.tile{{ i_tile }}.nc"
+        {% endfor %}
+        {% endif %}

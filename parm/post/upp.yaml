@@ -1,0 +1,101 @@
+upp:
+  config:
+    grib_version: "grib2"
+    ioform: "netcdfpara"
+    po: [1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,40.,30.,20.,15.,10.,7.,5.,3.,2.,1.,0.7,0.4,0.2,0.1,0.07,0.04,0.02,0.01]
+    rdaod: False
+  fix_data:
+    mkdir:
+      - "{{ DATA }}"
+    copy:
+      - ["{{ 'g2tmpl_ROOT' | getenv }}/share/params_grib2_tbl_new", "{{ DATA }}/params_grib2_tbl_new"]
+      - ["{{ PARMgfs }}/post/nam_micro_lookup.dat", "{{ DATA }}/eta_micro_lookup.dat"]
+      - ["{{ EXECgfs }}/upp.x", "{{ DATA }}/"]
+      - ["{{ PARMgfs }}/post/itag.jinja", "{{ DATA }}/"]
+
+analysis:
+  config:
+    rdaod: True
+  data_in:
+    copy:
+      - ["{{ PARMgfs }}/post/gfs/postxconfig-NT-gfs-anl.txt", "{{ DATA }}/postxconfig-NT.txt"]
+{% if DO_JEDIATMVAR %}
+      {% if ATMINC_GRID == 'gaussian' %}
+      - ["{{ COMIN_ATMOS_ANALYSIS }}/{{ RUN }}.t{{ current_cycle | strftime('%H') }}z.analysis.atm.a006.nc", "{{ DATA }}/{{ atmos_filename }}"]
+      - ["{{ COMIN_ATMOS_ANALYSIS }}/{{ RUN }}.t{{ current_cycle | strftime('%H') }}z.analysis.sfc.a006.nc", "{{ DATA }}/{{ flux_filename }}"]
+      {% else %}
+      - ["{{ COMIN_ATMOS_ANALYSIS }}/{{ RUN }}.t{{ current_cycle | strftime('%H') }}z.jedi_analysis.atm.a006.nc", "{{ DATA }}/{{ atmos_filename }}"]
+      - ["{{ COMIN_ATMOS_ANALYSIS }}/{{ RUN }}.t{{ current_cycle | strftime('%H') }}z.jedi_analysis.sfc.a006.nc", "{{ DATA }}/{{ flux_filename }}"]
+      {% endif %}
+{% else %}
+      - ["{{ COMIN_ATMOS_ANALYSIS }}/{{ RUN }}.t{{ current_cycle | strftime('%H') }}z.analysis.atm.a006.nc", "{{ DATA }}/{{ atmos_filename }}"]
+      - ["{{ COMIN_ATMOS_ANALYSIS }}/{{ RUN }}.t{{ current_cycle | strftime('%H') }}z.analysis.sfc.a006.nc", "{{ DATA }}/{{ flux_filename }}"]
+{% endif %}
+
+  data_out:
+    copy:
+      - ["{{ DATA }}/GFSPRS.GrbF00", "{{ COMOUT_ATMOS_MASTER }}/{{ RUN }}.t{{ current_cycle | strftime('%H') }}z.master.analysis.grib2"]
+      - ["{{ DATA }}/GFSPRS.GrbF00.idx", "{{ COMOUT_ATMOS_MASTER }}/{{ RUN }}.t{{ current_cycle | strftime('%H') }}z.master.analysis.grib2.idx"]
+
+forecast:
+  config:
+    rdaod: True
+  data_in:
+    copy:
+      {% if forecast_hour == 0 %}
+      - ["{{ PARMgfs }}/post/gfs/postxconfig-NT-gfs-f00-two.txt", "{{ DATA }}/postxconfig-NT.txt"]
+      {% else %}
+      - ["{{ PARMgfs }}/post/gfs/postxconfig-NT-gfs-two.txt", "{{ DATA }}/postxconfig-NT.txt"]
+      {% endif %}
+      - ["{{ COMIN_ATMOS_HISTORY }}/{{ RUN }}.t{{ current_cycle | strftime('%H') }}z.atm.f{{ '%03d' % forecast_hour }}.nc", "{{ DATA }}/{{ atmos_filename }}"]
+      - ["{{ COMIN_ATMOS_HISTORY }}/{{ RUN }}.t{{ current_cycle | strftime('%H') }}z.sfc.f{{ '%03d' % forecast_hour }}.nc", "{{ DATA }}/{{ flux_filename }}"]
+  data_out:
+    copy:
+      - ["{{ DATA }}/GFSPRS.GrbF{{ '%02d' % forecast_hour }}", "{{ COMOUT_ATMOS_MASTER }}/{{ RUN }}.t{{ current_cycle | strftime('%H') }}z.master.f{{ '%03d' % forecast_hour }}.grib2"]
+      - ["{{ DATA }}/GFSFLX.GrbF{{ '%02d' % forecast_hour }}", "{{ COMOUT_ATMOS_MASTER }}/{{ RUN }}.t{{ current_cycle | strftime('%H') }}z.sflux.f{{ '%03d' % forecast_hour }}.grib2"]
+      - ["{{ DATA }}/GFSPRS.GrbF{{ '%02d' % forecast_hour }}.idx", "{{ COMOUT_ATMOS_MASTER }}/{{ RUN }}.t{{ current_cycle | strftime('%H') }}z.master.f{{ '%03d' % forecast_hour }}.grib2.idx"]
+      - ["{{ DATA }}/GFSFLX.GrbF{{ '%02d' % forecast_hour }}.idx", "{{ COMOUT_ATMOS_MASTER }}/{{ RUN }}.t{{ current_cycle | strftime('%H') }}z.sflux.f{{ '%03d' % forecast_hour }}.grib2.idx"]
+
+goes:
+  config:
+    rdaod: False
+  data_in:
+    copy:
+      {% set crtm_coefficients = [
+        'amsre_aqua',
+        'imgr_g11', 'imgr_g12', 'imgr_g13', 'imgr_g15',
+        'imgr_mt1r', 'imgr_mt2', 'imgr_insat3d',
+        'seviri_m10',
+        'ssmi_f13', 'ssmi_f14', 'ssmi_f15', 'ssmis_f16', 'ssmis_f17', 'ssmis_f18', 'ssmis_f19', 'ssmis_f20',
+        'tmi_trmm',
+        'abi_gr',
+        'ahi_himawari8'
+      ] %}
+      {% for coefficient in crtm_coefficients %}
+      - ["{{ 'CRTM_FIX' | getenv }}/{{ coefficient }}.TauCoeff.bin", "{{ DATA }}/"]
+      - ["{{ 'CRTM_FIX' | getenv }}/{{ coefficient }}.SpcCoeff.bin", "{{ DATA }}/"]
+      {% endfor %}
+      {% for coefficient in ['v.seviri_m10'] %}
+      - ["{{ 'CRTM_FIX' | getenv }}/{{ coefficient }}.SpcCoeff.bin", "{{ DATA }}/"]
+      {% endfor %}
+      {% set emission_coefficients = [
+        'FASTEM4.MWwater', 'FASTEM5.MWwater', 'FASTEM6.MWwater',
+        'IGBP.IRland', 'IGBP.VISland',
+        'Nalli.IRwater',
+        'NPOESS.IRice', 'NPOESS.IRland', 'NPOESS.IRsnow',
+        'NPOESS.VISice', 'NPOESS.VISland', 'NPOESS.VISsnow', 'NPOESS.VISwater',
+        'USGS.IRland', 'USGS.VISland',
+        'WuSmith.IRwater'
+      ] %}
+      {% for coefficient in emission_coefficients %}
+      - ["{{ 'CRTM_FIX' | getenv }}/{{ coefficient }}.EmisCoeff.bin", "{{ DATA }}/"]
+      {% endfor %}
+      - ["{{ 'CRTM_FIX' | getenv }}/AerosolCoeff.bin", "{{ DATA }}/"]
+      - ["{{ 'CRTM_FIX' | getenv }}/CloudCoeff.bin", "{{ DATA }}/"]
+      - ["{{ PARMgfs }}/post/gfs/postxconfig-NT-gfs-goes.txt", "{{ DATA }}/postxconfig-NT.txt"]
+      - ["{{ COMIN_ATMOS_HISTORY }}/{{ RUN }}.t{{ current_cycle | strftime('%H') }}z.atm.f{{ '%03d' % forecast_hour }}.nc", "{{ DATA }}/{{ atmos_filename }}"]
+      - ["{{ COMIN_ATMOS_HISTORY }}/{{ RUN }}.t{{ current_cycle | strftime('%H') }}z.sfc.f{{ '%03d' % forecast_hour }}.nc", "{{ DATA }}/{{ flux_filename }}"]
+  data_out:
+    copy:
+      - ["{{ DATA }}/GFSGOES.GrbF{{ '%02d' % forecast_hour }}", "{{ COMOUT_ATMOS_MASTER }}/{{ RUN }}.t{{ current_cycle | strftime('%H') }}z.master-goes.f{{ '%03d' % forecast_hour }}.grib2"]
+      - ["{{ DATA }}/GFSGOES.GrbF{{ '%02d' % forecast_hour }}.idx", "{{ COMOUT_ATMOS_MASTER }}/{{ RUN }}.t{{ current_cycle | strftime('%H') }}z.master-goes.f{{ '%03d' % forecast_hour }}.grib2.idx"]

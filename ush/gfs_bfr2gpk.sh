@@ -1,4 +1,5 @@
-#!/bin/sh
+#! /usr/bin/env bash
+
 #########################################################################
 #									#
 # Script:  gfs_bfr2gpk							#
@@ -8,8 +9,7 @@
 #									#
 # Log:									#
 # K. Brill/HPC		04/12/05					#
-#########################################################################  
-set -x
+#########################################################################
 
 # Set GEMPAK paths.
 
@@ -17,36 +17,26 @@ set -x
 
 #  Go to a working directory.
 
-cd $DATA
-
-#  Set input directory name.
-
-#BPATH=$COMIN/bufr.t${cyc}z
-BPATH=$COMOUT/bufr.t${cyc}z
-export BPATH
+cd "${DATA}" || exit 2
 
 #  Set output directory:
-
-COMAWP=${COMAWP:-$COMOUT/gempak}
-OUTDIR=$COMAWP
-if [ ! -d $OUTDIR ]; then mkdir -p $OUTDIR; fi
+if [[ ! -d "${COMOUT_ATMOS_GEMPAK}" ]]; then mkdir -p "${COMOUT_ATMOS_GEMPAK}"; fi
 
 outfilbase=gfs_${PDY}${cyc}
 
 #  Get the list of individual station files.
 
 date
-##filelist=`/bin/ls -1 $BPATH | grep bufr`
-##rm -f bufr.combined
-##for file in $filelist; do
-##  cat $BPATH/$file >> bufr.combined
-##done
-  cat $BPATH/bufr.*.${PDY}${cyc} > bufr.combined
+cat "${COMOUT_ATMOS_BUFR}/bufr."*".${PDY}${cyc}" > bufr.combined
 date
+
+snd=${outfilbase}.snd
+sfc=${outfilbase}.sfc
+
 namsnd << EOF > /dev/null
 SNBUFR   = bufr.combined
-SNOUTF   = ${outfilbase}.snd
-SFOUTF   = ${outfilbase}.sfc
+SNOUTF   = ${snd}
+SFOUTF   = ${sfc}
 SNPRMF   = sngfs.prm
 SFPRMF   = sfgfs.prm
 TIMSTN   = 170/2150
@@ -54,20 +44,18 @@ r
 
 ex
 EOF
+
 date
 
-/bin/rm *.nts
+/bin/rm ./*.nts
 
-snd=${outfilbase}.snd
-sfc=${outfilbase}.sfc
-cp $snd $OUTDIR/.$snd
-cp $sfc $OUTDIR/.$sfc
-mv $OUTDIR/.$snd $OUTDIR/$snd
-mv $OUTDIR/.$sfc $OUTDIR/$sfc
+snd_out=${outfilbase}.soundings.bufr
+sfc_out=${outfilbase}.sfc.bufr
+cpfs "${snd}" "${COMOUT_ATMOS_GEMPAK}/${snd_out}"
+cpfs "${sfc}" "${COMOUT_ATMOS_GEMPAK}/${sfc_out}"
 
-if [ $SENDDBN = "YES" ]
-then
-   $DBNROOT/bin/dbn_alert MODEL GFS_PTYP_SFC $job $OUTDIR/$sfc
-   $DBNROOT/bin/dbn_alert MODEL GFS_PTYP_SND $job $OUTDIR/$snd
+if [[ ${SENDDBN} == "YES" ]]; then
+    "${DBNROOT}/bin/dbn_alert" MODEL GFS_PTYP_SFC "${job}" "${COMOUT_ATMOS_GEMPAK}/${sfc_out}"
+    "${DBNROOT}/bin/dbn_alert" MODEL GFS_PTYP_SND "${job}" "${COMOUT_ATMOS_GEMPAK}/${snd_out}"
 fi
-echo done > $DATA/gembufr.done
+echo "done" > "${DATA}/gembufr.done"

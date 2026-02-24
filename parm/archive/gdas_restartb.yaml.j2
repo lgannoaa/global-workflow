@@ -1,0 +1,32 @@
+gdas_restartb:
+    {% set head = "gdas.t" + cycle_HH + "z." %}
+    name: "GDAS_RESTARTB"
+    target: "{{ ATARDIR }}/{{ cycle_YMDH }}/gdas_restartb.tar"
+    required:
+        {# All time prefixes are pre-calculated in Python: offset_prefix (-3H if DOIAU), center_prefix, r_prefix_list #}
+        # Grab the surface analysis data.
+        # If IAU is on, grab the beginning of the window.
+        {% if DOIAU %}
+        {% for itile in range(1, 7) %}
+        - "{{ COMIN_ATMOS_RESTART }}/{{ offset_prefix }}.sfcanl_data.tile{{ itile }}.nc"
+        {% endfor %}
+        {% endif %}
+
+        # Regardless, always grab the center surface analysis data.
+        {% for itile in range(1, 7) %}
+        - "{{ COMIN_ATMOS_RESTART }}/{{ center_prefix }}.sfcanl_data.tile{{ itile }}.nc"
+        {% endfor %}
+
+        # Now get the restart files.
+        {% for r_prefix in r_prefix_list %}
+        {% for itile in range(1, 7) %}
+        {% for datatype in ["fv_core.res", "fv_srf_wnd.res", "fv_tracer.res", "phy_data", "sfc_data"] %}
+        - "{{ COMIN_ATMOS_RESTART }}/{{ r_prefix }}.{{datatype}}.tile{{ itile }}.nc"
+        {% if DO_CA %}
+        - "{{ COMIN_ATMOS_RESTART }}/{{ r_prefix }}.ca_data.tile{{ itile }}.nc"
+        {% endif %}
+        {% endfor %}
+        {% endfor %}
+        - "{{ COMIN_ATMOS_RESTART }}/{{ r_prefix }}.coupler.res"
+        - "{{ COMIN_ATMOS_RESTART }}/{{ r_prefix }}.fv_core.res.nc"
+        {% endfor %}

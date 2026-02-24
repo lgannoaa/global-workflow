@@ -1,0 +1,20 @@
+experiment:
+  net: gfs
+  mode: forecast-only
+  pslot: {{ 'pslot' | getenv }}
+  app: S2SW
+  resdetatmos: 1152
+  resdetocean: 0.25
+  comroot: {{ 'RUNTESTS' | getenv }}/COMROOT
+  expdir: {{ 'RUNTESTS' | getenv }}/EXPDIR
+  idate: 2019120300
+  edate: 2019120300
+  yaml: {{ HOMEgfs }}/dev/ci/cases/yamls/gfs_defaults_ci.yaml
+
+workflow:
+  engine: rocoto
+  rocoto:
+    maxtries: 2
+    cyclethrottle: 3
+    taskthrottle: 25
+    verbosity: 2

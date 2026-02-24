@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+export stack_compiler=intel
+export stack_compiler_ver=2023.2.0
+
+export stack_mpi=cray-mpich
+export stack_mpi_ver=8.1.30
+
+spack_stack_root="/ncrc/proj/epic/spack-stack"
+
+source "${HOMEgfs:-}/versions/spack.ver"

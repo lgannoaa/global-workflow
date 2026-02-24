@@ -12,7 +12,7 @@
 With the FV3GFS system, a Rocoto driven workflow is being used. This workflow builds on the experiences and work of Kate.Howard and Terry.McGuinness for the GSM, but strips down a lot of complications arising from the use of a cumbersome <b>\c para_config</b>. The <b>\c para_config</b> no longer exists in the workflow and instead a number of <b> \c config </b> files are added, one each for an individual task e.g. <b>\p config.anal</b> contains the analysis specific information. A base config called as <b>\c config.base</b> contains
 information related to the machine, super-structure, etc. The idea behind splitting the <b>\p para_config</b> into individual, smaller and managable configs is to provide a means to run any chosen task without the overhead of the full cycling framework. All the configs are located under <b>\c fv3gfs/config</b>
 
-Additionally, the structure of the <b>\c COMROT</b> directory is now modified to look like operations. This enables the use of the workflow much closer to the operational environment, with the exception of the workflow manager.
+Additionally, the structure of the <b>\c ROTDIR</b> directory is now modified to look like operations. This enables the use of the workflow much closer to the operational environment, with the exception of the workflow manager.
 
 This is a very much a work in progress and any issues should be reported back and are greatly appreciated.
 
@@ -21,19 +21,17 @@ This is a very much a work in progress and any issues should be reported back an
 To setup an experiment, a python script <b>\c setup_expt.py</b> (located in <b>\c fv3gfs/ush</b>) can be used:
 
     $> setup_expt.py -h
-    usage: setup_expt.py [-h] [--machine {HERA,WCOSS_C}] --pslot PSLOT
+    usage: setup_expt.py [-h] --pslot PSLOT
                      [--configdir CONFIGDIR] [--idate IDATE] [--icsdir ICSDIR]
-                     [--resdet RESDET] [--resens RESENS] [--comrot COMROT]
-                     [--expdir EXPDIR] [--nens NENS] [--cdump CDUMP]
+                     [--resdetatmos RESDET] [--resensatmos RESENS] [--comroot COMROOT]
+                     [--expdir EXPDIR] [--nens NENS] [--run RUN]
 
     Setup files and directories to start a GFS parallel. Create EXPDIR, copy
-    config files Create COMROT experiment directory structure, link initial
-    condition files from $ICSDIR to $COMROT
+    config files Create ROTDIR experiment directory structure, link initial
+    condition files from $ICSDIR to $ROTDIR
 
     optional arguments:
         -h, --help   show this help message and exit
-        --machine    machine name
-                        (default: WCOSS_C)
         --pslot      parallel experiment name [REQUIRED]
                         (default: None)
         --configdir  full path to directory containing the config files
@@ -42,24 +40,26 @@ To setup an experiment, a python script <b>\c setup_expt.py</b> (located in <b>\
                         (default: 2016100100)
         --icsdir     full path to initial condition directory
                         (default: /scratch4/NCEPDEV/da/noscrub/Rahul.Mahajan/ICS)
-        --resdet     resolution of the deterministic model forecast
+        --resdetatmos atmosphere resolution of the deterministic model forecast
                         (default: 384)
-        --resens     resolution of the ensemble model forecast
+        --resdetocean ocean resolution of the deterministic model forecast
+                        (default: 0. [determined automatically based on atmosphere resolution])
+        --resensatmos     resolution of the ensemble model forecast
                         (default: 192)
-        --comrot     full path to COMROT
+        --comroot    full path to COMROOT, where ROTDIR (COMROOT+PSLOT) will be created
                         (default: None)
         --expdir     full path to EXPDIR
                         (default: None)
         --nens       number of ensemble members
                         (default: 80)
-        --cdump      CDUMP to start the experiment
+        --run        RUN to start the experiment
                         (default: gdas)
 
-The above script creates directories <b>\c EXPDIR</b> and <b>\c COMROT</b>. It will make links for initial conditions from a location provided via the <b>\c --icsdir</b> argument for a chosen resolution for the control <b>\c --resdet</b> and the ensemble <b>\c --resens</b>. Experiment name is controlled by the input argument <b>\c --pslot</b>. The script will ask user input in case any of the directories already exist. It will copy experiment configuration files into the <b>\c EXPDIR</b> from <b>\c CONFIGDIR</b>.
+The above script creates directories <b>\c EXPDIR</b> and <b>\c ROTDIR</b>. It will make links for initial conditions from a location provided via the <b>\c --icsdir</b> argument for a chosen resolution for the control <b>\c --resdetatmos</b> and the ensemble <b>\c --resensatmos</b>. Experiment name is controlled by the input argument <b>\c --pslot</b>. The script will ask user input in case any of the directories already exist. It will copy experiment configuration files into the <b>\c EXPDIR</b> from <b>\c CONFIGDIR</b>.
 
 Sample initial conditions for a few resolutions are available at:<br>
-<b>Theia:</b> /scratch4/NCEPDEV/da/noscrub/Rahul.Mahajan/ICS<br>
-<b>WCOSS Cray:</b> /gpfs/hps/emc/da/noscrub/Rahul.Mahajan/ICS
+<b>Ursa/Hera:</b> /scratch3/NCEPDEV/global/role.glopara/data/ICSDIR<br>
+<b>Orion/Hercules:</b> /work2/noaa/global/role_glopara/data/ICSDIR<br>
 
 Next step is for the user to go through the individual config files (atleast <b>\c config.base</b>) and customize the experiment configuration based on user needs. A stock configuration will be provided at a later stage, but it is imperative that the user understand the steps involved in the system.
 
